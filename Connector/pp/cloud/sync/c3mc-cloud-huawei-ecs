@@ -56,7 +56,7 @@ class Ecs:
         ).list_flavors()
 
     def show(self):
-#        huawei_vpc = Vpc(self.access_id, self.access_key, self.project_id, self.region)
+        huawei_vpc = Vpc(self.access_id, self.access_key, self.project_id, self.region)
         response_data = self.get_response()
         servers = response_data["servers"]
         for server in servers:
@@ -83,14 +83,15 @@ class Ecs:
 
             # 默认内网ip
             server["_default_ip_kind_"] = "inip"
-            if list(server["addresses"]):
+            # C3TODO 231210 都柏林是一个特殊的地区, 直接获取会获取到其他vpc，然后会因为没有权限而报错
+            if list(server["addresses"]) and self.region != "eu-west-101":
                 vpc_id = list(server["addresses"])[0]
-#                vpc_info = huawei_vpc.show_vpc(vpc_id)
+                vpc_info = huawei_vpc.show_vpc(vpc_id)
 
-#                server["_default_ip_kind_"] = huawei_vpc.check_vpc_internet(vpc_id)
+                server["_default_ip_kind_"] = huawei_vpc.check_vpc_internet(vpc_id)
 
                 server["vpc_id"] = vpc_id
-#                server["vpc_name"] = vpc_info["name"]
+                server["vpc_name"] = vpc_info["name"]
 
                 self.sleep(max_times_for_get_vpc)
 
