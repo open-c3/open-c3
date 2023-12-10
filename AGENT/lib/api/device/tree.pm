@@ -18,7 +18,7 @@ any '/device/tree/bind/:type/:subtype/:uuid/:tree' => sub {
     my $error = Format->new(
         type       => qr/^[a-z\d\-_]+$/, 1,
         subtype    => qr/^[a-z\d\-_]+$/, 1,
-        uuid       => qr/^[a-z\d\-_\.\:]+$/, 1,
+        uuid       => qr/^[a-zA-Z\d\-_\.\:]+$/, 1,
         tree       => qr/^[a-zA-Z\d\-_\.\,]+$/, 1,
     )->check( %$param );
 
@@ -56,7 +56,7 @@ any '/device/tree/copy/:type/:subtype/:uuid/:tree' => sub {
     my $error = Format->new(
         type       => qr/^[a-z\d\-_]+$/, 1,
         subtype    => qr/^[a-z\d\-_]+$/, 1,
-        uuid       => qr/^[a-z\d\-_\.\:]+$/, 1,
+        uuid       => qr/^[a-zA-Z\d\-_\.\:]+$/, 1,
         tree       => qr/^[a-zA-Z\d\-_\.\,]+$/, 1,
     )->check( %$param );
 
@@ -102,7 +102,7 @@ any '/device/tree/move/:type/:subtype/:uuid/:fromtree/:totree' => sub {
     my $error = Format->new(
         type       => qr/^[a-z\d\-_]+$/, 1,
         subtype    => qr/^[a-z\d\-_]+$/, 1,
-        uuid       => qr/^[a-z\d\-_\.\:]+$/, 1,
+        uuid       => qr/^[a-zA-Z\d\-_\.\:]+$/, 1,
         fromtree   => qr/^[a-zA-Z\d\-_\.]+$/, 1,
         totree     => qr/^[a-zA-Z\d\-_\.]+$/, 1,
     )->check( %$param );
