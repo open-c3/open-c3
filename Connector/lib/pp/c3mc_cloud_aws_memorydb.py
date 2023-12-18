@@ -49,7 +49,8 @@ class LibMemoryDB:
                     # 组装自定义的资源id (ARN中可能含有"/"符号，导致平台处理出错)
                     # 格式是: 账号id-区域-名称
                     item["CustomResourceId"] = f"{parts[4]}-{parts[3]}-{item['Name']}"
-                cluster_list.append(item)
+
+                    cluster_list.append(item)
 
             # 检查是否有更多分页
             if 'NextToken' in response and response['NextToken']:
