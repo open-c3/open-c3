@@ -14,6 +14,8 @@ def main(access_id, access_key, region):
         for instance in instance_list:
             print(json.dumps(instance, default=str))
     except Exception as e:
+        if "Could not connect to the endpoint URL" in str(e):
+            return
         print(f"同步aws memorydb资源出错. access_id: {access_id}, region: {region}", file=sys.stderr) 
         raise e
 
