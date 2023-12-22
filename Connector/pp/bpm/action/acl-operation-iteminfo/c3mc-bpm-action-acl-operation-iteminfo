@@ -1,0 +1,52 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import *
+
+
+def main(params_list):
+    if not params_list:
+        return
+    
+    strategy_list = ""
+    for item in params_list:
+        item = json.loads(item)
+        strategy_list += f"""
+            源地址: {item["source_addr"]},
+            目的地址: {item["target_addr"]},
+            目的端口: {item["target_port"]},
+            协议类型: {item["protocol"]},
+            使用期限: {item["duration"]},
+            描述: {item["note"]},\n\n
+        """
+
+    data = {
+        "title": f"BPM/{json.loads(params_list[0])['bpm_uuid']}/ACL操作(含公有云安全组)" ,
+        "apply_user": f'{json.loads(params_list[0])["email"]}',
+        "content": f"""
+            申请分类: {json.loads(params_list[0])["apply_type"]},
+            功能测试: {json.loads(params_list[0])["function_test_note"]},
+            影响分析": {json.loads(params_list[0])["analysis_note"]},
+            回滚步骤: {json.loads(params_list[0])["rollback_note"]},
+            策略: {strategy_list}
+        """
+    }
+
+    safe_run_pipe_command(
+        [
+            [
+                "echo",
+                json.dumps(data),
+            ],
+            ["c3mc-bpm-action-tt"],
+        ]
+    )
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    main(l)

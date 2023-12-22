@@ -162,7 +162,9 @@ class GoogleCompute:
 
         for zone in region_zones:
             zone_instances = self.list_zone_instances(zone['name'])
-            instances.extend(zone_instances)
+            for instance in zone_instances:
+                instance["customInstanceId"] = f"{self.get_project_id()}-{instance['id']}"
+                instances.append(instance)
 
         return instances
 
@@ -175,6 +177,16 @@ class GoogleCompute:
         """
         project_id = self.credentials.project_id
         return self.service.instances().insert(project=project_id, zone=zone, body=instance_config).execute()
+
+    def start_vm(self, zone, instance_name):
+        """启动一个停止的虚拟机实例
+        """
+        project_id = self.credentials.project_id
+        return self.service.instances().start(
+            project=project_id,
+            zone=zone,
+            instance=instance_name
+        ).execute()
 
     def stop_vm(self, zone, instance_name):
         """停止虚拟机实例
@@ -225,6 +237,36 @@ class GoogleCompute:
                     ok = self.release_elastic_ip(region, m[nat_ip])
                     if not ok:
                         raise RuntimeError(f"回收弹性ip {nat_ip} 失败.")
+
+    def _set_machine_type(self, instance_name, zone, machine_type):
+        """修改虚拟机实例的机器类型
+
+        注意: 虚拟机必须是停止状态
+        """
+        project_id = self.credentials.project_id
+
+        body = {
+            "machineType": f"zones/{zone}/machineTypes/{machine_type}"
+        }
+        return self.service.instances().setMachineType(
+            project=project_id,
+            zone=zone,
+            instance=instance_name,
+            body=body
+        ).execute()
+    
+    def set_machine_type(self, instance_name, zone, machine_type):
+        """修改虚拟机实例的机器类型
+        """
+        response = self.stop_vm(zone, instance_name)
+        self._wait_for_zone_operation(zone, response["name"])
+
+        response = self._set_machine_type(instance_name, zone, machine_type)
+        self._wait_for_zone_operation(zone, response["name"])
+
+        response = self.start_vm(zone, instance_name)
+        self._wait_for_zone_operation(zone, response["name"])
+
 
     def list_instance_groups(self, region):
         """查询instance group列表

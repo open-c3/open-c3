@@ -1,0 +1,44 @@
+---
+name: 策略配置
+multi: 1
+option:
+  - name: source_addr
+    describe: 源地址
+    type: input
+
+  - name: target_addr
+    describe: 目的地址
+    type: input
+
+  - name: target_port
+    describe: 目的端口
+    type: input
+
+  - name: protocol
+    describe: 协议类型
+    type: input
+
+  - name: duration
+    describe: 使用期限
+    type: input
+
+  - name: note
+    describe: 描述
+    type: input
+
+template_argv:
+  apply_type: ${x.apply_type}
+  function_test_note: ${x.function_test_note}
+  analysis_note: ${x.analysis_note}
+  rollback_note: ${x.rollback_note}
+
+  source_addr: ${source_addr}
+  target_addr: ${target_addr}
+  target_port: ${target_port}
+  protocol: ${protocol}
+  duration: ${duration}
+  note: ${note}
+
+  bpm_uuid: ${_bpmuuid_}
+  email: '${_user_}'
+  _sys_multi_: 1
