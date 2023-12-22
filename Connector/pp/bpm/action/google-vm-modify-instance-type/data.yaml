@@ -1,0 +1,42 @@
+---
+name: 修改Google VM机器类型
+multi: 1
+option:
+  - name: account
+    describe: 账号
+    command: c3mc-display-cloud-account-list google
+    type: selectx
+
+  - name: region
+    describe: 区域
+    rely:
+      - account
+    command: c3mc-bpm-option-google-compute-list-regions | c3mc-bpm-display-field-values "{name}; {name}"
+    type: selectx
+
+  - name: instance_id
+    describe: 实例ID
+    rely:
+      - account
+      - region
+    command: c3mc-googlemodify-describe-vm-instances | c3mc-bpm-display-field-values "{name}; 名称:{name}, 类型:{machineType}"
+    type: selectx
+
+  - name: instance_type
+    describe: 新类型
+    rely:
+      - account
+      - instance_id
+    command: c3mc-googlemodify-describe-vm-instance-types | c3mc-bpm-display-field-values "{name};实例类型:{name}, 描述:{description}"
+    type: selectx
+    information: 修改vm类型有很多限制, 如果不符合gcp要求则工单报错, 请参考 https://cloud.google.com/compute/docs/import/migrate-to-new-vm?hl=zh-cn
+
+
+template_argv:
+  bpm_uuid: ${_bpmuuid_}
+
+  account: ${account}
+  region: ${region}
+
+  instance_id: ${instance_id}
+  instance_type: ${instance_type}

@@ -1,0 +1,26 @@
+---
+name: ACL操作(含公有云安全组)
+option:
+  - name: apply_type
+    describe: 申请分类
+    option: ["新增ACL策略", "修改ACL策略", "删除ACL策略"]
+    type: select
+    value: ""
+
+  - name: function_test_note
+    describe: 功能测试
+    type: input
+
+  - name: analysis_note
+    describe: 影响分析
+    type: input
+
+  - name: rollback_note
+    describe: 回滚步骤
+    type: input
+
+template_argv:
+  apply_type: ${apply_type}
+  function_test_note: ${function_test_note}
+  analysis_note: ${analysis_note}
+  rollback_note: ${rollback_note}
