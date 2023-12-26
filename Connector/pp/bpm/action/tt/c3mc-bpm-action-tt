@@ -55,9 +55,17 @@ def get_tt_content(params):
 
 def upload_attach_if_need(tt_number, params):
     if "SQL操作" in params["title"] and params["sql_input_type"] == "上传附件":
+
+        # params['sql_file'] 值格式示例 3d5102051bc97b129de27f0895e35973:test_sql.sql
+        parts = params['sql_file'].split(':')
+
+        if len(parts) < 2:
+            # 出现这种情况是因为用户选择了上传附件，但是并没有上传附件
+            return
+            
         target_file_path, clean_file = duplicate_file(
-            f"/data/open-c3-data/bpm/attachments/{params['sql_file'].split(':')[0]}", 
-            f"/data/open-c3-data/bpm/attachments/{params['sql_file'].split(':')[1]}"
+            f"/data/open-c3-data/bpm/attachments/{parts[0]}", 
+            f"/data/open-c3-data/bpm/attachments/{parts[1]}"
         )
         upload_attach(tt_number, target_file_path)
         clean_file()
