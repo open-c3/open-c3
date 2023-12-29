@@ -1,0 +1,119 @@
+download:
+  - url: "cmd:c3mc-cloud-account-list --type aws-memorydb-node |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-aws-memorydb-node --account aws --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tag --key Key --value Value | c3mc-cloud-attach-department-info | c3mc-base-json2tab "
+    datatype: tsv
+    type: database
+    subtype: aws-memorydb-node
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    ingestion-redis:
+      addr: ["Endpoint.Address", "Endpoint.Port"]
+      authpath: /data/open-c3-data/device/curr/auth/redis
+      tree: "服务树"
+      type: aws-memorydb-node
+      exclude:
+        "_ingestion_": ["NO"]
+    instancealias:
+      - name: ["uuid"]
+        value: ["Endpoint.Address", "Endpoint.Port"]
+    check:
+      col: ["实例ID"]
+      min: 0
+    util:
+      vuuid:
+        - ["Endpoint.Address", "Endpoint.Port"]
+        - Endpoint.Address
+
+      defaulttree: defaulttree.pool
+      extcol:
+        - name: audit
+          alias: 审计
+          select: ["YES", "NO"]
+        - name: remarks
+          alias: 备注
+        - name: _ingestion_
+          alias: 摄取
+          select: ["YES", "NO"]
+        - name: _buildintree_
+          alias: 内置服务树
+          readonly: 1
+
+      grpcol:
+        baseinfo:
+          - name: 实例ID
+          - name: 名称
+          - name: 描述
+          - name: 状态
+            success:
+              - available
+          - name: 区域
+          - name: 节点类型
+        system:
+          - prefix: tag.
+          - name: ARN
+          - name: Endpoint.Address
+          - name: Endpoint.Port
+          - name: 分片数
+          - name: 业务负责人
+          - name: 引擎版本
+
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" 
+    alias:
+      Name: "名称"
+      CustomNodeId: 实例ID
+      Status: "状态"
+      AvailabilityZone: 可用区
+      CreateTime: "创建时间"
+      Endpoint.Address: 节点地址
+      Endpoint.Port: 节点端口
+      CustomClusterId: 关联的集群id
+      Region: 区域
+      ClusterStatus: 关联的集群的状态
+      _oneDeptName_: 一级部门
+      _twoDeptName_: 二级部门
+      _sybDeptName_: 产品线
+      _product_owner_: 业务负责人
+      _ops_owner_: "运维负责人"
+      _department_: "部门"
+    filter:
+      - name: "account"
+        alias: 账号
+      - name: "区域"
+        alias: 区域
+      - name: "状态"
+        alias: 状态
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "产品线"
+        alias: 产品线
+      - name: "一级部门"
+        alias: 一级部门
+      - name: "二级部门"
+        alias: 二级部门
+      - name: "部门"
+        alias: 部门
+      - name: "_ingestion_"
+        alias: 摄取
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "account"
+        - "实例ID"
+        - "区域"
+      system:
+        - "状态"
+        - "__type__"
+        - "名称"
+        - "Endpoint.Address"
+        - "Endpoint.Port"
+      contact:
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"
+        - "服务树"

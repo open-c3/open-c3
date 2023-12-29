@@ -34,9 +34,9 @@ class LibMemoryDB:
 
         while True:
             if next_token:
-                response = self.client.describe_clusters(NextToken=next_token, MaxResults=100, ShowShardDetails=False)
+                response = self.client.describe_clusters(NextToken=next_token, MaxResults=100, ShowShardDetails=True)
             else:
-                response = self.client.describe_clusters(MaxResults=100, ShowShardDetails=False)
+                response = self.client.describe_clusters(MaxResults=100, ShowShardDetails=True)
 
             if len(response['Clusters']) > 0:
                 for item in response['Clusters']:
@@ -59,4 +59,28 @@ class LibMemoryDB:
                 break
 
         return cluster_list
+    
+    def list_cluster_node(self):
+        """
+
+        Returns:
+            _type_: _description_
+        """
+        memorydb_clusters = self.list_clusters()
+        data = []
+
+        for cluster in memorydb_clusters:
+            for shard in cluster["Shards"]:
+                for node in shard["Nodes"]:
+                    node["CustomClusterId"] = cluster["CustomResourceId"]
+                    node["Region"] = self.region
+                    node["ClusterStatus"] = cluster["Status"]
+                    node["Tag"] = cluster["Tag"]
+
+                    parts = node["CustomClusterId"].split("-")
+                    node["CustomNodeId"] = f"{parts[0]}-{node['Name']}"
+
+                    data.append(node)
+        
+        return data
 
