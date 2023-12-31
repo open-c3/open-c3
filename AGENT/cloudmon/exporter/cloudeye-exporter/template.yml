@@ -1,0 +1,16 @@
+---
+
+global:
+  prefix: "huaweicloud"
+  scrape_batch_size: 300
+
+auth:
+  auth_url: "https://iam.${region}.myhuaweicloud.com/v3"
+  project_name: "${region}"
+  access_key: "${ak}"
+  secret_key: "${sk}"
+  region: "${region}"
+
+metric: simple # simple or full
+services: SYS.RDS,SYS.DCS
+#services: SYS.RDS,SYS.ECS,SYS.DCS
