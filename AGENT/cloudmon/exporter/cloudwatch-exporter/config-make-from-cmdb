@@ -91,7 +91,7 @@ sub sync
 
     for my $k ( keys %data )
     {
-        $tpl =~ s/\$\{$k\}/$data{$k}/;
+        $tpl =~ s/\$\{$k\}/$data{$k}/g;
     }
 
     $data{config} = $tpl;
