@@ -68,7 +68,8 @@ return sub
         $branch =  $conf->{ref};
         $logs->die( "ref error" ) unless $branch =~ s#^refs/heads/##;
         $branch =~ s#/#._.#g;
-        $version = "release-testonly-$uuid-$branch";
+        my $tuuid = substr $uuid, 0, 8;
+        $version = "release-testonly-$tuuid-$branch";
     }
     else
     {

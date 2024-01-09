@@ -9,19 +9,19 @@ use FindBin qw( $RealBin );
 
 $| ++;
 
-my    @x = `c3mc-device-data-get curr compute aws-ec2 accountuuid | sort | uniq`;
+my    @x = `c3mc-device-data-get curr compute huawei-ecs accountuuid | sort | uniq`;
 chomp @x;
 
 my @id;
 for( @x )
 {
-    next unless $_ =~ /aws\.ec2\.(\d+)$/;
+    next unless $_ =~ /huawei\.ecs\.(\d+)$/;
     push @id, $1;
 }
 
 @id = sort{ $a <=> $b } @id;
 
-my    @cont = `cat /data/Software/mydan/AGENT/device/conf/account/aws.ec2`;
+my    @cont = `cat /data/Software/mydan/AGENT/device/conf/account/huawei.ecs`;
 chomp @cont;
 
 my @contx = map{ $cont[$_-1] }@id;
@@ -83,7 +83,7 @@ sub igrep
 sub sync
 {
     my @x = split /\s+/, shift @_;
-    my %data = ( name => $x[0], ak => $x[1], sk => $x[2], region => $x[3] );
+    my %data = ( name => $x[0], ak => $x[1], sk => $x[2], region => $x[4] );
 
     return unless igrep( $x[0], $x[3] );
 
@@ -96,6 +96,6 @@ sub sync
 
     $data{config} = $tpl;
     my $config = encode_base64( encode('UTF-8', $data{config}) );
-    todb( name => "cmdb-aws-$data{name}-$data{region}", type => "cloudwatch-exporter", describe => "sys sync by: config-make-from-cmdb", config => $config );
+    todb( name => "cmdb-huawei-$data{name}-$data{region}", type => "cloudeye-exporter", describe => "sys sync by: config-make-from-cmdb", config => $config );
 }
 map{ sync( $_ ); }@contx;

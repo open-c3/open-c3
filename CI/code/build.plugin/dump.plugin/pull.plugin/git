@@ -60,20 +60,20 @@ return sub
 
     my $tagger;
     my $tag_info = '';
-    if( $name =~ /^release-testonly-[0-9a-z]{40}/ )
+    if( $name =~ /^release-testonly-[0-9a-z]{8}/ )
     {
         my ( $commitid, $event_name, $branch );
 
-        if( $name =~ /^release-testonly-([0-9a-z]{40})_([01]{1})-([a-zA-Z0-9][a-zA-Z0-9\-\._])$/ )
+        if( $name =~ /^release-testonly-([0-9a-z]{8})_([01]{1})-([a-zA-Z0-9][a-zA-Z0-9\-\._])$/ )
         {
             ( $commitid, $event_name, $branch ) = ( $1, $2, $3 );
             $event_name = $event_name ? 'create' : 'delete';
         }
-        elsif( $name =~ /^release-testonly-([0-9a-z]{40})-([a-zA-Z0-9][a-zA-Z0-9\-\._]+)$/ )
+        elsif( $name =~ /^release-testonly-([0-9a-z]{8})-([a-zA-Z0-9][a-zA-Z0-9\-\._]+)$/ )
         {
             ( $commitid, $event_name, $branch ) = ( $1, 'push', $2 );
         }
-        elsif( $name =~ /^release-testonly-([0-9a-z]{40})$/ )
+        elsif( $name =~ /^release-testonly-([0-9a-z]{8})$/ )
         {
             ( $commitid, $event_name, $branch ) = ( $1, 'push', 'master' );
         }
@@ -92,7 +92,7 @@ return sub
         else
         {
             $logs->die( "clone error:$!" )
-                if system "cd '$temppath' && rm -rf data data.tmp info && $ctrl clone --depth 1 --progress -b $branch --recursive $addr data.tmp && mkdir -p info && cd data.tmp && git reset --hard $commitid && cd .. && mv data.tmp/.git info/ && mv data.tmp data && echo '$version' > info/version && echo '$branch' > info/branch && echo '$event_name' > info/event_name";
+                if system "cd '$temppath' && rm -rf data data.tmp info && $ctrl clone --progress -b $branch --recursive $addr data.tmp && mkdir -p info && cd data.tmp && git reset --hard $commitid && cd .. && mv data.tmp/.git info/ && mv data.tmp data && echo '$version' > info/version && echo '$branch' > info/branch && echo '$event_name' > info/event_name";
         }
 
         my $t = eval{ $db->query( "select `tagger` from openc3_ci_version where projectid='$projectid' and name='$name'" )};  
