@@ -1,9 +1,21 @@
 #!/bin/bash
-c3mc-device-data-get-csv curr compute    huawei-ecs account 所在可用区 实例类型 flavor.vcpus 内存  > huawei-ecs.csv
-c3mc-device-data-get-csv curr networking huawei-elb 区域                                           > huawei-els.csv
-c3mc-device-data-get-csv curr storage    huawei-ecs-volume 区域 容量                               > huawei-ecs-volume.csv
-c3mc-device-data-get-csv curr storage    huawei-kafka 区域 消息存储空间 已使用的消息存储空间       > huawei-kafka.csv
-c3mc-device-data-get-csv curr storage    huawei-obs 区域                                           > huawei-obs.csv
-c3mc-device-data-get-csv curr database   huawei-dds 区域 groups.0.volume.size                      > huawei-dds.csv
-c3mc-device-data-get-csv curr database   huawei-rds 区域 实例规格 mem cpu volume.siz  volume.type  > huawei-rds.csv
-c3mc-device-data-get-csv curr database   huawei-redis 区域 实例规格 最大内存                       > huawei-redis.csv
+
+c3mc-device-data-get-csv curr compute    huawei-ecs   account 实例ID 名称 状态 操作系统 实例类型 flavor.vcpus 内存  内网IP 公网IP tags                            > huawei-ecs.csv
+c3mc-device-data-get-csv curr database   huawei-rds   account 实例ID 名称 状态 区域 实例规格 cpu mem                                                              > huawei-rds.csv
+c3mc-device-data-get-csv curr database   huawei-redis account 实例ID 名称 状态 区域 实例规格 capacity ip port                                                     > huawei-redis.csv
+c3mc-device-data-get-csv curr database   huawei-dds   account 实例ID 名称 状态                                                                                    > huawei-dds.csv
+c3mc-device-data-get-csv curr networking huawei-elb   account 实例ID 名称 状态 vip_address                                                                        > huawei-elb.csv
+c3mc-device-data-get-csv curr storage    huawei-kafka account 实例ID 名称 状态 消息存储空间 已使用的消息存储空间 Kafka实例的分区数量 实例连接IP地址 实例连接端口  > huawei-kafka.csv
+
+c3mc-device-data-get-csv curr compute    aliyun-ecs   account 实例ID 名称 状态 操作系统 实例类型 Cpu Memory  内网IP 公网IP tags                                   > aliyun-ecs.csv
+c3mc-device-data-get-csv curr database   aliyun-rds   account 实例ID 区域  ConnectionString Port tags                                                             > aliyun-rds.csv
+c3mc-device-data-get-csv curr database   aliyun-redis account 实例ID 名称 区域  ConnectionDomain Port tags                                                        > aliyun-redis.csv
+
+c3mc-device-data-get-csv curr networking aws-alb      account 实例ID 区域 DNSName                                                                                 > aws-alb.csv
+c3mc-device-data-get-csv curr database   aws-dynamodb account 实例ID 名称 状态 区域 tags                                                                          > aws-dynamodb.csv
+c3mc-device-data-get-csv curr compute    aws-ec2      account 实例ID 名称 状态 操作系统 实例类型 CpuOptions.CoreCount  内网IP 公网IP tags                         > aws-ec2.csv
+c3mc-device-data-get-csv curr storage    aws-kafka    account 实例ID 类型 tags                                                                                    > aws-kafka.csv
+c3mc-device-data-get-csv curr database   aws-rds      account 实例ID 名称 状态 区域 实例类型 _cpu_ _memory_ tags                                                  > aws-rds.csv
+c3mc-device-data-get-csv curr database   aws-redis    account 实例ID 名称 状态 区域 实例类型 EndpointAddress EndpointPort  tags                                   > aws-redis.csv
+c3mc-device-data-get-csv curr networking aws-nlb      account 实例ID 区域 DNSName                                                                                 > aws-nlb.csv
+c3mc-device-data-get-csv curr database   aws-rds-cluster account 实例ID 名称 状态 区域  tags                                                                      > aws-rds-cluster.csv
