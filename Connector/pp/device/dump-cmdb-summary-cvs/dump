@@ -1,0 +1,9 @@
+#!/bin/bash
+c3mc-device-data-get-csv curr compute    huawei-ecs account 所在可用区 实例类型 flavor.vcpus 内存  > huawei-ecs.csv
+c3mc-device-data-get-csv curr networking huawei-elb 区域                                           > huawei-els.csv
+c3mc-device-data-get-csv curr storage    huawei-ecs-volume 区域 容量                               > huawei-ecs-volume.csv
+c3mc-device-data-get-csv curr storage    huawei-kafka 区域 消息存储空间 已使用的消息存储空间       > huawei-kafka.csv
+c3mc-device-data-get-csv curr storage    huawei-obs 区域                                           > huawei-obs.csv
+c3mc-device-data-get-csv curr database   huawei-dds 区域 groups.0.volume.size                      > huawei-dds.csv
+c3mc-device-data-get-csv curr database   huawei-rds 区域 实例规格 mem cpu volume.siz  volume.type  > huawei-rds.csv
+c3mc-device-data-get-csv curr database   huawei-redis 区域 实例规格 最大内存                       > huawei-redis.csv

@@ -1,0 +1,18 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use utf8;
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 time|curr type subtype col1 ... coln
+
+=cut
+
+my ( $curr, $type, $subtype, @col ) = @ARGV;
+die "argv err" unless @col;
+
+printf "%s\n", join ",", @col;
+system "c3mc-device-data-get @ARGV | sed 's/\t/,/g'";

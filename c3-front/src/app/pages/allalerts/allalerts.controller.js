@@ -14,7 +14,7 @@
         vm.claimStatus = false;
         vm.alarmLevel = '';
         vm.levelOption = [
-          { label: 'C3T.全部级别', value: '' },
+          { label: 'All Level', value: '' },
           { label: 'level1', value: 'level1' },
           { label: 'level2', value: 'level2' },
           { label: 'level3', value: 'level3', },
