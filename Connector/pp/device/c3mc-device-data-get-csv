@@ -15,4 +15,4 @@ my ( $curr, $type, $subtype, @col ) = @ARGV;
 die "argv err" unless @col;
 
 printf "%s\n", join ",", @col;
-system "c3mc-device-data-get @ARGV | sed 's/\t/,/g'";
+system "c3mc-device-data-get @ARGV | sed 's/,/;/g' | sed 's/\t/,/g'";
