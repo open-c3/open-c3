@@ -16,28 +16,28 @@
 #
 
 upstream agent_api_nodequery{
-  server 127.0.0.1:65212;
-  server 127.0.0.1:65112;
+  server 127.0.0.1:65212 max_fails=88888888;
+  server 127.0.0.1:65112 max_fails=33333333;
 }
 
 upstream agent_api_mysqlquery{
-  server 127.0.0.1:65213;
-  server 127.0.0.1:65113;
+  server 127.0.0.1:65213 max_fails=88888888;
+  server 127.0.0.1:65113 max_fails=33333333;
 }
 
 upstream agent_api_redisquery{
-  server 127.0.0.1:65214;
-  server 127.0.0.1:65114;
+  server 127.0.0.1:65214 max_fails=88888888;
+  server 127.0.0.1:65114 max_fails=33333333;
 }
 
 upstream agent_api_mongodbquery{
-  server 127.0.0.1:65215;
-  server 127.0.0.1:65115;
+  server 127.0.0.1:65215 max_fails=88888888;
+  server 127.0.0.1:65115 max_fails=33333333;
 }
 
 upstream agent_api_nodeextquery{
-  server 127.0.0.1:65216;
-  server 127.0.0.1:65116;
+  server 127.0.0.1:65216 max_fails=88888888;
+  server 127.0.0.1:65116 max_fails=33333333;
 }
 
 server {
