@@ -25,7 +25,7 @@ get '/release' => sub {
 
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf "select status from openc3_ci_project where id in ( %s )", join ',', @id
+            sprintf "select status from openc3_ci_project where groupid in ( %s )", join ',', @id
             )};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
