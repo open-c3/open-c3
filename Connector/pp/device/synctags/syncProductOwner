@@ -1,0 +1,58 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use utf8;
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $conf = YAML::XS::LoadFile '/data/Software/mydan/Connector/pp/cloud/control/conf.yml';
+
+sub getproductbytree
+{
+    my $tree = shift @_;
+    my %tree;
+    for( split /,/, $tree )
+    {
+        my @subtree = split /\./, $_; 
+        next if @subtree < 2;
+        my $x = join '.', splice @subtree, 0, 2; 
+        $tree{$x}++;
+
+    }
+    die "tree mixed\n" if keys %tree > 1;
+    return undef unless keys %tree;
+    return (keys %tree)[0];
+}
+
+my $productowner = YAML::XS::LoadFile "ProductOwner.yml";
+
+sub run
+{
+    my ( $type, $subtype ) = @_;
+    my @x = `c3mc-device-data-get curr '$type' '$subtype' uuid 业务负责人 服务树`;
+    chomp @x;
+    for( @x )
+    {
+        my ( $uuid, $product, $tree ) = split /\t/, $_;
+        my $newproduct = eval{ getproductbytree($tree) || 'pool';};
+        if( $@ )
+        {
+            warn "Error: $type;$subtype;$uuid;$tree $@";next;
+        }
+        next unless $newproduct = $productowner->{$newproduct};
+        next if $product && $product eq $newproduct;
+        print "c3mc-cloud-control --type  '$type' --subtype '$subtype' --uuid '$uuid' --ctrl tag-add 'ProductOwner=$newproduct'\n";
+    }
+}
+
+for my $name ( keys %$conf )
+{
+    next unless $conf->{$name}{'tag-add'};
+    my ( $type, $subtype ) = split /\./, $name;
+    run( $type, $subtype )
+}
