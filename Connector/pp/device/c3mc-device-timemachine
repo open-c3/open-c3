@@ -9,7 +9,6 @@ use POSIX;
 
 =cut
 
-my $date = POSIX::strftime( "%Y%m%d",        localtime );
 my $time = POSIX::strftime( "%Y%m%d-%H%M%S", localtime );
 
 my $dist = "/data/open-c3-data/device/timemachine";
@@ -32,7 +31,11 @@ for my $x ( @x )
     $x{ $d }{ $x } = 1;
 }
 
-delete $x{ $date };
+for my $i ( 0 .. 2 )
+{
+    my $date = POSIX::strftime( "%Y%m%d", localtime(time - 86400*$i) );
+    delete $x{ $date };
+}
 
 sub keep
 {
