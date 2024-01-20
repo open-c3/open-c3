@@ -54,6 +54,7 @@ any '/variable/update/:projectid/:jobuuid/:token/:name/:option' => sub {
         token => qr/^[a-zA-Z0-9]+$/, 1, 
         name => qr/^[a-zA-Z0-9,_]+$/, 1,
         option => qr/^[a-zA-Z0-9,_\.\-@]+$/, 1,
+        updatevalue => qr/^\d+$/, 0,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
@@ -65,8 +66,9 @@ any '/variable/update/:projectid/:jobuuid/:token/:name/:option' => sub {
 
     return +{ stat => $JSON::false, info => "token error" } if $md5 ne $param->{token};
 
+    my $updatecol = $param->{updatevalue} ? "value" : "option";
     eval{
-        $api::mysql->execute( "update openc3_job_variable set `option`='$param->{option}'
+        $api::mysql->execute( "update openc3_job_variable set `$updatecol`='$param->{option}'
             where jobuuid='$param->{jobuuid}' and name='$param->{name}'");
     };
  
