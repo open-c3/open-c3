@@ -45,7 +45,7 @@
         };
 
         vm.saveextcol = function(){
-            $http.post('/api/agent/device/extcol/' + type + '/' + subtype +'/' + vm.uuid + '/' + vm.name, { "data": vm.data } ).success(function(data){
+            $http.post('/api/agent/device/extcol/' + type + '/' + subtype +'/' + vm.uuid + '/' + vm.name, { "data": vm.data, "treeid": vm.treeid } ).success(function(data){
                 if(data.stat == true) 
                 { 
                     toastr.success("操作完成");
