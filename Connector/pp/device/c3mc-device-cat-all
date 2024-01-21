@@ -51,7 +51,7 @@ for ( glob "$path/*/*/data.tsv" )
         $res{ uuid     } = $data{ Encode::encode('utf8', $colmap->{ uuid     } ) };
         $res{ treename } = $data{ Encode::encode('utf8', $colmap->{ treename } ) };
 
-        map{ $res{ $_ } = $data{  $_ }; }qw( account accountuuid 部门 产品线 一级部门 二级部门 业务负责人 运维负责人 audit );
+        map{ $res{ $_ } = $data{  $_ }; }qw( account accountuuid 部门 产品线 一级部门 二级部门 业务负责人 运维负责人 audit remarks );
 
         my $treenamcol = Encode::encode('utf8', $colmap->{ treename } );
         map{ $data{ $_ } = OPENC3::Tree::merge( $data{ $_ } ) if $data{ $_ }; }( $treenamcol );
@@ -91,7 +91,7 @@ sub luxation
     return %res ? 1 : 0;
 }
 
-my @col = qw( account accountuuid type subtype uuid baseinfo contact system treename luxation audit 部门 产品线 一级部门 二级部门 业务负责人 运维负责人 raw );
+my @col = qw( account accountuuid type subtype uuid baseinfo contact system remarks treename luxation audit 部门 产品线 一级部门 二级部门 业务负责人 运维负责人 raw );
 @col = split /,/, $o{col} if $o{col};
 
 exit unless @res;

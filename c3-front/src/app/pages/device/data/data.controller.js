@@ -184,6 +184,28 @@
             });
         };
 
+        vm.showremarks = function (uuid, type, subtype ) {
+            $uibModal.open({
+                templateUrl: 'app/pages/device/data/remarks.html',
+                controller: 'DeviceDataRemarksController',
+                controllerAs: 'devicedataremarks',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    getGroup: function () {return vm.getGroupInfo},
+                    uuid: function () {return uuid},
+                    type: function () {return type},
+                    subtype: function () {return subtype},
+                    treeid: function () {return vm.treeid},
+                    name: function () {return name},
+                    homereload: function () {return vm.reload},
+                    selectedtimemachine: function () {return vm.selectedtimemachine},
+                }
+            });
+        };
+
         vm.showTypeOperate = {
           blank: function (uuid, type, subtype, config) {
             $http.post(`/api/agent/device/detail/${type}/${subtype}/${vm.treeid}/${uuid}?timemachine=${vm.selectedtimemachine}`, { 'exturl': config['url'] }).success(function (data) {

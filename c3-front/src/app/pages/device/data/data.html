@@ -127,6 +127,10 @@
                         <td width="150" filter="{subtype: 'text'}" data-title="'C3T.资源类型'|translate">
                             <a ng-click="devicedata.showdetail( m.uuid, m.type, m.subtype )" style="cursor:pointer;color: #339094;" >{{m.subtype}}</a>
                         </td>
+                        <td width="360" filter="{remarks: 'text'}" data-title="'C3T.备注'|translate">
+                            {{m.remarks}}
+                             <i ng-if="devicedata.selectedtimemachine=='curr'" class="fa fa-edit fa-1x" aria-hidden="true" ng-click="devicedata.showremarks( m.uuid, m.type, m.subtype )" uib-tooltip="{{'C3T.编辑'|translate}}" style="cursor:pointer;" ></i>
+                        </td>
                         <td width="360" class="line-feed" filter="{baseinfo: 'text'}" data-title="'C3T.基本信息'|translate">{{m.baseinfo}}</td>
                         <td width="360" filter="{system: 'text'}" data-title="'C3T.系统信息'|translate">
                             <div ng-if="m.match=='2'" style="color: green;" >{{m.system}}</div>
