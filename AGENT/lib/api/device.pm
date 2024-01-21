@@ -199,6 +199,7 @@ any '/device/data/:type/:subtype/:treeid' => sub {
             type    => $ctype,
             subtype => $csubtype,
             match   => $searchmatch,
+            remarks => $d{ remarks } || "",
             map{
                 $_ => join( ' | ', map{ $_ =~ s/@[a-z0-9]+\.[a-z0-9]+//g; $_ }map{ $d{ $_ } || '' }@{ $outline->{ $_ } } )
             }qw( uuid baseinfo system contact )
@@ -239,10 +240,10 @@ any '/device/data/:type/:subtype/:treeid' => sub {
     my @toxlsxtitle = ();
     if( $param->{toxlsx} )
     {
-        my %len = map{ $_ => 1 }qw( subtype baseinfo system contact );
+        my %len = map{ $_ => 1 }qw( subtype baseinfo system contact remarks );
         for my $x ( @re )
         {
-            for my $col ( qw( subtype baseinfo system contact ) )
+            for my $col ( qw( subtype baseinfo system contact remarks ) )
             {
                 next unless defined $x->{$col};
                 my $tmp = $x->{$col};
@@ -258,7 +259,7 @@ any '/device/data/:type/:subtype/:treeid' => sub {
                 }
             }
         }
-        for my $col ( qw( subtype baseinfo system contact ) )
+        for my $col ( qw( subtype baseinfo system contact remarks ) )
         {
             map{ push @toxlsxtitle, "$col$_" } 1 .. $len{$col};
         }
