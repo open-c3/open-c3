@@ -15,7 +15,7 @@
             }
         });
 
-    function DeviceDataRemarksController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, uuid, $scope, $injector, treeid , type, subtype, homereload, selectedtimemachine ) {
+    function DeviceDataRemarksController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, uuid, $scope, $injector, treeid , type, subtype, homereload, selectedtimemachine, id, updateremarks ) {
 
         var vm = this;
 
@@ -23,6 +23,7 @@
         vm.type = type;
         vm.subtype = subtype;
         vm.uuid = uuid;
+        vm.id = id;
 
         var toastr = toastr || $injector.get('toastr');
 
@@ -45,11 +46,12 @@
         };
 
         vm.saveextcol = function(){
-            $http.post('/api/agent/device/extcol/' + type + '/' + subtype +'/' + vm.uuid + '/' + vm.name, { "data": vm.data } ).success(function(data){
+            $http.post('/api/agent/device/extcol/' + type + '/' + subtype +'/' + vm.uuid + '/' + vm.name, { "data": vm.data, "treeid": vm.treeid } ).success(function(data){
                 if(data.stat == true) 
                 { 
                     toastr.success("操作完成");
                     vm.cancel();
+                    updateremarks(vm.id,vm.data);
                     //homereload();
                 } else { 
                     toastr.error("操作失败:" + data.info)

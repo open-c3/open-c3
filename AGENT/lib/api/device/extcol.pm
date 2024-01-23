@@ -54,7 +54,7 @@ post '/device/extcol/:type/:subtype/:uuid/:name' => sub {
     $data =~ s/\t//g;
     $data =~ s/\n//g;
 
-    my $pmscheck = api::pmscheck( 'openc3_job_root' );
+    my $pmscheck = api::pmscheck( 'openc3_job_control', $param->{treeid} && $param->{treeid} =~ /^\d+$/ ? $param->{treeid} : 0 );
     return $pmscheck if $pmscheck;
 
     eval{

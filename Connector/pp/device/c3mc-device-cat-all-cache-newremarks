@@ -1,0 +1,57 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0 ctrl
+ $0 ctrl --timemachine curr
+
+=cut
+
+my $rawargv = join " ", @ARGV;
+my $ctrl = shift @ARGV;
+
+die "ctrl err" unless $ctrl && ( $ctrl eq 'get' || $ctrl eq 'set' );
+
+my $argv = join " ", @ARGV;
+
+my $timemachine = $argv =~ /\-\-timemachine\s+([^\s]+)\s*/ ? $1 : 'curr';
+
+exec "c3mc-device-cat-all-cache $rawargv" unless $timemachine eq 'curr';
+
+my @data = `c3mc-device-cat-all-cache $rawargv`;
+chomp @data;
+
+exit unless @data > 1;
+my $title = shift @data;
+my @title = split /\t/, $title;
+
+my %remarks;
+if( $timemachine eq 'curr' )
+{
+    my @extcol = `c3mc-base-db-get -t openc3_device_extcol type subtype uuid data -f "name='remarks'"`;
+    chomp @extcol;
+
+    for( grep{ /^[a-zA-Z0-9]/ }@extcol )
+    {
+        my ( $type, $subtype, $uuid, $data ) = split /;/, $_, 4;
+        $remarks{ $type }{ $subtype }{$uuid} = $data;
+    }
+}
+
+print "$title\n";
+for my $data( @data )
+{
+    my @dat = split /\t/, $data;
+    my %data = map{ $title[$_] => $dat[$_] }0 .. $#title;
+ 
+    my ( $type, $subtype, $uuid ) = @data{qw( type subtype 实例ID )};
+    if( $remarks{$type} && $remarks{$type}{$subtype} && defined $remarks{$type}{$subtype}{$uuid} )
+    {
+        $data{remarks} = $remarks{$type}{$subtype}{$uuid};
+    }
+
+    printf "%s\n", join "\t", map{ $data{$_} //''}@title;
+}

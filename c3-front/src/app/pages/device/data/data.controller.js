@@ -184,7 +184,11 @@
             });
         };
 
-        vm.showremarks = function (uuid, type, subtype ) {
+        vm.newremarks = {};
+        vm.updateremarks = function (id, data) {
+            vm.newremarks[id] = data;
+        }
+        vm.showremarks = function (id,uuid, type, subtype ) {
             $uibModal.open({
                 templateUrl: 'app/pages/device/data/remarks.html',
                 controller: 'DeviceDataRemarksController',
@@ -202,6 +206,8 @@
                     name: function () {return name},
                     homereload: function () {return vm.reload},
                     selectedtimemachine: function () {return vm.selectedtimemachine},
+                    id: function () {return id},
+                    updateremarks: function () {return vm.updateremarks},
                 }
             });
         };
