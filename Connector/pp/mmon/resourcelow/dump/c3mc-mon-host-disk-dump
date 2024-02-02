@@ -1,0 +1,54 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my %data;
+for my $type ( qw( size used ) )
+{
+    my @x = `c3mc-mon-host-disk-$type-dump`;
+    chomp @x;
+    for ( @x )
+    {
+        my ( $host, $path, $v ) = split /\t/, $_;
+        $data{$host}{$path}{$type} = $v;
+    }
+}
+
+my @x = `cat /data/Software/mydan/AGENT/conf/promesd.temp`;
+chomp @x;
+
+my %ip;
+for( @x )
+{
+    my ( $id, $ip ) = split /;/, $_;
+    next unless $id && $ip && $id =~ /^\d+$/ && $ip =~ /^\d+\.\d+\.\d+\.\d+$/;
+    $ip{$ip}{$id} ++;
+}
+
+my @treemap = `c3mc-base-treemap`;
+chomp @treemap;
+my %treeid2name;
+for( @treemap )
+{
+    my ( $id, $name ) = split /;/, $_;
+    $treeid2name{$id} = $name;
+}
+
+printf "%s\n", join "\t", qw( 实例ID 服务树 IP 挂载点 大小 使用率 );
+for my $ip ( keys %ip )
+{
+    my $treeids = join ',', map{ $treeid2name{$_} // 'unnkown' }sort keys %{$ip{$ip}};
+    my $dd = $data{$ip};
+    for my $mountpath ( sort keys %$dd )
+    {
+        printf "%s\n", join "\t", "$ip:$mountpath", $treeids, $ip, $mountpath, $dd->{$mountpath}{size} // 'unknown', $dd->{$mountpath}{used} // 'unknown';
+    }
+}
