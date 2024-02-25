@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -o pipefail
+
+accountfile=/data/Software/mydan/Connector/pp/cloud/extend-sync/openstack/account
+test -f $accountfile || exit
+
+cat $accountfile |xargs -i{} bash -c "c3mc-cloud-openstack-host {}"
