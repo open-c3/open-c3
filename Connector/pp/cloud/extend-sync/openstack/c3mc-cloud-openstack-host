@@ -1,0 +1,40 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+from openstack import connection
+
+def get_openstack_hosts(cluster_name, auth_url, username, password, project_name, user_domain_name, project_domain_name):
+    conn = connection.Connection(
+        auth_url = auth_url,
+        username = username,
+        password = password,
+        project_name = project_name,
+        user_domain_name = user_domain_name,
+        project_domain_name = project_domain_name
+    )
+
+    hosts = conn.compute.servers()
+
+    for host in hosts:
+        ipaddr = next((t["addr"] for i in host.addresses.values() for t in i), 'null')
+
+        instance = {
+            "ip": ipaddr,
+            "uuid": host.id,
+            "name": host.name,
+            "status": host.status,
+            "falvor_name": host.flavor["original_name"],
+            "falvor_ram": host.flavor["ram"],
+            "falvor_vcpus": host.flavor["vcpus"],
+            "falvor_swap": host.flavor["swap"],
+            "falvor_disk": host.flavor["disk"],
+            "cluster": cluster_name,
+            "project": project_name,
+        }
+
+        print(json.dumps(instance, default=str))
+
+if __name__ == "__main__":
+    get_openstack_hosts(*sys.argv[1:])
