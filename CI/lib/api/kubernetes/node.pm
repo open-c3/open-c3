@@ -149,7 +149,7 @@ post '/kubernetes/node/drain' => sub {
     if( ref $param->{node} eq 'ARRAY' )
     {
          my $nodes = join " ", @node;
-         $cmd = "echo $nodes|xargs -n 1|xargs -i{} bash -c \"$kubectl drain '{}' --ignore-daemonsets 2>&1 || exit 255\"";
+         $cmd = "echo $nodes|xargs -n 1|xargs -i{} bash -c \"$kubectl drain '{}' --ignore-daemonsets --force 2>&1 || exit 255\"";
     }
 
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
