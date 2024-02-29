@@ -1,0 +1,13 @@
+#!/bin/bash
+
+TASK=$1
+if [ "X" == "X$TASK"  ]; then
+    echo "./$0 taskname"
+    exit 1
+fi
+set -o pipefail
+
+accountfile=/data/Software/mydan/Connector/pp/cloud/extend-sync/ucloud/account
+test -f $accountfile || exit
+
+cat $accountfile |xargs -i{} bash -c "c3mc-cloud-ucloud-$TASK {}"
