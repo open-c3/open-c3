@@ -1,0 +1,86 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+sys.path.append("/data/Software/mydan/Connector/pp/cloud/extend-sync/ucloud/lib")
+import requests
+import json
+from ucloud.core import auth
+from region_info import Region_api
+from project_id import Projectid_api
+
+class Udbmysql_api():
+    
+    def __init__(self, public_key, private_key, projectid, region, classtype):
+        self.public_key = public_key
+        self.private_key = private_key
+        self.offset = 0
+        self.projectid = projectid
+        self.region = region
+        self.classtype = classtype
+    
+    url = 'https://api.ucloud.cn'
+
+    def init_params(self):
+        cred = auth.Credential(
+            self.public_key,
+            self.private_key,
+        )
+        params = {"Action": "DescribeUDBInstance", "ProjectId":self.projectid ,"Region":self.region, "ClassType": self.classtype, "Offset":self.offset, "Limit":100}
+        signature = cred.verify_ac(params)
+        params["Signature"] = signature
+        return params
+
+    def get_total_count(self):
+        params = self.init_params()
+        response = requests.get(Udbmysql_api.url, params=params).json()
+        total_count = response["TotalCount"]
+        return total_count
+
+    def get_mysql_info(self,accountname):
+        params = self.init_params()
+        total_count = self.get_total_count()
+
+        try:
+            frequency=total_count//100+1
+            mysql_list=[]
+            while(frequency):
+                responsed = requests.get(Udbmysql_api.url, params=params).json()
+                udbinfo = responsed["DataSet"]
+                self.offset += 100
+                params = self.init_params()
+                frequency-=1
+                for udb in udbinfo:
+                    instance = {
+                        "accountname": accountname,
+                        "uuid": udb["DBId"],
+                        "name": udb["Name"],
+                        "dbtype": udb["DBTypeId"],
+                        "vip": udb["VirtualIP"],
+                        "config": str(udb["CPU"]) + "C" + str(udb["MemoryLimit"] / 1000)[:-2] + 'G' + str(udb["DiskSpace"]) + 'G',
+                        "region": udb["Zone"],
+                        "status": udb["State"]
+                    }
+                    udb.update(instance)
+                    print(json.dumps(udb,default=str))
+        except Exception as e:
+            print(e)
+            raise
+
+if __name__ == "__main__":
+    accountname, public_key, private_key = sys.argv[1:4]
+    
+    sql_type = {"mysql": "SQL","mongo": "NOSQL","postgresql": "postgresql"}
+    
+    region_pro = Region_api(public_key=public_key,private_key=private_key)
+    region_list = region_pro.get_region_info()
+    
+    project_pro = Projectid_api(public_key=public_key,private_key=private_key)
+    projectid_list = project_pro.get_projectid_info()
+    
+    all_mysql = []
+    for projectid in projectid_list:
+        for dbname in sql_type.keys():
+            for region in region_list: 
+                pro = Udbmysql_api(public_key=public_key,private_key=private_key,region=region, projectid=projectid["ProjectId"],classtype=sql_type[dbname])
+                pro.get_mysql_info( accountname )

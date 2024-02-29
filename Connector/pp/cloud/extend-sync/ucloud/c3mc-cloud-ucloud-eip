@@ -1,0 +1,81 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+sys.path.append("/data/Software/mydan/Connector/pp/cloud/extend-sync/ucloud/lib")
+
+import requests
+import json
+from ucloud.core import auth
+from region_info import Region_api
+from project_id import Projectid_api
+
+class eip_api():
+    
+    def __init__(self, public_key, private_key, projectid, region):
+        self.public_key = public_key
+        self.private_key = private_key
+        self.offset = 0
+        self.projectid = projectid
+        self.region = region
+    
+    url = 'https://api.ucloud.cn'
+
+    def init_params(self):
+        cred = auth.Credential(
+            self.public_key,
+            self.private_key,
+        )
+        params = {"Action": "DescribeEIP", "ProjectId":self.projectid ,"Region":self.region,"Offset":self.offset, "Limit":100}
+        signature = cred.verify_ac(params)
+        params["Signature"] = signature
+        return params
+
+    def get_total_count(self):
+        params = self.init_params()
+        response = requests.get(eip_api.url, params=params).json()
+        total_count = response["TotalCount"]
+        return total_count
+
+    def get_host_info(self,accoutname):
+        params = self.init_params()
+        total_count = self.get_total_count()
+
+        if total_count:
+            try:
+                frequency=total_count//100+1
+                while(frequency):
+                    responsed = requests.get(eip_api.url, params=params).json()
+                    eip_info = responsed["EIPSet"]
+                    self.offset += 100
+                    params = self.init_params()
+                    frequency-=1
+                    for eip in eip_info:
+                        instance = {
+                            "accountname": accoutname,
+                            "uuid": eip["EIPId"],
+                            "name": eip["Name"],
+                            "ip": eip["EIPBinding"]["EIP"],
+                            "bandwidth": str(eip["Bandwidth"]),
+                            "region": self.region,
+                        }
+                        eip.update(instance)
+                        print(json.dumps(eip,default=str))
+            except Exception as e:
+                print(e)
+                raise
+                
+if __name__ == "__main__":
+    accountname, public_key, private_key = sys.argv[1:4]
+
+    region_pro = Region_api(public_key=public_key,private_key=private_key)
+    region_list = region_pro.get_region_info()
+    
+    project_pro = Projectid_api(public_key=public_key,private_key=private_key)
+    projectid_list = project_pro.get_projectid_info()
+    
+    for projectid in projectid_list:
+        for region in region_list: 
+            pro = eip_api(public_key=public_key,private_key=private_key,region=region, projectid=projectid["ProjectId"])
+            pro.get_host_info(accountname) 
+

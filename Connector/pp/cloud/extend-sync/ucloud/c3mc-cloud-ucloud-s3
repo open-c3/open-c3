@@ -1,0 +1,67 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+import sys
+sys.path.append("/data/Software/mydan/Connector/pp/cloud/extend-sync/ucloud/lib")
+import requests
+import json
+import concurrent.futures
+from ucloud.core import auth
+from region_info import Region_api
+from project_id import Projectid_api
+
+class us3_api():
+    
+    def __init__(self, public_key, private_key, projectid):
+        self.public_key = public_key
+        self.private_key = private_key
+        self.offset = 0
+        self.projectid = projectid
+    
+    url = 'https://api.ucloud.cn'
+
+    def init_params(self):
+        cred = auth.Credential(
+            self.public_key,
+            self.private_key,
+        )
+        params = {"Action": "DescribeBucket", "ProjectId":self.projectid ,"Offset":self.offset, "Limit":100}
+        signature = cred.verify_ac(params)
+        params["Signature"] = signature
+        return params
+
+    def get_us3_info(self):
+        disk_list=[]
+
+        try:
+            params = self.init_params()
+            responsed = requests.get(us3_api.url, params=params).json()
+            us3_info = responsed["DataSet"]
+            for us3 in us3_info:
+                instance = {
+                   "accountname": accountname,
+                   "uuid": us3["BucketId"],
+                   "name": us3["BucketName"],
+                   "region": us3["Region"],
+                   "cnd_domain": us3["Domain"]["Cdn"],
+                   "src_domain": us3["Domain"]["Src"]
+                }
+                us3.update(instance)
+                print(json.dumps(us3,default=str))
+
+        except Exception as e:
+            print(e)
+            raise
+                
+if __name__ == "__main__":
+    accountname, public_key, private_key = sys.argv[1:4]
+
+    region_pro = Region_api(public_key=public_key,private_key=private_key)
+    region_list = region_pro.get_region_info()
+    
+    project_pro = Projectid_api(public_key=public_key,private_key=private_key)
+    projectid_list = project_pro.get_projectid_info()
+    
+    for projectid in projectid_list:
+        pro = us3_api(public_key=public_key,private_key=private_key,projectid=projectid["ProjectId"])
+        pro.get_us3_info()
+
