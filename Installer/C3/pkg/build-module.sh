@@ -21,7 +21,7 @@ cd $MODULE/tempdata || exit 1
 git log                > git.log
 git branch | grep '^*' > git.branch
 
-tar -zcvf x.tar.gz * --exclude x.tar.gz
+tar --exclude=x.tar.gz -zcvf x.tar.gz *
 
 cp ../../entrypoint.sh .
 cp ../../dockerfile    .
