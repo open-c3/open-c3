@@ -3,39 +3,72 @@ compute:
   - type: blank
     name: 查看监控
     url: '/third-party/monitor/grafana/d/rYdddlPWk/node-exporter-full?orgId=1&refresh=1m&var-DS_PROMETHEUS=Prometheus-openc3&var-job=openc3&var-node=${内网IP}&from=now-24h&to=now'
+  - type: blank
+    name: 终端
+    url: '/api/job/cmd/${treeid}?node=${内网IP}&bash=1&sudo=root&siteaddr=${siteaddr}'
   aws-ec2:
   - type: blank
     name: 查看监控
     url: '/third-party/monitor/grafana/d/rYdddlPWk/node-exporter-full?orgId=1&refresh=1m&var-DS_PROMETHEUS=Prometheus-openc3&var-job=openc3&var-node=${内网IP}&from=now-24h&to=now'
+  - type: blank
+    name: 终端
+    url: '/api/job/cmd/${treeid}?node=${内网IP}&bash=1&sudo=root&siteaddr=${siteaddr}'
   qcloud-cvm:
   - type: blank
     name: 查看监控
     url: '/third-party/monitor/grafana/d/rYdddlPWk/node-exporter-full?orgId=1&refresh=1m&var-DS_PROMETHEUS=Prometheus-openc3&var-job=openc3&var-node=${内网IP}&from=now-24h&to=now'
+  - type: blank
+    name: 终端
+    url: '/api/job/cmd/${treeid}?node=${内网IP}&bash=1&sudo=root&siteaddr=${siteaddr}'
   aliyun-ecs:
   - type: blank
     name: 查看监控
     url: '/third-party/monitor/grafana/d/rYdddlPWk/node-exporter-full?orgId=1&refresh=1m&var-DS_PROMETHEUS=Prometheus-openc3&var-job=openc3&var-node=${内网IP}&from=now-24h&to=now'
+  - type: blank
+    name: 终端
+    url: '/api/job/cmd/${treeid}?node=${内网IP}&bash=1&sudo=root&siteaddr=${siteaddr}'
   ibm-virtual-server:
   - type: blank
     name: 查看监控
     url: '/third-party/monitor/grafana/d/rYdddlPWk/node-exporter-full?orgId=1&refresh=1m&var-DS_PROMETHEUS=Prometheus-openc3&var-job=openc3&var-node=${内网IP}&from=now-24h&to=now'
+  - type: blank
+    name: 终端
+    url: '/api/job/cmd/${treeid}?node=${内网IP}&bash=1&sudo=root&siteaddr=${siteaddr}'
   ibm-bare-metal-server:
   - type: blank
     name: 查看监控
     url: '/third-party/monitor/grafana/d/rYdddlPWk/node-exporter-full?orgId=1&refresh=1m&var-DS_PROMETHEUS=Prometheus-openc3&var-job=openc3&var-node=${内网IP}&from=now-24h&to=now'
+  - type: blank
+    name: 终端
+    url: '/api/job/cmd/${treeid}?node=${内网IP}&bash=1&sudo=root&siteaddr=${siteaddr}'
   ksyun-epc:
   - type: blank
     name: 查看监控
     url: '/third-party/monitor/grafana/d/rYdddlPWk/node-exporter-full?orgId=1&refresh=1m&var-DS_PROMETHEUS=Prometheus-openc3&var-job=openc3&var-node=${内网IP}&from=now-24h&to=now'
+  - type: blank
+    name: 终端
+    url: '/api/job/cmd/${treeid}?node=${内网IP}&bash=1&sudo=root&siteaddr=${siteaddr}'
   ksyun-kec:
   - type: blank
     name: 查看监控
     url: '/third-party/monitor/grafana/d/rYdddlPWk/node-exporter-full?orgId=1&refresh=1m&var-DS_PROMETHEUS=Prometheus-openc3&var-job=openc3&var-node=${内网IP}&from=now-24h&to=now'
+  - type: blank
+    name: 终端
+    url: '/api/job/cmd/${treeid}?node=${内网IP}&bash=1&sudo=root&siteaddr=${siteaddr}'
   openstack-host:
   - type: blank
     name: 查看监控
     url: '/third-party/monitor/grafana/d/rYdddlPWk/node-exporter-full?orgId=1&refresh=1m&var-DS_PROMETHEUS=Prometheus-openc3&var-job=openc3&var-node=${内网IP}&from=now-24h&to=now'
-
+  - type: blank
+    name: 终端
+    url: '/api/job/cmd/${treeid}?node=${内网IP}&bash=1&sudo=root&siteaddr=${siteaddr}'
+  ucloud-host:
+  - type: blank
+    name: 查看监控
+    url: '/third-party/monitor/grafana/d/rYdddlPWk/node-exporter-full?orgId=1&refresh=1m&var-DS_PROMETHEUS=Prometheus-openc3&var-job=openc3&var-node=${内网IP}&from=now-24h&to=now'
+  - type: blank
+    name: 终端
+    url: '/api/job/cmd/${treeid}?node=${内网IP}&bash=1&sudo=root&siteaddr=${siteaddr}'
 
 networking:
   aws-alb:
@@ -120,3 +153,8 @@ database:
   - type: blank
     name: 查看监控
     url: '/third-party/monitor/grafana/d/xDLNRKUWz/redis-dashboard-for-prometheus-redis-exporter-helm-stable-redis-ha?orgId=1&refresh=30s&var-DS_PROMETHEUS=prometheus&var-namespace=&var-pod_name=&var-instance=${_redisaddr_}'
+  ucloud-mysql:
+  - type: blank
+    name: 查看监控
+    url: '/third-party/monitor/grafana/d/MQWgroiiz/mysql-overview?orgId=1&refresh=1m&var-interval=$__auto_interval_interval&var-host=${_mysqladdr_}'
+ 
