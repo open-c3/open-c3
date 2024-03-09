@@ -75,6 +75,7 @@
           '后端机器': '/assets/images/cmdb-server.png',
           '开机': '/assets/images/cmdb-startup.png',
           '关机':'/assets/images/cmdb-shutdown.png',
+          '终端':'/assets/images/cmdb-terminal.png',
         }
         vm.tablePageSize = 200
 
@@ -214,7 +215,8 @@
 
         vm.showTypeOperate = {
           blank: function (uuid, type, subtype, config) {
-            $http.post(`/api/agent/device/detail/${type}/${subtype}/${vm.treeid}/${uuid}?timemachine=${vm.selectedtimemachine}`, { 'exturl': config['url'] }).success(function (data) {
+            var siteaddr = window.location.protocol + "//" + window.location.host;
+            $http.post(`/api/agent/device/detail/${type}/${subtype}/${vm.treeid}/${uuid}?siteaddr=${siteaddr}&timemachine=${vm.selectedtimemachine}`, { 'exturl': config['url'] }).success(function (data) {
               if (data.stat) {
                 window.open(data.data, '_blank')
               } else {
