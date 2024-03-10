@@ -2,6 +2,7 @@ package api::cmd;
 use Dancer ':syntax';
 use FindBin qw( $RealBin );
 use Util;
+use MIME::Base64;
 
 my ( %env, $exip, $cmdcount );
 
@@ -35,6 +36,38 @@ any '/cmd/:projectid' => sub {
     my $id = 1 + int rand $cmdcount;
     redirect "$siteaddr/webshell/index.html?u=$u&projectid=$projectid&node=$node$sudo$bash$tail";
     #redirect "http://cmd$id.$env{envname}.job.$env{domainname}?u=$u&projectid=$projectid&node=$node$sudo$bash$tail";
+};
+
+=pod
+
+虚拟终端/打开Mysql终端
+
+=cut
+
+any '/cmd/ext/mysql/:projectid' => sub {
+    my $param = params();
+    my ( $projectid, $mysqladdr, $siteaddr, $mysqlauth ) = @$param{qw( projectid mysqladdr siteaddr mysqlauth )};
+
+    return "params undef" unless defined $projectid && defined $mysqladdr;
+    return "no cookie" unless my $u = cookie( $api::cookiekey );
+
+    redirect "$siteaddr/webshell/index.html?u=$u&projectid=$projectid&mysqladdr=$mysqladdr&mysqlauth=$mysqlauth";
+};
+
+=pod
+
+虚拟终端/打开Redis终端
+
+=cut
+
+any '/cmd/ext/redis/:projectid' => sub {
+    my $param = params();
+    my ( $projectid, $redisaddr, $siteaddr, $redisauth ) = @$param{qw( projectid redisaddr siteaddr redisauth )};
+
+    return "params undef" unless defined $projectid && defined $redisaddr;
+    return "no cookie" unless my $u = cookie( $api::cookiekey );
+
+    redirect "$siteaddr/webshell/index.html?u=$u&projectid=$projectid&redisaddr=$redisaddr&redisauth=$redisauth";
 };
 
 =pod

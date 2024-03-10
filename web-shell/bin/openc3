@@ -13,6 +13,9 @@ if( $argv =~ /&kubectl=full/ )
     exec "/data/Software/mydan/CI/bin/kubectl-full.shell '$argv'";
 }
 
+exec "/data/Software/mydan/JOB/bin/cmd.mysql '$argv'" if $argv =~ /&mysqladdr=/;
+exec "/data/Software/mydan/JOB/bin/cmd.redis '$argv'" if $argv =~ /&redisaddr=/;
+
 $argv =~ /&clusterid=/ and exec "/data/Software/mydan/CI/bin/pod.shell '$argv'";
 
 exec "/data/Software/mydan/JOB/bin/cmd '$argv'";
