@@ -6,6 +6,7 @@ use JSON   qw();
 use POSIX;
 use api;
 use OPENC3::Tree;
+use MIME::Base64;
 
 my $authstrict;
 
@@ -502,7 +503,18 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     {
         for my $r ( @re2 )
         {
-            map{ $url =~ s/\$\{$_->[0]\}/$_->[1]/; }@$r;
+            map{
+
+                if( $_->[0] eq '_mysqlauth_' || $_->[0] eq '_redisauth_' )
+                {
+                    my $auth = MIME::Base64::encode_base64( encode('UTF-8',  $_->[1] ) );
+                    $url =~ s/\$\{$_->[0]\}/$auth/g;
+                }
+                else
+                {
+                    $url =~ s/\$\{$_->[0]\}/$_->[1]/;
+                }
+            }@$r;
         }
         map{ $url =~ s/{$_}/$param->{$_}/g }qw( type subtype uuid );
 

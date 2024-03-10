@@ -1,0 +1,45 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use Code;
+use MYDB;
+use Encode;
+use MIME::Base64;
+
+exit unless my $argv = shift;
+
+my ( $u, $projectid, $addr, $port, $mysqlauth );
+
+eval{
+    if( $argv =~ /mysqladdr=\$\{_mysqladdr_\}/ )
+    {
+        die "no auth\n";
+    }
+    elsif( $argv =~ /^\?u=(.+)&projectid=(\d+)&mysqladdr=([a-zA-Z0-9\.\-,]+):(\d+)&mysqlauth=([a-zA-Z0-9\.\@\_\-=]*)$/ )
+    {
+        ( $u, $projectid, $addr, $port, $mysqlauth ) = ( $1, $2, $3, $4, $5 );
+    }
+    else
+    {
+        die "param error\n";
+    }
+    
+    print "projectid: $projectid\n";
+    print "mysqladdr: $addr:$port\n";
+    
+    my $pw = '';
+    if( $mysqlauth )
+    {
+        my $auth = Encode::decode("utf8",  MIME::Base64::decode_base64( $mysqlauth ));
+        my ( $user, $password ) = split /:/, $auth, 2;
+        die "user format error" if $user =~ /'/;
+        die "password format error" if $password =~ /'/;
+        $pw = "-u'$user' -p'$password'";
+    }
+    system "mysql -h'$addr' --port '$port' $pw";
+};
+
+print $@ if $@;
+
+sleep 1000;
