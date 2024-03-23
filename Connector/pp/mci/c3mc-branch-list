@@ -1,0 +1,27 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $id
+
+=cut
+
+my $id = shift @ARGV;
+die "id error" unless $id && $id =~ /^\d+$/;
+my @x = `c3mc-ci-project-show  '$id' | c3mc-ci-branch-ls`;
+chomp @x;
+
+for( @x )
+{
+    my ( undef, undef, $name ) = split /;/, $_, 3;
+    next unless $name && $name =~ /^[a-zA-Z][a-zA-Z0-9_\-\.]*$/;
+    print "$name\n";
+}
