@@ -58,9 +58,15 @@ return sub
         ( $dumptags, $version ) = ( "-b $name", $name );
     }
 
+    my $rn = eval{ $db->query( "select `realname` from openc3_ci_version where projectid='$projectid' and name='$name'" )};
+    $logs->die( "get realname fail: $@" ) if $@;
+    $logs->die( "realname unffind" ) unless $rn && @$rn > 0;
+    my $realname = $rn->[0][0];
+
+
     my $tagger;
     my $tag_info = '';
-    if( $name =~ /^release-testonly-[0-9a-z]{8}/ )
+    if( $name =~ /^release-testonly-[0-9a-z]{8}/ || $realname =~ /^release-testonly-[0-9a-z]{8}/ )
     {
         my ( $commitid, $event_name, $branch );
 
@@ -72,6 +78,10 @@ return sub
         elsif( $name =~ /^release-testonly-([0-9a-z]{8})-([a-zA-Z0-9][a-zA-Z0-9\-\._]+)$/ )
         {
             ( $commitid, $event_name, $branch ) = ( $1, 'push', $2 );
+        }
+        elsif( $realname =~ /^release-testonly-([0-9a-z]{8})-([a-zA-Z0-9][a-zA-Z0-9\-\._]+)$/ )
+        {
+            ( $commitid, $event_name, $branch ) = ( $1, 'branchtouch', $2 );
         }
         elsif( $name =~ /^release-testonly-([0-9a-z]{8})$/ )
         {

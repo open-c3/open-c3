@@ -1,0 +1,41 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+use POSIX;
+use uuid;
+use MYDB;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $id $branch
+
+=cut
+
+my ( $id, $branch ) = @ARGV;
+die "id error" unless $id && $id =~ /^\d+$/;
+die "name error" unless $branch && $branch =~ /^[a-zA-Z][a-zA-Z0-9_\-\.]*$/;
+my $commit = `c3mc-branch-uuid '$id' '$branch'`;
+chomp $commit;
+
+die "get commit id error" unless $commit && $commit =~ /^[a-z\d]{8}$/;
+
+my $db = MYDB->new( "/data/Software/mydan/CI/conf/conn", delayedconnection => 1 );
+
+my $uuid = uuid->new()->create_str;
+
+my $time = POSIX::strftime( "%Y%m%d%H%M%S", localtime );
+
+my $version = "release-$branch-$time";
+my $realversion = "release-testonly-$commit-$branch";
+my ( $status, $reason ) = ( 'init', '' );
+eval{ $db->execute( "insert into openc3_ci_version (`projectid`,`name`,`status`,`calltype`,`user`,`uuid`,`slave`,`reason`,`realname`) 
+    values('$id','$version','$status','findtags','crontab','$uuid','','$reason','$realversion')" ); };       
+
+print "$version\n";
