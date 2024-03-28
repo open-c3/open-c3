@@ -1,0 +1,40 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDan::Util::OptConf;
+use YAML::XS;
+use Encode;
+use IPC::Open3;
+
+=head1 SYNOPSIS
+
+ echo 'project yaml' | $0
+
+=cut
+
+local $/ = undef;
+my $input   = Encode::encode('utf8', <STDIN> );
+my %project = %{ YAML::XS::Load( $input ) };
+local $/ = "\n";
+
+my $addr = $project{addr};
+
+my $pipe = 'c3mc-ci-branch-ls-git';
+
+exit unless $addr =~ /git@/ || $addr =~ /\.git/ || $addr =~ /http:\/\/git/ || $addr =~ /https:\/\/git/;
+exit if $addr =~ /^harbor:/ || $addr eq 'openc3://*' || $addr =~ /^ci:(\d+)$/ || $addr =~ /^rsync:(\d+)$/;
+
+my $chld_in;
+my $pid = IPC::Open3::open3( $chld_in, '>&STDOUT', '>&STDERR', $pipe);
+ 
+print $chld_in $input;
+$chld_in = undef;
+waitpid( $pid, 0 );
+exit $? >> 8;

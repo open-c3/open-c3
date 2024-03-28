@@ -1,0 +1,28 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $id $branch
+
+=cut
+
+my ( $id, $branch ) = @ARGV;
+die "id error" unless $id && $id =~ /^\d+$/;
+die "name error" unless $branch && $branch =~ /^[a-zA-Z][a-zA-Z0-9_\-\.]*$/;
+my @x = `c3mc-ci-project-show  '$id' | c3mc-ci-branch-ls`;
+chomp @x;
+
+for( @x )
+{
+    my ( undef, $uuid, $name ) = split /;/, $_, 3;
+    next unless $name && $name eq $branch;
+    print "$uuid\n";
+}
