@@ -24,6 +24,8 @@
         <i ng-if="ci.project.addr == 'null' && ci.jobStepLen && showIPstrLen.online" class="fa fa-play-circle-o fa-2x" aria-hidden="true" ng-click="ci.runJob('', 'online', 0 )" uib-tooltip="{{'C3T.发布'|translate}}" style="cursor:pointer;color: green;" >{{'C3T.线上环境发布新版本'|translate}}</i>
         <i ng-if="ci.project.addr == 'null' && ci.jobStepLen && showIPstrLen.test"   class="fa fa-play-circle-o fa-2x" aria-hidden="true" ng-click="ci.runJob('', 'test',   0 )" uib-tooltip="{{'C3T.发布'|translate}}" style="cursor:pointer;color: green;" >{{'C3T.测试环境发布新版本'|translate}}</i>
 
+        <i class="fa fa-play-circle-o fa-2x" aria-hidden="true" ng-click="ci.runBranch()" uib-tooltip="{{'C3T.发布'|translate}}" style="cursor:pointer;color: green;" >{{'C3T.通过分支发布'|translate}}</i>
+
         <div class="row">
             <label class="col-md-6 control-label fwbold"><h3 ng-if="ci.lastversion.version" >{{'C3T.最后一次发布成功的版本为'|translate}}:{{ci.lastversion.version}} </h3></label>
             <div class="col-md-6 text-right"> 

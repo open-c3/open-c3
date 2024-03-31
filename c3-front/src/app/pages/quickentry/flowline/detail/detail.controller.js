@@ -323,6 +323,22 @@
             });
         }
 
+        vm.runBranch = function() {
+            $uibModal.open({
+                templateUrl: 'app/pages/quickentry/flowline/runTask2Branch.html',
+                controller: 'RunTask2BranchController',
+                controllerAs: 'runtask2branch', 
+                backdrop: 'static', 
+                size: 'lg', 
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () { return vm.treeid },
+                    projectid: function () { return vm.projectid },
+                }
+            });
+        }
+
         vm.editconfig = function () {
             $uibModal.open({
                 templateUrl: 'app/pages/quickentry/flowline/detail/config.html',

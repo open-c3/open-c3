@@ -525,4 +525,46 @@ get '/task/:projectid/analysis/runtime' => sub {
     return +{ stat => $JSON::true, data => \%data };
 };
 
+=pod
+
+分组作业/获取CD发布的版本状态
+
+一个CI可能会对应多个CD，本接口返回第一个发布的状态
+
+=cut
+
+get '/task/flowline/status/:flowlineid/:version' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        flowlineid => qr/^\d[\d,]*$/, 1,
+        version => qr/^[a-zA-Z0-9][a-zA-Z0-9\-\._]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my @col = qw( id projectid uuid name user slave status starttime finishtime calltype runtime reason variable );
+    my $r = eval{ 
+        $api::mysql->query( 
+            sprintf( "select %s from openc3_jobx_task
+                where name='_ci_$param->{flowlineid}_' order by id", join( ',', @col ) ), \@col )};
+
+    my %res = ( status => 'unknown' );
+
+    for my $x ( @$r )
+    {
+        next unless defined $x->{variable};
+        eval{
+            my $xx = YAML::XS::Load( decode_base64( $x->{variable} )); 
+
+            if( $xx->{version} && $xx->{version} eq $param->{version} )
+            {
+                %res = ( %$x, var => $xx );
+                last;
+            }
+        };
+        return +{ stat => $JSON::false, info => $@ } if $@;
+    }
+
+    return +{ stat => $JSON::true, data => \%res };
+};
+
 true;
