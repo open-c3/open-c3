@@ -32,7 +32,8 @@ my $uuid = uuid->new()->create_str;
 
 my $time = POSIX::strftime( "%Y%m%d%H%M%S", localtime );
 
-my $version = "release-$branch-$commit-$time";
+my $version = $branch =~ /^release/ ? "$branch-$commit-$time": "release-$branch-$commit-$time";
+
 my $realversion = "release-testonly-$commit-$branch";
 my ( $status, $reason ) = ( 'init', '' );
 eval{ $db->execute( "insert into openc3_ci_version (`projectid`,`name`,`status`,`calltype`,`user`,`uuid`,`slave`,`reason`,`realname`) 
