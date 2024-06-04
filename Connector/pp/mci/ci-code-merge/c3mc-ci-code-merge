@@ -1,0 +1,43 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $flowid srcbranch dstbranch
+
+=cut
+
+my ( $id, $srcbranch, $dstbranch ) = @ARGV;
+die "id error" unless $id && $id =~ /^\d+$/;
+die "srcbranch error" unless $srcbranch && $srcbranch =~ /^[a-zA-Z0-9][a-zA-Z0-9_\-\.]*$/;;
+die "dstbranch error" unless $dstbranch && $dstbranch =~ /^[a-zA-Z0-9][a-zA-Z0-9_\-\.]*$/;;
+my $x = `c3mc-base-db-get addr --table openc3_ci_project --filter "id=$id"`;
+chomp $x;
+
+print "Git Address: $x\n";
+my ( $gitaddr, $group, $name );
+
+# C3TODO 240605 这里要识别更多的Git的地址格式
+if ( $x =~ /ssh:\/\/git\@([a-z][a-z\d\.\-]+):\d+\/([a-z\d\.\-]+)\/([a-z\d\.\-]+)\.git$/ )
+{
+    ( $gitaddr, $group, $name ) = ( $1, $2, $3 );
+}
+else
+{
+    die "git addr format not match";
+}
+
+print "Git Domain: $gitaddr, Group: $group, Project: $name\n";
+
+my $script = "/data/Software/mydan/Connector/pp/mci/ci-code-merge/git/$gitaddr";
+
+die "notfind $script" unless -f $script;
+
+exec "$script '$group' '$name' '$srcbranch' '$dstbranch'";
