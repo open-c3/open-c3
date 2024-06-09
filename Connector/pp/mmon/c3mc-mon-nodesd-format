@@ -8,6 +8,7 @@ binmode STDERR, ':utf8';
 
 $|++;
 
+use POSIX;
 use YAML::XS;
 use MYDan::Util::OptConf;
 
@@ -114,8 +115,32 @@ for( @treemap )
     $treemap{ $treeid } =  $treename;
 }
 
+
 # target
 my @target;
+
+my $temppath = "/data/open-c3-data/monitor-trash";
+system "mkdir -p $temppath" unless -d $temppath;
+
+my @olddate = map{ POSIX::strftime( "%Y-%m-%d", localtime( time - $_ * 86400 ) ); }0..1;
+my ( %oldip, %oldipstr );
+for( reverse @olddate )
+{
+    my $file = "$temppath/$_";
+    next unless -f $file;
+    my @x = `cat '$file'`;
+    chomp @x;
+
+    for( @x )
+    {
+        my ( $oldip, $treeidstr ) = split /:/, $_;
+        $oldipstr{$oldip} = $treeidstr;
+        map{ $oldip{$oldip}{$_} = 1; }grep{$_ =~ /^\d+$/ }split /,/, $treeidstr;
+    }
+}
+
+map{ $ip{$_} = $oldip{$_} unless $ip{$_}; }keys %oldip;
+
 for my $ip ( keys %ip )
 {
     my %lables = ( instance => $ip, "__metrics_path__" => "/api/agent/v3/node/metrics/$ip", treeid => 1 );
@@ -130,6 +155,12 @@ for my $ip ( keys %ip )
     }keys %{$ip{$ip}};
 
     push @target, +{ targets => [ 'openc3-server' ], labels => \%lables };
+
+    my $treeidstr = join ',', sort keys %{$ip{$ip}};
+    if( $ip && $ip =~ /^\d+\.\d+\.\d+\.\d+$/ && ( ( ! $oldip{$ip} ) || ( $oldipstr{$ip} && $oldipstr{$ip} ne $treeidstr )  ))
+    {
+        system "echo '$ip:$treeidstr' >> '$temppath/$olddate[0]'";
+    }
 }
 
 if( $o{output} )
