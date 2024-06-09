@@ -1,0 +1,88 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use JSON;
+use Encode;
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0 id;name id2;name2
+
+=cut
+
+
+my @cluster;
+if( @ARGV )
+{
+    @cluster = @ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; push @cluster, $_; }
+}
+
+my $mark = "/tmp/c3mc-cloud-k8s-pod.mark.txt";
+my @mark = `tail -n 100 $mark`;
+chomp @mark;
+my %mark;
+map{$mark{$2} = $1 if $_ =~ /^(\d+)\s(\d+)$/;}@mark;
+
+for( @cluster )
+{
+    my ( $id, $name ) = split /;/, $_;
+    warn "loading .. $id $name\n";
+
+    next if $mark{$id} && $mark{$id} + 3600 > time;
+
+    $name = 'unknown' unless $name && $name =~ /^[a-zA-Z0-9][a-zA-Z0-9_\-\.]*$/;
+    my $x = `c3mc-k8s-kubectl-get -i '$id'  "get pod -A  --output json --request-timeout=10s"`;
+    if( $? )
+    {
+        system sprintf "echo %s %s >> $mark", int(time), $id;
+        next;
+    }
+    my $xx = eval{JSON::decode_json $x};
+    my @items = @{$xx->{items}};
+    for my $items ( @items )
+    {
+        #spec.containers.0.env.1.value
+        delete $items->{spec}{volumes};
+        delete $items->{spec}{affinity};
+        delete $items->{spec}{tolerations};
+        delete $items->{spec}{nodeSelector};
+        delete $items->{spec}{initContainers};
+        delete $items->{spec}{dnsConfig};
+        delete $items->{status}{conditions};
+        delete $items->{metadata}{annotations};
+        delete $items->{metadata}{labels};
+        delete $items->{metadata}{ownerReferences};
+        if( $items->{spec}{containers} && ref $items->{spec}{containers} eq 'ARRAY' )
+        {
+            for( @{$items->{spec}{containers}} )
+            {
+                delete $_->{env};
+                delete $_->{command};
+                delete $_->{lifecycle};
+                delete $_->{volumeMounts};
+                delete $_->{args};
+                delete $_->{livenessProbe};
+            }
+        }
+
+        delete $items->{spec}{containers};
+
+        $items->{uuid} = $items->{metadata}{uid};
+        $items->{clusterid} = $id;
+        $items->{clustername} = $name;
+        my $s = eval{JSON::encode_json $items};
+        print $s, "\n";
+    }
+}
