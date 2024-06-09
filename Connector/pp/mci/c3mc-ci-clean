@@ -18,7 +18,7 @@ sub clean
     confess "clean fail: $!" if system 'docker ps|grep dockershell_ci_     |grep hour|awk ' ."'".'{print $1}'."'" .'|xargs -i{} docker stop {}';
     confess "clean fail: $!" if system 'docker ps|grep dockershell_kubectl |grep hour|awk ' ."'".'{print $1}'."'" .'|xargs -i{} docker stop {}';
 
-    my $expire = time - 86400;
+    my $expire = time - 10800;
 
     #temp projectid
     for my $path ( glob "/data/Software/mydan/CI/logs/build_temp_projectid/*" )
