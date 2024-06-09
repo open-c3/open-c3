@@ -18,7 +18,7 @@
           },
         ]
         vm.tabThead = ['lowstatus', '服务树'];
-        vm.checkOwnerStatus = true
+        vm.checkOwnerStatus = false
         sessionStorage.setItem('tableFilter', JSON.stringify({}))
         $scope.countOptions = [20, 30,50, 100, 500]
         $scope.selectTab = vm.lowUtilizationList[0];
@@ -112,7 +112,7 @@
 
         vm.openNewWindow = function( ip )
         {
-            var url = '/third-party/monitor/grafana/d/rYdddlPWk/node-exporter-full?orgId=1&from=now-14d&to=now&var-DS_PROMETHEUS=default&var-job=openc3&var-node=' + ip + '&var-diskdevices=%5Ba-z%5D%2B%7Cnvme%5B0-9%5D%2Bn%5B0-9%5D%2B%7Cmmcblk%5B0-9%5D%2B';
+            var url = '/third-party/monitor/grafana/d/rYdddlPWk/node-exporter-full?orgId=1&from=now-1d&to=now&var-DS_PROMETHEUS=default&var-job=openc3&var-node=' + ip + '&var-diskdevices=%5Ba-z%5D%2B%7Cnvme%5B0-9%5D%2Bn%5B0-9%5D%2B%7Cmmcblk%5B0-9%5D%2B';
             window.open( url, '_blank')
         }
 

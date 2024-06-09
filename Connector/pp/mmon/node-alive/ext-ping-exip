@@ -1,0 +1,62 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use AnyEvent;
+use AnyEvent::Ping;
+ 
+$|++;
+
+my @node = <STDIN>;
+chomp @node;
+
+my %res;
+for my $x ( @node )
+{
+    my ( $host, $stat ) = split /\s+/, $x;
+    $res{$host} = $stat ? 1 : $res{$host} ? 1 : 0;
+}
+
+map{ printf "$_ %s\n", $res{$_} ? 1 : 0 }keys %res;
+
+my @host = grep{ ! $res{$_} }keys %res;
+
+## Start
+
+my @exip = `cat exip.txt`;
+chomp @exip;
+
+
+my ( %pub2pri, %pri2pub);
+for( @exip )
+{
+    next unless $_ =~ /^([\d\.]+): ([\d\.]+)$/;
+    $pub2pri{$1} = $2;
+    $pri2pub{$2} = $1;
+}
+
+
+my @pubip; map{ push @pubip, $pri2pub{$_} if $pri2pub{$_} }@host;
+
+my $times = 3;
+my $c = AnyEvent->condvar;
+ 
+my $ping = AnyEvent::Ping->new;
+
+for my $host ( @pubip  )
+{
+    $ping->ping($host, $times, sub {
+        my $results = shift;
+        foreach my $result (@$results) {
+            my $status = $result->[0];
+            print "$pub2pri{$host} 1\n" if $status eq 'OK';
+        };
+        $c->send;
+    });
+ 
+}
+
+$c->recv;
+$ping->end;

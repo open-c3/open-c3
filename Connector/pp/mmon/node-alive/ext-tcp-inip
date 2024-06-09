@@ -1,0 +1,60 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use AnyEvent;
+use AnyEvent::Socket;
+ 
+$|++;
+
+my $P = shift @ARGV;
+die "port error" unless $P && $P =~ /^\d+$/;
+my @node = <STDIN>;
+chomp @node;
+
+my %res;
+for my $x ( @node )
+{
+    my ( $host, $stat ) = split /\s+/, $x;
+    $res{$host} = $stat ? 1 : $res{$host} ? 1 : 0;
+}
+
+map{ printf "$_ %s\n", $res{$_} ? 1 : 0 }keys %res;
+
+my @host = grep{ ! $res{$_} }keys %res;
+
+## Start
+
+my $cv = AnyEvent->condvar;
+
+foreach my $x (@host) {
+    $cv->begin;
+
+    my $host = $x;
+    my $port = $P;
+
+    tcp_connect $host, $port, sub {
+        my ($fh) = @_;
+
+        if ($fh) {
+            print "$host 1\n";
+        }
+
+        $cv->end;
+    };
+
+    # 设置 5 秒超时定时器
+    my $timer; 
+    $timer = AnyEvent->timer(
+        after => 5,
+        cb    => sub {
+            undef $timer; # cancel the timer
+            $cv->end;
+        }
+    );
+
+}
+
+$cv->recv;

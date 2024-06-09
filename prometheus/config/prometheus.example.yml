@@ -192,6 +192,14 @@ scrape_configs:
     static_configs:
     - targets: ['OPENC3_SERVER_IP:38080']
 
+  - job_name: 'openc3-node-alive'
+    scrape_interval: 15s
+    scrape_timeout: 15s
+    metrics_path: /node-alive.txt
+    honor_labels: true
+    static_configs:
+    - targets: ['OPENC3_SERVER_IP:38080']
+
   - job_name: fping
     metrics_path: /probe
     file_sd_configs:
