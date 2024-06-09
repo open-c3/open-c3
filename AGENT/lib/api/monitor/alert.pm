@@ -74,7 +74,7 @@ get '/monitor/alert/:projectid' => sub {
 
     if( $ips )
     {
-        for my $type ( qw( owner alias opsowner ))
+        for my $type ( qw( owner alias opsowner tree ))
         {
             my @x = `c3mc-device-find-v2-$type $ips`;
             chomp @x;
