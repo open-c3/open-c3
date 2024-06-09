@@ -145,7 +145,7 @@ post '/kubernetes/node/drain' => sub {
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my ( $cmd, $handle ) = ( "$kubectl drain '$param->{node}' --ignore-daemonsets 2>&1", 'showinfo' );
+    my ( $cmd, $handle ) = ( "$kubectl drain '$param->{node}' --ignore-daemonsets --delete-emptydir-data 2>&1", 'showinfo' );
     if( ref $param->{node} eq 'ARRAY' )
     {
          my $nodes = join " ", @node;
