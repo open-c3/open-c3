@@ -40,4 +40,7 @@ TZ=Asia/Shanghai
 
 * * * * * root flock -n /tmp/dbtask.lock /data/Software/mydan/Connector/pp/dbfix/dbtask.sh  > /tmp/dbtask.log 2>&1
 
+*/10 * * * * root flock -n /tmp/mmon-node-alive-make-exip.lock /data/Software/mydan/Connector/pp/mmon/node-alive/make-exip > /tmp/mmon-node-alive-make-exip.log 2>&1
+* * * * * root flock -n /tmp/mmon-node-alive.lock /data/Software/mydan/Connector/pp/mmon/node-alive/run.sh > /tmp/mmon-node-alive.log 2>&1
+
 */5 * * * * root flock -n /tmp/resources-fee-change-notify.lock /data/Software/mydan/Connector/pp/device/crontab/resources-fee-change-notify/notifyd  > /tmp/resources-fee-change-notify.log 2>&1
