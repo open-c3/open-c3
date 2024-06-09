@@ -1,0 +1,62 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use YAML::XS;
+use Encode;
+use utf8;
+use File::Temp;
+use POSIX;
+
+$| ++;
+
+my @user = `c3mc-base-db-get id -t openc3_connector_useraddr -f 'user="open-c3-fee"'`;
+exit unless @user;
+
+my @m = 
+(
+    # 格式 : 获取资源的命令， 资源uuid字段、需要对比的字段、资源的其他辅助信息、资源的类型标柱
+    [ 'c3mc-device-data-get curr compute huawei-ecs', 'uuid', '实例类型 flavor.vcpus 内存', '名称 内网IP', '华为云ECS' ],
+    [ 'c3mc-device-data-get curr compute aws-ec2', 'uuid', '实例类型', '名称 内网IP', 'AWS EC2' ],
+
+    [ 'c3mc-device-data-get curr database huawei-rds', 'uuid', '实例规格 cpu mem volume.size', '名称', '华为RDS' ],
+    [ 'c3mc-device-data-get curr database huawei-redis', 'uuid', '实例规格 最大内存', '名称', '华为Redis' ],
+);
+
+my $file = "/data/open-c3-data/resources-fee-change-notify.txt";
+
+my @old = `cat $file`;
+chomp @old;
+
+my %oldfee;
+map{ my @x = split /\s/, $_, 2; $oldfee{$x[0]} = $x[1]}@old;
+
+for my $m ( @m )
+{
+    my @x = `$m->[0] $m->[1] $m->[2] $m->[3]`;
+    chomp @x;
+    for( @x )
+    {
+        my @xx = split /\t/, $_;
+        my @t1 = split /\s/, $m->[1];
+        my @t2 = split /\s/, $m->[2];
+        my @t3 = split /\s/, $m->[3];
+        my @title = ( @t1, @t2, @t3 );
+        my %d;
+        map{ $d{$title[$_]} = $xx[$_]}0..$#title;
+        my $uuid = join ",", map{ $d{$_} }@t1;
+        my $fee  = join ",", map{ $d{$_} }@t2;
+        my $info = join ",", map{ $d{$_} }@t3;
+        my $oldfee = $oldfee{$uuid};
+        next if $oldfee && $oldfee eq $fee;
+        system "echo '$uuid $fee' >> $file\n";
+
+        next unless $oldfee;
+
+        my @of = split /,/, $oldfee;
+        my $msg = sprintf "资源配置变更 $m->[4]【%s】: 【%s】=>【%s】", join( " ", map{ "$_:$d{$_}" }@t3), join(" ", map { "$t2[$_]:$of[$_]" }0..$#t2), join( " ",map { "$_:$d{$_}" }@t2);
+$msg =  Encode::encode( 'utf8', $msg);
+
+        system "echo '$msg'|c3mc-base-sendmesg 'open-c3-fee'";
+    }
+}
