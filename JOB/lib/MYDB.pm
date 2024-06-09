@@ -1,4 +1,3 @@
-#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
 package MYDB;
 
 use warnings;
@@ -7,7 +6,6 @@ use strict;
 use DBI;
 use Dancer::Plugin::Database::Core;
 use YAML::XS;
-use FindBin qw( $RealBin );
 
 our %DEFAULT = 
 (
@@ -24,17 +22,28 @@ our %DEFAULT =
     log_queries => 0
 );
 
+
 sub new
 {
-    my ($class, $conf, %this ) = splice @_, 0, 2;
+    my ($class, $conf, %this ) = @_;
 
-    eval{$conf = YAML::XS::LoadFile $conf};
-    die "MYDB load conf fail:$@" if $@;
-    die "conf no HASH" unless ref $conf eq 'HASH';
- 
+    if( ref $conf ne 'HASH' )
+    {
+        eval{$conf = YAML::XS::LoadFile $conf};
+        die "MYDB load conf fail:$@" if $@;
+        die "conf no HASH" unless ref $conf eq 'HASH';
+    }
+
     $this{conf} = $conf;
-    $this{dbh} = Dancer::Plugin::Database::Core::_get_connection( { %DEFAULT, %$conf  },sub{},sub{} );
-    $this{starttime} = time;
+    if( $this{delayedconnection} )
+    {
+        $this{starttime} = 1;
+    }
+    else
+    {
+        $this{dbh} = Dancer::Plugin::Database::Core::_get_connection( { %DEFAULT, %$conf  },sub{},sub{} );
+        $this{starttime} = time;
+    }
     bless \%this, ref $class || $class;
 }
 
