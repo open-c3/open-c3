@@ -130,10 +130,23 @@ sub nodeinfo
     }
 
     my $i = 10000;
+
+    for my $k ( keys %res )
+    {
+        next unless $k =~ /,/ && $k =~ /:/;
+        my ( $ip, $port ) = split /:/, $k;
+        my $t = delete $res{$k};
+        for my $oneip ( split /,/, $ip )
+        {
+            $res{"$oneip:$port"} = +{ %$t, addr => "$oneip:$port" };
+        }
+    }
+
     for my $t (  values %res )
     {
         $t->{id} = $i++;
         $t->{projectid} = $id;
+
         printf "%s\n", join ';', map{ $t->{$_} || '' }@col;
     }
 }
