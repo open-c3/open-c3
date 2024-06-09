@@ -27,10 +27,13 @@ sub new
 {
     my ($class, $conf, %this ) = @_;
 
-    eval{$conf = YAML::XS::LoadFile $conf};
-    die "MYDB load conf fail:$@" if $@;
-    die "conf no HASH" unless ref $conf eq 'HASH';
- 
+    if( ref $conf ne 'HASH' )
+    {
+        eval{$conf = YAML::XS::LoadFile $conf};
+        die "MYDB load conf fail:$@" if $@;
+        die "conf no HASH" unless ref $conf eq 'HASH';
+    }
+
     $this{conf} = $conf;
     if( $this{delayedconnection} )
     {
