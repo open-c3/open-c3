@@ -4,6 +4,8 @@ use warnings;
 
 $|++;
 
+use POSIX;
+
 =head1 SYNOPSIS
 
  $0
@@ -15,6 +17,39 @@ $|++;
 
 my    @x = `cat /data/Software/mydan/AGENT/conf/promesd.temp /data/Software/mydan/AGENT/conf/promesdmysql.temp /data/Software/mydan/AGENT/conf/promesdredis.temp /data/Software/mydan/AGENT/conf/promesdmongodb.temp`;
 chomp @x;
+
+my $temppath = "/data/open-c3-data/monitor-trash";
+my @olddate = map{ POSIX::strftime( "%Y-%m-%d", localtime( time - $_ * 86400 ) ); }0..1;
+my %oldip;
+for( reverse @olddate )
+{
+    my $file = "$temppath/$_";
+    next unless -f $file;
+    my @x = `cat '$file'`;
+    chomp @x;
+
+    for( @x )
+    {
+        my ( $oldip, $treeidstr ) = split /:/, $_;
+        map{ $oldip{$oldip}{$_} = 1; }grep{$_ =~ /^\d+$/ }split /,/, $treeidstr;
+    }
+}
+
+my %newip;
+for( @x )
+{
+    my ( $id, $node ) = split /;/, $_;
+    $newip{$node} ++;
+}
+
+for my $ip ( keys %oldip )
+{
+    next if $newip{$ip};
+    for my $treeid( keys %{ $oldip{$ip} } )
+    {
+        push @x, "$treeid;$ip";
+    }
+}
 
 my %node;
 for( @x )
