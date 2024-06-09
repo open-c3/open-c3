@@ -1,0 +1,100 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+
+my ( %err, %print );
+
+my $config = eval{ YAML::XS::LoadFile "/data/Software/mydan/Connector/pp/mmon/exalarm/config.yml";};
+die "load config fail: $@" if $@;
+
+for my $file ( glob "/data/open-c3-data/monitor-exalarm/*" )
+{
+    my $cont = eval{ YAML::XS::LoadFile $file };
+    if( $@ )
+    {
+        warn "load $file fail: $@";
+        next;
+    }
+
+    my %res;
+
+    next unless $cont->{message_id};
+    my $message = Encode::encode( 'utf8', $cont->{message} );
+    my $subject = Encode::encode( 'utf8', $cont->{subject} );
+
+    my $account = $cont->{account} || 'unkown';
+    my $group = $cont->{group} || 'unkown';
+    if( $cont->{type}  && $cont->{type} eq 'Notification' && ${message} =~ /事件源：AOM;/ )
+    {
+        $res{eventname} = ${message} =~ /事件名称：([^;]+);/ ? $1 : 'unkown';
+        $res{restype} = ${message} =~ /资源类型：([^;]+);/ ? $1 : 'unkown';
+        $res{appName} = ${message} =~ /appName:([^;]+);/ ? $1 : 'unkown';
+        $res{podName} = ${message} =~ /podName:([^;]+);/ ? $1 : 'unkown';
+        $res{alarmName} = ${message} =~ /alarmName:([^;]+);/ ? $1 : 'unkown';
+        $res{clusterName} = ${message} =~ /clusterName:([^;]+);/ ? $1 : 'unkown';
+        $res{nameSpace} = ${message} =~ /nameSpace:([^;]+);/ ? $1 : 'unkown';
+        $res{metricName} = ${message} =~ /metricName:([^;]+);/ ? $1 : 'unkown';
+
+        my $appname = $res{appName};
+        $appname = $res{podName} if $appname eq 'unkown';
+        $res{uuid} = "$account/AOM/$res{clusterName}/$res{restype}/$res{nameSpace}/${appname}/$res{eventname}";
+        $res{desc} = "ee";
+        $res{status} = $subject =~ /恢复/ ? 0 : 1;
+
+        my $timeout = $config->{timeout}{$res{eventname}};
+        if( $timeout )
+        {
+            my $mtime = (stat $file)[9];
+            next if $mtime + $timeout < time;
+        }
+    }
+
+    elsif( $cont->{type}  && $cont->{type} eq 'Notification' && ${message} =~ /告警源:LTS;/ )
+    {
+        $res{alarm_name} = "LTS";
+    }
+ 
+    elsif( $cont->{type}  && $cont->{type} eq 'Notification' && ${message} =~ /"alarm_name":"([^"]+)"/ )
+    {
+        $res{alarm_name} = $1;
+        $res{namespace} = ${message} =~ /"namespace":"([^"]+)"/ ? $1 : 'unkown';
+        $res{metric_name} = ${message} =~ /"metric_name":"([^"]+)"/ ? $1 : 'unkown';
+        $res{dimension} = ${message} =~ /"dimension":"([^"]+)"/ ? $1 : 'unkown';
+        $res{uuid} = "$res{alarm_name}/$res{namespace}/$res{metric_name}";
+        $res{decs} = "$res{dimension}";
+    }
+ 
+    elsif( $cont->{type}  && $cont->{type} eq 'UnsubscribeConfirmation' )
+    {
+        $res{UnsubscribeConfirmation} = 1;
+    }
+    elsif( $cont->{type}  && $cont->{type} eq 'SubscriptionConfirmation' )
+    {
+        $res{SubscriptionConfirmation} = 1;
+    }
+ 
+    else
+    {
+        $err{$file} ++;
+        next;
+    }
+
+    $print{$res{uuid}} = \%res if $res{uuid} && $res{desc} && defined  $res{status};
+}
+
+for my $v ( values %print )
+{
+    print "exalarm{uuid=\"$v->{uuid}\",desc=\"$v->{desc}\"} $v->{status}\n";
+}

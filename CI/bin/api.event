@@ -37,13 +37,17 @@ use api::c3mc::tree;
 use api::c3mc::jumpserver;
 use api::c3mc::cmdb;
 use api::c3mc::cibranch;
+use api::c3mc::cicodemerge;
+use api::c3mc::cishowtarget;
 use api::c3mc::bpm;
 use api::c3mc::base;
 use api::c3mc::cloud::control::tags;
 use api::c3mc::cloud::control::lbinfo;
 use api::to3part::safetytesting;
+use api::to3part::errnode;
 
 use api::c3mc::cislave;
+use api::exalarm::huawei;
 
 my $cookiekey;
 BEGIN{
@@ -75,13 +79,18 @@ my ( %handle, %index, $index ) = (
     %api::c3mc::jumpserver::handle,
     %api::c3mc::cmdb::handle,
     %api::c3mc::cibranch::handle,
+    %api::c3mc::cicodemerge::handle,
+    %api::c3mc::cishowtarget::handle,
     %api::c3mc::bpm::handle,
     %api::c3mc::base::handle,
     %api::c3mc::cloud::control::tags::handle,
     %api::c3mc::cloud::control::lbinfo::handle,
     %api::to3part::safetytesting::handle,
+    %api::to3part::errnode::handle,
 
     %api::c3mc::cislave::handle,
+
+    %api::exalarm::huawei::handle,
 );
 
 my $port = $ENV{CI_API_EVENT_PORT} // '8080';
@@ -227,6 +236,7 @@ $httpd->reg_routes(
     [ qw( GET POST DELETE ) ] => '/kubernetes/*' => $xx,
     [ qw( GET POST DELETE ) ] => '/c3mc/*'       => $xx,
     [ qw( GET POST DELETE ) ] => '/to3part/*'    => $xx,
+    [ qw( GET POST DELETE ) ] => '/exalarm/*'    => $xx,
 );
 
 $httpd->reg_cb('' => sub {

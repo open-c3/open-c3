@@ -1,0 +1,37 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $flowid
+
+=cut
+
+my $id = shift @ARGV;
+die "id error" unless $id && $id =~ /^\d+$/;
+my $x = `c3mc-base-db-get ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container --table openc3_ci_project --filter "id=$id"`;
+chomp $x;
+
+my ( $ci_type, $ci_type_ticketid, $ci_type_kind, $ci_type_namespace, $ci_type_name, $ci_type_container ) = split /;/, $x;
+
+die "Not a kubernetes cicd process" unless $ci_type && $ci_type eq 'kubernetes';
+
+if( $ci_type_kind eq 'deployment' || $ci_type_kind eq 'statefulset' )
+{
+    exec "c3mc-k8s-kubectl-get --id '$ci_type_ticketid' \"get pods --namespace '$ci_type_namespace' -o wide\"|grep -E \"^NAME|^$ci_type_name-[0-9]\"";
+}
+elsif( $ci_type_kind eq 'deamonset' )
+{
+    exec "c3mc-k8s-kubectl-get --id '$ci_type_ticketid' \"get pods --namespace '$ci_type_namespace' -o wide\"|grep -E \"^NAME|^$ci_type_name-\"";
+}
+else
+{
+    die 'Not supported';
+}
