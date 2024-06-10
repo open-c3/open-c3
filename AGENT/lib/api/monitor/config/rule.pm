@@ -9,6 +9,11 @@ use api;
 use Format;
 use URI::Escape;
 
+sub prometheusreload
+{
+    system "/data/Software/mydan/prometheus/bin/reload-mark.sh";
+};
+
 =pod
 
 监控系统/监控策略/获取列表
@@ -157,7 +162,9 @@ post '/monitor/config/rule/:projectid' => sub {
                 values('$projectid','$alert','$expr','$for','$severity','$summary','$description','$value','$user','$model','$metrics','$method','$threshold','$bindtreesql','$job','$subgroup','$nocall','$nomesg','$nomail','$serialcall','$vtreeid')" );
         }
     };
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    prometheusreload();
+    return +{ stat => $JSON::true };
 };
 
 =pod
@@ -187,7 +194,9 @@ del '/monitor/config/rule/:projectid/:id' => sub {
         $api::mysql->execute(
             "delete from openc3_monitor_config_rule where id='$param->{id}' and projectid='$param->{projectid}'")};
 
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    prometheusreload();
+    return +{ stat => $JSON::true, data => $r };
 };
 
 =pod
@@ -214,7 +223,9 @@ del '/monitor/config/rule/:projectid' => sub {
         $api::mysql->execute(
             "delete from openc3_monitor_config_rule where projectid='$param->{projectid}'")};
 
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    prometheusreload();
+    return +{ stat => $JSON::true, data => $r };
 };
 
 =pod
@@ -243,7 +254,9 @@ post '/monitor/config/rule/copy/:fromid/:toid' => sub {
         die "copy rule fail: $!" if system "c3mc-mon-rule-dump -t $param->{fromid} | c3mc-mon-rule-load -t $param->{toid} -u '$user'";
     };
 
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    prometheusreload();
+    return +{ stat => $JSON::true };
 };
 
 my $ruletpl = "/data/Software/mydan/AGENT/lib/api/monitor/config/rule.tpl";
@@ -293,7 +306,9 @@ post '/monitor/config/ruletpl/sync/:projectid/:tplname' => sub {
         die "copy rule fail: $!" if system "cat '$ruletpl/$param->{tplname}' | c3mc-mon-rule-load -t $param->{projectid} -u '$user'";
     };
 
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    prometheusreload();
+    return +{ stat => $JSON::true };
 };
 
 =pod
