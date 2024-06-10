@@ -85,4 +85,5 @@ my @srv = grep{ $_ }map { srv( $_ ); }@$r;
 
 my $dist = sprintf "/data/Software/mydan/prometheus/config/openc3_cloudmon_sd%s.yml", $name ? "_$name" : "";
 dumpfile( $dist, join "\n", '---', @srv );
-system "curl -XPOST http://openc3-prometheus:9090/-/reload"
+#system "curl -XPOST http://openc3-prometheus:9090/-/reload";
+system "/data/Software/mydan/prometheus/bin/reload-go.sh promesd";
