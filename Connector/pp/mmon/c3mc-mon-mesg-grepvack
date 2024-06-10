@@ -47,6 +47,34 @@ sub adduser
     my $time     = time;
 
     if(
+        ( $data->{'labels.job'} eq 'openc3' || $data->{'labels.job'} eq 'openc3-node-alive' ) &&
+        ( $data->{status} eq 'resolved' ) &&
+        ( $data->{'labels.instance'} =~ /^\d+\.\d+\.\d+\.\d+$/ )
+    )
+    {
+        my @x  = `cat /data/Software/mydan/prometheus/config/openc3_node_sd.yml |grep /metrics/`;
+        chomp @x;
+        my @xx = grep{ $_ =~ /\/$data->{'labels.instance'}$/ }@x;
+        return if @x && ! @xx;
+    }
+
+    if(
+        ( $data->{'labels.job'} eq 'openc3-mysql-v3' || $data->{'labels.job'} eq 'openc3-redis-v3' || $data->{'labels.job'} eq 'openc3-mongodb-v3' ) &&
+        ( $data->{status} eq 'resolved' ) &&
+        ( $data->{'labels.instance'} =~ /^\d+\.\d+\.\d+\.\d+:\d+$/ )
+    )
+    {
+        my $filename = "openc3_mysql_sd_v3.yml";
+        $filename    = "openc3_redis_sd_v3.yml"   if $data->{'labels.job'} eq 'openc3-redis-v3';
+        $filename    = "openc3_mongodb_sd_v3.yml" if $data->{'labels.job'} eq 'openc3-mongodb-v3';
+
+        my @x  = `cat /data/Software/mydan/prometheus/config/$filename |grep /metrics/`;
+        chomp @x;
+        my @xx = grep{ $_ =~ /\/$data->{'labels.instance'}$/ }@x;
+        return if @x && ! @xx;
+    }
+
+    if(
         ( $data->{'labels.serialcall'} )  &&
         ( ( $data->{status} eq 'resolved' ) )
     )
