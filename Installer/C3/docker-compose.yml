@@ -113,7 +113,8 @@ services:
       - '--config.file=/data/prometheus-root/config/prometheus.yml'
       - '--storage.tsdb.path=/data/prometheus-data'
       - '--web.enable-lifecycle'
-      - '--storage.tsdb.retention=365d'
+      - '--storage.tsdb.retention=14d'
+    #  - '--log.level=debug'
     networks:
       JobNet:
         aliases:
@@ -129,6 +130,10 @@ services:
 #      - "9093:9093"
     volumes:
       - "/data/open-c3/alertmanager/config:/etc/alertmanager"
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    #  - '--log.level=debug'
     networks:
       JobNet:
         aliases:

@@ -1,0 +1,77 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --tree open-c3.ops --date 2024-05
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( tree=s date=s ) )->dump();
+
+$option->assert() unless $o{tree};
+$option->assert() unless $o{date} && $o{date} =~ /^\d+\-\d+$/;
+
+my ( %uuid, %name );
+
+sub getuuid
+{
+    my $type = shift @_;
+    my @xx = `c3mc-device-data-get curr $type`;
+    chomp @xx;
+    for my $xx ( @xx )
+    {
+        my @x = split /\t/, $xx;
+        my ( $uuid ,$tree,  $name) = @x;
+        next unless $tree =~ /$o{tree}/;
+        $name{$name} ++ if $name;
+        $uuid{$uuid} ++ if $uuid;
+    }
+}
+
+my @device = (
+    'compute huawei-ecs uuid 服务树 名称',
+    'storage huawei-ecs-volume uuid 服务树',
+    'storage huawei-obs uuid 服务树 名称',
+);
+
+map{ getuuid($_) }@device;
+
+my %data;
+my $sum = 0;
+for my $file ( glob "/data/open-c3-data/c3mc-device-fee/$o{date}/*.csv" )
+{
+    print "file: $file\n";
+
+    my    @data  = `cat '$file'`;
+    chomp @data;
+
+    next unless @data > 1;
+
+    my $title = shift @data;
+
+    my @title = split /,/, $title;
+
+    for my $data ( @data )
+    {
+         my @d = split /,/, $data;
+         my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
+
+        my @uuid = grep{ 0 == index( $d{UUID}, $_) }keys %uuid;
+        my @name = grep{ 0 == index( $d{NAME}, $_) }keys %name;
+
+        next unless @name || @uuid;
+
+        printf "%s\n", join "\t", map{ $d{$_}//''}qw( UUID NAME Price );
+        $sum += $d{Price};
+
+    }
+}
+
+printf "sum: %0.2f\n", $sum;
