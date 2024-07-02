@@ -1,0 +1,123 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import boto3
+import json
+import logging
+import yaml
+import os
+import sys
+from datetime import datetime
+
+# 创建日志目录（如果不存在）
+log_directory = '/data/open-c3-data/logs/bedrock'
+if not os.path.exists(log_directory):
+    os.makedirs(log_directory)
+
+# 配置日志记录
+current_date = datetime.now().strftime("%Y-%m-%d")
+log_file_path = os.path.join(log_directory, f'alarm_processor_{current_date}.log')
+file_handler = logging.FileHandler(log_file_path)
+file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.addHandler(file_handler)
+
+class ClaudeApi(object):
+    def __init__(self, aws_access_key_id, aws_secret_access_key, region_name):
+        self.bedrock = boto3.client(
+            service_name="bedrock-runtime",
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            region_name=region_name
+        )
+
+    def call_claude_sonet(self, message):
+        prompt_config = {
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 4096,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": message},
+                    ],
+                }
+            ],
+        }
+
+        body = json.dumps(prompt_config)
+
+        model_id = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+        accept = "application/json"
+        content_type = "application/json"
+
+        response = self.bedrock.invoke_model(
+            body=body, modelId=model_id, accept=accept, contentType=content_type
+        )
+        
+        response_body = json.loads(response.get("body").read())
+        results = response_body.get("content")[0].get("text")
+        logger.info(f"Received response from Claude: {results}") 
+        return results
+
+def load_config():
+    # 配置文件的绝对路径
+    config_path = '/data/open-c3-data/sysctl.conf'
+
+    with open(config_path, 'r') as file:
+        return yaml.safe_load(file)
+
+def process_alarm(message):
+    try:
+        prompt = f"""
+        请分析以下告警信息，提取出里面关键信息: 包括告警名称，告警时间，告警级别，资源名称，资源ID，区域，告警指标等：
+        
+        {message}
+        
+        如果告警信息里面"alarm_status": "alarm" 则alarm_status赋值:"告警发生中"，"alarm_status": "ok" 则alarm_status赋值:"告警恢复"
+        不要包含任何引导语或额外解释，直接列出信息
+
+        请把信息整理成JSON格式输出:
+        alarm_name:
+        alarm_status: 
+        metric_name: 
+        current_value: 
+        threshold:
+        resource_id:
+        resource_name:
+        alarm_time:
+        alarm_level:
+        region:
+        """
+
+        logger.info(f"Received data: {message}")
+        analysis = claude_api.call_claude_sonet(prompt)
+        analysis_dict = json.loads(analysis)
+        
+        return {"analysis": analysis_dict}
+    except Exception as e:
+        logger.error(f"Error processing alarm data: {e}")
+        return {"error": "Failed to process alarm data"}
+
+if __name__ == '__main__':
+    # 从标准输入读取数据
+    input_data = sys.stdin.read()
+
+    # 加载配置
+    config = load_config()
+
+    # 初始化 Claude API
+    claude_api = ClaudeApi(
+        aws_access_key_id = config['sys.mai.bedrock.ak'],
+        aws_secret_access_key = config['sys.mai.bedrock.sk'],
+        region_name = config['sys.mai.bedrock.region']
+    )
+
+    # 处理告警数据
+    result = process_alarm(input_data)
+    
+    # 输出结果
+    print(json.dumps(result, indent=4, ensure_ascii=False))
+

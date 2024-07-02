@@ -1,0 +1,30 @@
+    <div class="row" style="padding: 10px 20px 0px;">
+        <nodestr></nodestr>
+    </div>
+    <div class="panel panel-primary" style="width: 100%">
+        <div class="panel-body">
+            <div class="form-horizontal">
+                <form class="form-horizontal" name="runtask2tagsForm"  role="form" novalidate>
+                    <div class="row">
+                        <div class="col-sm-10 form-group" >
+                                <label class="col-sm-3 control-label">Tags: &nbsp;</label>
+                                <div class="col-sm-8"> 
+                                    <select class="form-control" ng-model="runtask2tags.tags" >
+                                         <option ng-repeat="x in runtask2tags.tagslist" value="{{x}}">{{x}}</option>
+                                    </select>
+                                </div>
+                        </div>
+ 
+                    </div>
+ 
+                    <div class="row">
+                        <div class="col-sm-3 form-group" style="margin-left: 40%;">
+                            <button ng-if="!runtask2tags.loadover" class="btn btn-primary" ng-disabled="1" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!runtask2tags.loadover}" ></i>{{'C3T.加载中'|translate}}...</button>
+                            <button ng-if="runtask2tags.loadover"  class="btn btn-primary" ng-disabled="runtask2tagsForm.$invalid" ng-click="runtask2tags.runTask()">{{'C3T.确认'|translate}}</button>
+                            <button class="btn btn-primary" ng-click="runtask2tags.cancel()">{{'C3T.取消'|translate}}</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>

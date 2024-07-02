@@ -52,17 +52,19 @@ return sub
 
     my ( $dumptags, $version ) = ( '', 'release' );
     $name = '' unless defined $name;
-    if( $name )
-    {
-        $logs->die( "name format error" ) unless $name =~ /^[a-zA-Z0-9\.\-_]+$/;
-        ( $dumptags, $version ) = ( "-b $name", $name );
-    }
 
     my $rn = eval{ $db->query( "select `realname` from openc3_ci_version where projectid='$projectid' and name='$name'" )};
     $logs->die( "get realname fail: $@" ) if $@;
     $logs->die( "realname unffind" ) unless $rn && @$rn > 0;
     my $realname = $rn->[0][0];
 
+    $name = $realname if $realname;
+
+    if( $name )
+    {
+        $logs->die( "name format error" ) unless $name =~ /^[a-zA-Z0-9\.\-_]+$/;
+        ( $dumptags, $version ) = ( "-b $name", $name );
+    }
 
     my $tagger;
     my $tag_info = '';
