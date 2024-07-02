@@ -38,9 +38,39 @@ sub call
 {
     my ( $user, $mesg ) = @_;
 
+    # 默认模板颜色
+    my $template = "blue";
+    # 默认标题内容  
+    my $header_content = "openc3-通知";  
+
+    if ($mesg =~ /告警发生中/) {
+        $template = "red";
+        $header_content = "openc3-告警通知";
+    } elsif ($mesg =~ /告警已恢复/) {
+        $template = "green";
+        $header_content = "openc3-告警恢复";
+    }
+
     my %form = (
-        msg_type => 'text',
-        content  => +{ text => $mesg },
+        msg_type => 'interactive',
+        card => {
+            header => {
+                template => $template,
+                title => {
+                    content => $header_content,
+                    tag => "plain_text"
+                }
+            },
+            elements => [
+                {
+                    tag => "div",
+                    text => {
+                        content => $mesg,
+                        tag => "plain_text"
+                    }
+                }
+            ]
+        }
     );
 
     my $url = "https://open.feishu.cn/open-apis/bot/v2/hook/$user";
@@ -57,6 +87,7 @@ sub call
     }
     die sprintf "http error: %s", YAML::XS::Dump $res;
 }
+
 
 sub sendmesg
 {
