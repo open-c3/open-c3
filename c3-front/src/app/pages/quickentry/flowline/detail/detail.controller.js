@@ -339,6 +339,22 @@
             });
         }
 
+        vm.runTags = function() {
+            $uibModal.open({
+                templateUrl: 'app/pages/quickentry/flowline/runTask2Tags.html',
+                controller: 'RunTask2TagsController',
+                controllerAs: 'runtask2tags', 
+                backdrop: 'static', 
+                size: 'lg', 
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () { return vm.treeid },
+                    projectid: function () { return vm.projectid },
+                }
+            });
+        }
+
         vm.editconfig = function () {
             $uibModal.open({
                 templateUrl: 'app/pages/quickentry/flowline/detail/config.html',
