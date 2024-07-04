@@ -58,18 +58,27 @@ for my $file ( glob "/data/open-c3-data/c3mc-device-fee/$o{date}/*.csv" )
 
     my @title = split /,/, $title;
 
+    my @coluuid = ( "UUID", "资源ID" );
+    my @colname = ( "NAME", "资源名称" );
+    my @colcost = ( "Price", "Cost", "应付金额 (USD)" );
+
+    my ( $coluuid ) = grep{ my $x = $_; grep{ $_ eq $x }@coluuid }@title;
+    my ( $colname ) = grep{ my $x = $_; grep{ $_ eq $x }@colname }@title;
+    my ( $colcost ) = grep{ my $x = $_; grep{ $_ eq $x }@colcost }@title;
+
     for my $data ( @data )
     {
          my @d = split /,/, $data;
+         map{ $_ =~ s/^"// and $_ =~ s/"$// if $_ =~ /^"/ && $_ =~ /"$/ }@d;
          my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
 
-        my @uuid = grep{ 0 == index( $d{UUID}, $_) }keys %uuid;
-        my @name = grep{ 0 == index( $d{NAME}, $_) }keys %name;
+        my @uuid = grep{ 0 == index( $d{$coluuid}, $_) }keys %uuid;
+        my @name = grep{ 0 == index( $d{$colname}, $_) }keys %name;
 
         next unless @name || @uuid;
 
-        printf "%s\n", join "\t", map{ $d{$_}//''}qw( UUID NAME Price );
-        $sum += $d{Price};
+        printf "%s\n", join "\t", map{ $d{$_}//''}( $coluuid, $colname, $colcost );
+        $sum += $d{$colcost};
 
     }
 }
