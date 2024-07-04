@@ -9,13 +9,14 @@ use MYDan::Util::OptConf;
 =head1 SYNOPSIS
 
  $0 --tree open-c3.ops --date 2024-05
+ $0 --uuid 1eb3bbdf-a5f6-42ce-bdde-9e9afbe1d311 --date 2024-05
 
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( tree=s date=s ) )->dump();
+my %o = $option->get( qw( tree=s date=s uuid=s ) )->dump();
 
-$option->assert() unless $o{tree};
+$option->assert() unless $o{tree} || $o{uuid};
 $option->assert() unless $o{date} && $o{date} =~ /^\d+\-\d+$/;
 
 my ( %uuid, %name );
@@ -41,7 +42,8 @@ my @device = (
     'storage huawei-obs uuid 服务树 名称',
 );
 
-map{ getuuid($_) }@device;
+map{ getuuid($_) }@device if $o{tree};
+$uuid{$o{uuid}} ++ if $o{uuid};
 
 my %data;
 my $sum = 0;
