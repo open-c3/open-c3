@@ -11,10 +11,12 @@ use MYDan::Util::OptConf;
  $0 --tree open-c3.ops --date 2024-05
  $0 --uuid 1eb3bbdf-a5f6-42ce-bdde-9e9afbe1d311 --date 2024-05
 
+ $0 --tree open-c3.ops --date 2024-05 --exclude
+
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( tree=s date=s uuid=s ) )->dump();
+my %o = $option->get( qw( tree=s date=s uuid=s exclude ) )->dump();
 
 $option->assert() unless $o{tree} || $o{uuid};
 $option->assert() unless $o{date} && $o{date} =~ /^\d+\-\d+$/;
@@ -40,13 +42,17 @@ my @device = (
     'compute huawei-ecs uuid 服务树 名称',
     'storage huawei-ecs-volume uuid 服务树',
     'storage huawei-obs uuid 服务树 名称',
+    'database huawei-rds uuid 服务树 名称',
+    'database huawei-redis uuid 服务树 名称',
+    'networking huawei-elb uuid 服务树 名称',
+    'storage huawei-kafka uuid 服务树 名称',
+    'storage huawei-obs 名称 服务树 名称',
 );
 
 map{ getuuid($_) }@device if $o{tree};
 $uuid{$o{uuid}} ++ if $o{uuid};
 
-my %data;
-my $sum = 0;
+my ( $sum, %data, %out ) = ( 0 );
 for my $file ( glob "/data/open-c3-data/c3mc-device-fee/$o{date}/*.csv" )
 {
     print "file: $file\n";
@@ -71,18 +77,20 @@ for my $file ( glob "/data/open-c3-data/c3mc-device-fee/$o{date}/*.csv" )
     for my $data ( @data )
     {
          my @d = split /,/, $data;
-         map{ $_ =~ s/^"// and $_ =~ s/"$// if $_ =~ /^"/ && $_ =~ /"$/ }@d;
+         map{ $_ =~ s/^"*// and $_ =~ s/"*$// }@d;
          my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
 
         my @uuid = grep{ 0 == index( $d{$coluuid}, $_) }keys %uuid;
         my @name = grep{ 0 == index( $d{$colname}, $_) }keys %name;
 
-        next unless @name || @uuid;
-
-        printf "%s\n", join "\t", map{ $d{$_}//''}( $coluuid, $colname, $colcost );
+        next if ( ( ! $o{exclude} ) && ( ! ( @name || @uuid )) ) || ( $o{exclude} && ( @name || @name ) );
+        
+        my $out = sprintf "%s\n", join "\t", map{ $d{$_}//''}( $coluuid, $colname, $colcost );
+        $out{$out} = $d{$colcost};
         $sum += $d{$colcost};
 
     }
 }
 
+map{ print } sort{ $out{$a} <=> $out{$b}}keys %out;
 printf "sum: %0.2f\n", $sum;
