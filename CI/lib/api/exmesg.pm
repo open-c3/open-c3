@@ -15,6 +15,8 @@ use Digest::MD5;
 
 =cut
 
+our %handle;
+
 any '/exmesg/:type' => sub {
     my $param = params();
     my $path = "/data/open-c3-data/monitor-exmesg/queue";
