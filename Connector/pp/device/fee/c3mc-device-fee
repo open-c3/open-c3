@@ -47,17 +47,26 @@ my @device = (
     'networking huawei-elb uuid 服务树 名称',
     'storage huawei-kafka uuid 服务树 名称',
     'storage huawei-obs 名称 服务树 名称',
+    'compute aws-ec2 uuid 服务树 名称',
+    'networking aws-alb uuid 服务树 名称',
+    'networking aws-nlb uuid 服务树 名称',
+    'networking aws-eip uuid 服务树 NetworkInterfaceId',
+    'storage aws-ec2-volume uuid 服务树 uuid',
+    'storage aws-s3 uuid 服务树 名称',
+    'database aws-dynamodb uuid 服务树 名称',
+    'database aws-dynamodb uuid 服务树 名称',
 );
 
 map{ getuuid($_) }@device if $o{tree};
 $uuid{$o{uuid}} ++ if $o{uuid};
+$name{$o{uuid}} ++ if $o{uuid};
 
 my ( $sum, %data, %out ) = ( 0 );
 for my $file ( glob "/data/open-c3-data/c3mc-device-fee/$o{date}/*.csv" )
 {
     print "file: $file\n";
 
-    my    @data  = `cat '$file'`;
+    my    @data  = `cat '$file'|sed 's/Amazon Web Services, Inc/Amazon Web Services Inc/g'`;
     chomp @data;
 
     next unless @data > 1;
@@ -66,9 +75,9 @@ for my $file ( glob "/data/open-c3-data/c3mc-device-fee/$o{date}/*.csv" )
 
     my @title = split /,/, $title;
 
-    my @coluuid = ( "UUID", "资源ID" );
-    my @colname = ( "NAME", "资源名称" );
-    my @colcost = ( "Price", "Cost", "应付金额 (USD)" );
+    my @coluuid = ( "UUID", "资源ID", "lineItem/ResourceId" );
+    my @colname = ( "NAME", "资源名称", "lineItem/ResourceId" );
+    my @colcost = ( "Price", "Cost", "应付金额 (USD)", "lineItem/UnblendedCost" );
 
     my ( $coluuid ) = grep{ my $x = $_; grep{ $_ eq $x }@coluuid }@title;
     my ( $colname ) = grep{ my $x = $_; grep{ $_ eq $x }@colname }@title;
@@ -80,8 +89,8 @@ for my $file ( glob "/data/open-c3-data/c3mc-device-fee/$o{date}/*.csv" )
          map{ $_ =~ s/^"*// and $_ =~ s/"*$// }@d;
          my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
 
-        my @uuid = grep{ 0 == index( $d{$coluuid}, $_) }keys %uuid;
-        my @name = grep{ 0 == index( $d{$colname}, $_) }keys %name;
+        my @uuid = grep{ 0 == index( $d{$coluuid}, $_) || $d{$coluuid} =~ /\/$_\b/ }keys %uuid;
+        my @name = grep{ 0 == index( $d{$colname}, $_) || $d{$colname} =~ /\/$_\b/ }keys %name;
 
         next if ( ( ! $o{exclude} ) && ( ! ( @name || @uuid )) ) || ( $o{exclude} && ( @name || @name ) );
         
