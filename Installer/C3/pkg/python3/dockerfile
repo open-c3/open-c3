@@ -2,6 +2,13 @@ FROM centos:7
 
 WORKDIR /app
 
+RUN mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
+
+RUN curl -o /etc/yum.repos.d/CentOS-Base.repo https://repo.huaweicloud.com/repository/conf/CentOS-7-reg.repo && \
+    yum clean all && \
+    yum makecache
+
+
 ADD make.sh make.sh
 ADD init  init
 
