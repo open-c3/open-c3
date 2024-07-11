@@ -97,6 +97,7 @@ sub sendone
     if( $usermesg =~ /api.connector.open-c3.org/ )
     {
         $mesg =~ s/'/"/g;
+        $mesg = substr( $mesg, 0, 1000 ) if length $mesg > 1000;
         eval{ $db->execute( "insert into openc3_connector_usermesg (`user`,`mesg`) values('$user','$mesg')" )};
         die $@ if $@;
         return;
