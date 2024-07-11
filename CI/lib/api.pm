@@ -41,6 +41,7 @@ hook 'before' => sub {
            || $uri =~ m{^/reload}
            || $uri =~ m{^/to3part}
            || $uri =~ m{^/exalarm/}
+           || $uri =~ m{^/exmesg/}
            || $uri =~ m{^/demo/};
 
     halt( +{ stat => $JSON::false, code => 10000 } ) 
