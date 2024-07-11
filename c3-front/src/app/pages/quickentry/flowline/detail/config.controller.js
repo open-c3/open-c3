@@ -381,7 +381,7 @@
                 'scripts_type': "buildin",
                 'scripts_cont': "#!kubernetes",
                 'scripts_argv': "check $version",
-                'timeout': "300",
+                'timeout': "1800",
                 'pause': "",
                 'deployenv' : "always",
                 'action' : "always",
