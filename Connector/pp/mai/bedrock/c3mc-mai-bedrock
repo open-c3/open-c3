@@ -48,19 +48,22 @@ class ClaudeApi(object):
         }
 
         body = json.dumps(prompt_config)
-
         model_id = "anthropic.claude-3-5-sonnet-20240620-v1:0"
         accept = "application/json"
         content_type = "application/json"
 
-        response = self.bedrock.invoke_model(
-            body=body, modelId=model_id, accept=accept, contentType=content_type
-        )
-        
-        response_body = json.loads(response.get("body").read())
-        results = response_body.get("content")[0].get("text")
-        logger.info(f"Received response from Claude: {results}") 
-        return results
+        try:
+            response = self.bedrock.invoke_model(
+                body=body, modelId=model_id, accept=accept, contentType=content_type
+            )
+            
+            response_body = json.loads(response.get("body").read())
+            results = response_body.get("content")[0].get("text")
+            logger.info(f"Received response from Claude: {results}") 
+            return results
+        except Exception as e:
+            logger.error(f"Error calling Claude API: {e}")
+            raise
 
 def load_config():
     # 配置文件的绝对路径
@@ -76,7 +79,7 @@ def process_alarm(message):
         
         {message}
         
-        如果告警信息里面"alarm_status": "alarm" 则alarm_status赋值:"告警发生中"，"alarm_status": "ok" 则alarm_status赋值:"告警恢复"
+        如果告警信息里面"alarm_status": "alarm" 则alarm_status赋值:"告警发生中"，"alarm_status": "ok" 则alarm_status赋值:"告警已恢复"
         不要包含任何引导语或额外解释，直接列出信息
 
         请把信息整理成JSON格式输出:
