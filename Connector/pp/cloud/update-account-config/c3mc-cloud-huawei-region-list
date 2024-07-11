@@ -20,7 +20,8 @@ class Huawei:
 
     def get_huawei_webpage(self):
         # 华为云目前没有可以直接查询区域列表的接口, 这里使用爬虫从华为云官网文档获取区域
-        url = 'https://developer.huaweicloud.com/endpoint?all'
+        #url = 'https://developer.huaweicloud.com/endpoint?all'
+        url = 'http://OPENC3_SERVER_IP:38080/huawei-endpoint.html'
         response = requests.get(url)
         return response.text
 
