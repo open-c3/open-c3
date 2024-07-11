@@ -25,7 +25,7 @@ die "Not a kubernetes cicd process" unless $ci_type && $ci_type eq 'kubernetes';
 
 if( $ci_type_kind eq 'deployment' || $ci_type_kind eq 'statefulset' )
 {
-    exec "c3mc-k8s-kubectl-get --id '$ci_type_ticketid' \"get pods --namespace '$ci_type_namespace' -o wide\"|grep -E \"^NAME|^$ci_type_name-[0-9]\"";
+    exec "c3mc-k8s-kubectl-get --id '$ci_type_ticketid' \"get pods --namespace '$ci_type_namespace' -o wide\"|grep -E \"^NAME|^$ci_type_name-\"";
 }
 elsif( $ci_type_kind eq 'deamonset' )
 {
