@@ -81,9 +81,8 @@ $task{default} = sub
     my $mesg = YAML::XS::Dump $cont;
 
     my $tmp = "/tmp/c3mc-mon-exmesg.$$.temp";
-    my $aimsg = `cat $file | /data/Software/mydan/dan/tools/alarm 20 c3mc-mai-bedrock`;
-    $mesg .= "\n". '#' x 60 . "\n";
-    $mesg .= $aimsg;
+    my $aimsg = `cat $file | /data/Software/mydan/dan/tools/alarm 30 c3mc-mai-bedrock`;
+    $mesg = "下面信息由AI整理生成\n$aimsg" unless $?;
 
     $res{mesg} = Encode::decode( 'utf8', $mesg );
 
