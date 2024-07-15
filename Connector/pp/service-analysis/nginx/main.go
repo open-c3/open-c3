@@ -275,7 +275,25 @@ func processVhosts(rootDir string, allUpstreams map[string][]string) {
 		}
 
 		if !info.IsDir() && strings.HasSuffix(info.Name(), ".conf") {
-			vhost := processFile(path, filepath.Base(filepath.Dir(path)))
+			// 获取相对于 rootDir 的路径
+			relPath, err := filepath.Rel(rootDir, path)
+			if err != nil {
+				fmt.Println("Error getting relative path:", err)
+				return nil
+			}
+
+			// 分割路径，第一个元素应该是 IP
+			pathParts := strings.Split(relPath, string(os.PathSeparator))
+			if len(pathParts) < 2 {
+				fmt.Println("Invalid path structure:", path)
+				return nil
+			}
+
+			ip := pathParts[0] // 第一个目录名作为 IP
+
+			vhost := processFile(path, ip)
+
+			//vhost := processFile(path, filepath.Base(filepath.Dir(path)))
 
 			for _, location := range vhost.Locations {
 				upstreamStr := ""
