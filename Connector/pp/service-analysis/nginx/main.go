@@ -40,9 +40,14 @@ type SimplifiedVHost struct {
 }
 
 func main() {
-	rootDir := "nginx" // 替换为实际的nginx配置文件根目录
+	//rootDir := "nginx" // 替换为实际的nginx配置文件根目录
 	//vhosts := processDirectory(rootDir)
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: go run main.go <nginx_config_directory>")
+		os.Exit(1)
+	}
 
+	rootDir := os.Args[1] // 从命令行参数获取nginx配置文件根目录
 	// 创建Excel文件
 	//createExcelFile(vhosts)
 
