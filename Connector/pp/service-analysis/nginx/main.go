@@ -42,12 +42,16 @@ type SimplifiedVHost struct {
 func main() {
 	//rootDir := "nginx" // 替换为实际的nginx配置文件根目录
 	//vhosts := processDirectory(rootDir)
+	// 检查命令行参数
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: go run main.go <nginx_config_directory>")
 		os.Exit(1)
 	}
 
 	rootDir := os.Args[1] // 从命令行参数获取nginx配置文件根目录
+
+	// 打印nginx配置信息
+	//printNginxConfig(rootDir)
 	// 创建Excel文件
 	//createExcelFile(vhosts)
 
@@ -209,6 +213,7 @@ func processFile(filePath, ip string) VirtualHost {
 		}
 	}
 
+	//fmt.Println(vhost.Upstreams)
 	if currentLocation != nil {
 		vhost.Locations = append(vhost.Locations, *currentLocation)
 	}
@@ -217,59 +222,106 @@ func processFile(filePath, ip string) VirtualHost {
 }
 
 func printNginxconfig(rootDir string) {
-	// 获取第一层目录
-	firstLevelDirs, err := os.ReadDir(rootDir)
-	if err != nil {
-		fmt.Println("Error reading root directory:", err)
-		return
-	}
+	// 用于存储所有 upstream 信息的 map
+	allUpstreams := make(map[string][]string)
 
-	for _, dir := range firstLevelDirs {
-		if dir.IsDir() {
-			ip := dir.Name()
-			dirPath := filepath.Join(rootDir, ip)
+	// 第一次遍历：收集所有的 upstream 信息
+	collectUpstreams(rootDir, allUpstreams)
 
-			err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
-				if err != nil {
-					return err
+	// 第二次遍历：处理每个虚拟主机配置
+	processVhosts(rootDir, allUpstreams)
+}
+
+func collectUpstreams(rootDir string, allUpstreams map[string][]string) {
+	filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !info.IsDir() && strings.HasSuffix(info.Name(), ".conf") {
+			file, err := os.Open(path)
+			if err != nil {
+				fmt.Println("Error opening file:", err)
+				return nil
+			}
+			defer file.Close()
+
+			scanner := bufio.NewScanner(file)
+			var currentUpstream string
+			inUpstreamBlock := false
+
+			for scanner.Scan() {
+				line := strings.TrimSpace(scanner.Text())
+
+				if strings.HasPrefix(line, "upstream") {
+					currentUpstream = extractUpstreamName(line)
+					inUpstreamBlock = true
+				} else if strings.HasPrefix(line, "}") && inUpstreamBlock {
+					inUpstreamBlock = false
+				} else if strings.HasPrefix(line, "server") && inUpstreamBlock {
+					server := extractServerValue(line)
+					allUpstreams[currentUpstream] = append(allUpstreams[currentUpstream], server)
 				}
+			}
+		}
+		return nil
+	})
+}
 
-				if !info.IsDir() && strings.HasSuffix(info.Name(), ".conf") {
-					vhost := processFile(path, ip)
+func processVhosts(rootDir string, allUpstreams map[string][]string) {
+	filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
 
-					for _, location := range vhost.Locations {
-						upstreamStr := ""
-						if upstream, ok := vhost.Upstreams[location.Upstream]; ok {
-							upstreamStr = strings.Join(upstream, ",")
-						}
+		if !info.IsDir() && strings.HasSuffix(info.Name(), ".conf") {
+			vhost := processFile(path, filepath.Base(filepath.Dir(path)))
 
-						simplifiedVHost := SimplifiedVHost{
-							IP:         vhost.IP,
-							ServerName: vhost.ServerName,
-							Path:       location.Path,
-							Upstream:   upstreamStr,
-							ProxyPass:  extractProxyPass(location.ProxyPass),
-							UUID:       generateUUID(vhost.IP, vhost.ServerName, location.Path),
-						}
+			for _, location := range vhost.Locations {
+				upstreamStr := ""
+				proxyPass := location.ProxyPass
 
-						// 打印每个简化的 VHost 到标准输出，压缩成一行
-						jsonData, err := json.Marshal(simplifiedVHost)
-						if err != nil {
-							fmt.Println("Error marshalling JSON for file:", path, err)
-						} else {
-							fmt.Println(string(jsonData))
-						}
+				// 检查 proxy_pass 是否是一个 upstream 名称
+				if strings.HasPrefix(proxyPass, "http://") {
+					upstreamName := strings.TrimPrefix(proxyPass, "http://")
+					if upstream, ok := allUpstreams[upstreamName]; ok {
+						upstreamStr = strings.Join(upstream, ",")
+						proxyPass = upstreamName // 保持原始的 upstream 名称
+					} else {
+						// 如果在 allUpstreams 中找不到对应的 upstream，
+						// 则将 http:// 后面的内容设置为 upstream
+						upstreamStr = upstreamName
+					}
+				} else {
+					// 如果 proxy_pass 不是以 "http://" 开头，假设它是一个 upstream 名称
+					if upstream, ok := allUpstreams[proxyPass]; ok {
+						upstreamStr = strings.Join(upstream, ",")
+					} else {
+						// 如果在 allUpstreams 中找不到对应的 upstream，
+						// 则将整个 proxyPass 设置为 upstream
+						upstreamStr = proxyPass
 					}
 				}
 
-				return nil
-			})
+				simplifiedVHost := SimplifiedVHost{
+					IP:         vhost.IP,
+					ServerName: vhost.ServerName,
+					Path:       location.Path,
+					Upstream:   upstreamStr,
+					ProxyPass:  proxyPass,
+					UUID:       generateUUID(vhost.IP, vhost.ServerName, location.Path),
+				}
 
-			if err != nil {
-				fmt.Println("Error walking through directory:", err)
+				jsonData, err := json.Marshal(simplifiedVHost)
+				if err != nil {
+					fmt.Println("Error marshalling JSON for file:", path, err)
+				} else {
+					fmt.Println(string(jsonData))
+				}
 			}
 		}
-	}
+		return nil
+	})
 }
 
 func extractValue(line string) string {
