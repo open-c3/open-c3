@@ -41,15 +41,15 @@ type SimplifiedVHost struct {
 
 func main() {
 	//rootDir := "nginx" // 替换为实际的nginx配置文件根目录
-	//vhosts := processDirectory(rootDir)
+
 	// 检查命令行参数
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run main.go <nginx_config_directory>")
+		fmt.Println("Usage: ./c3mc-service-analysis-get-nginx-conf  <nginx_config_directory>")
 		os.Exit(1)
 	}
 
 	rootDir := os.Args[1] // 从命令行参数获取nginx配置文件根目录
-
+	//vhosts := processDirectory(rootDir)
 	// 打印nginx配置信息
 	//printNginxConfig(rootDir)
 	// 创建Excel文件
@@ -260,12 +260,25 @@ func collectUpstreams(rootDir string, allUpstreams map[string][]string) {
 					inUpstreamBlock = false
 				} else if strings.HasPrefix(line, "server") && inUpstreamBlock {
 					server := extractServerValue(line)
-					allUpstreams[currentUpstream] = append(allUpstreams[currentUpstream], server)
+					// 检查服务器是否已经存在于切片中
+					if !contains(allUpstreams[currentUpstream], server) {
+						allUpstreams[currentUpstream] = append(allUpstreams[currentUpstream], server)
+					}
 				}
 			}
 		}
 		return nil
 	})
+}
+
+// 辅助函数：检查切片中是否包含特定元素
+func contains(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
+	}
+	return false
 }
 
 func processVhosts(rootDir string, allUpstreams map[string][]string) {
@@ -275,48 +288,38 @@ func processVhosts(rootDir string, allUpstreams map[string][]string) {
 		}
 
 		if !info.IsDir() && strings.HasSuffix(info.Name(), ".conf") {
-			// 获取相对于 rootDir 的路径
 			relPath, err := filepath.Rel(rootDir, path)
 			if err != nil {
 				fmt.Println("Error getting relative path:", err)
 				return nil
 			}
 
-			// 分割路径，第一个元素应该是 IP
 			pathParts := strings.Split(relPath, string(os.PathSeparator))
 			if len(pathParts) < 2 {
 				fmt.Println("Invalid path structure:", path)
 				return nil
 			}
 
-			ip := pathParts[0] // 第一个目录名作为 IP
-
+			ip := pathParts[0]
 			vhost := processFile(path, ip)
-
-			//vhost := processFile(path, filepath.Base(filepath.Dir(path)))
 
 			for _, location := range vhost.Locations {
 				upstreamStr := ""
 				proxyPass := location.ProxyPass
 
-				// 检查 proxy_pass 是否是一个 upstream 名称
 				if strings.HasPrefix(proxyPass, "http://") {
 					upstreamName := strings.TrimPrefix(proxyPass, "http://")
-					if upstream, ok := allUpstreams[upstreamName]; ok {
-						upstreamStr = strings.Join(upstream, ",")
-						proxyPass = upstreamName // 保持原始的 upstream 名称
+					upstreamParts := strings.SplitN(upstreamName, "/", 2)
+					if upstream, ok := allUpstreams[upstreamParts[0]]; ok {
+						upstreamStr = simplifyUpstreamServers(upstream)
 					} else {
-						// 如果在 allUpstreams 中找不到对应的 upstream，
-						// 则将 http:// 后面的内容设置为 upstream
-						upstreamStr = upstreamName
+						// 如果没有找到对应的 upstream，使用 proxy_pass 中的主机名或 IP
+						upstreamStr = upstreamParts[0]
 					}
 				} else {
-					// 如果 proxy_pass 不是以 "http://" 开头，假设它是一个 upstream 名称
 					if upstream, ok := allUpstreams[proxyPass]; ok {
-						upstreamStr = strings.Join(upstream, ",")
+						upstreamStr = simplifyUpstreamServers(upstream)
 					} else {
-						// 如果在 allUpstreams 中找不到对应的 upstream，
-						// 则将整个 proxyPass 设置为 upstream
 						upstreamStr = proxyPass
 					}
 				}
@@ -340,6 +343,15 @@ func processVhosts(rootDir string, allUpstreams map[string][]string) {
 		}
 		return nil
 	})
+}
+
+func simplifyUpstreamServers(servers []string) string {
+	simplified := make([]string, len(servers))
+	for i, server := range servers {
+		parts := strings.Fields(server)
+		simplified[i] = strings.Split(parts[0], ":")[0] // 只保留 IP 部分
+	}
+	return strings.Join(simplified, ",")
 }
 
 func extractValue(line string) string {
