@@ -22,12 +22,7 @@ type VirtualHost struct {
 	Locations  []Location          `json:"locations"`
 	Upstreams  map[string][]string `json:"upstreams"`
 	FilePath   string              `json:"file_path"`
-}
-
-type Location struct {
-	Path      string `json:"path"`
-	ProxyPass string `json:"proxy_pass"`
-	Upstream  string `json:"upstream"`
+	Listen     string              `json:"listen"`
 }
 
 type SimplifiedVHost struct {
@@ -37,6 +32,13 @@ type SimplifiedVHost struct {
 	Upstream   string `json:"upstream"`
 	ProxyPass  string `json:"proxy_pass"`
 	UUID       string `json:"uuid"`
+	Port       string `json:"port"`
+}
+
+type Location struct {
+	Path      string `json:"path"`
+	ProxyPass string `json:"proxy_pass"`
+	Upstream  string `json:"upstream"`
 }
 
 func main() {
@@ -191,7 +193,9 @@ func processFile(filePath, ip string) VirtualHost {
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 
-		if strings.HasPrefix(line, "server_name") {
+		if strings.HasPrefix(line, "listen") {
+			vhost.Listen = extractListenValue(line)
+		} else if strings.HasPrefix(line, "server_name") {
 			vhost.ServerName = extractValue(line)
 			vhost.Domain = extractDomain(vhost.ServerName)
 		} else if strings.HasPrefix(line, "location") {
@@ -331,6 +335,7 @@ func processVhosts(rootDir string, allUpstreams map[string][]string) {
 					Upstream:   upstreamStr,
 					ProxyPass:  proxyPass,
 					UUID:       generateUUID(vhost.IP, vhost.ServerName, location.Path),
+					Port:       vhost.Listen,
 				}
 
 				jsonData, err := json.Marshal(simplifiedVHost)
@@ -343,6 +348,14 @@ func processVhosts(rootDir string, allUpstreams map[string][]string) {
 		}
 		return nil
 	})
+}
+
+func extractListenValue(line string) string {
+	parts := strings.Fields(line)
+	if len(parts) > 1 {
+		return strings.TrimSuffix(parts[1], ";")
+	}
+	return ""
 }
 
 func simplifyUpstreamServers(servers []string) string {
