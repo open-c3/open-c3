@@ -84,7 +84,8 @@
                         router: '',
                         params: {},
                         list: [
-                          { title: 'C3T.CMDB', icon: 'fa fa-database', label: 'CMDB', router: 'home.device.menu', params: {} },
+                          { title: 'C3T.CMDB', icon: 'fa fa-database', label: 'CMDB.CMDB', router: 'home.device.menu', params: {} },
+                          { title: 'C3T.服务分析', icon: 'fa fa-code-fork', label: 'CMDB.服务分析', params: {}, router: 'home.connector.serviceanalysis' },
                         ]
                       },
                       // 监控
@@ -105,7 +106,6 @@
                           { title: 'C3T.低利用率', icon: 'fa fa-stethoscope', label: '监控.低利用率', params: {}, router: 'home.quickentry.monitornodelow' },
                           { title: 'C3T.邮件监控', icon: 'fa fa-mixcloud', label: '监控.邮件监控', params: {}, router: 'home.quickentry.monitormailmon' },
                           { title: 'C3T.故障自愈', icon: 'fa fa-wheelchair-alt', label: '监控.故障自愈', params: {}, router: 'home.quickentry.selfhealingconfig' },
-                          { title: 'C3T.服务分析', icon: 'fa fa-wheelchair-alt', label: '监控.服务分析', params: {}, router: 'home.connector.serviceanalysis' },
                           { title: 'Grafana', icon: 'glyphicon glyphicon-share', external: vm.grafanaurl, label: 'link', router: '', params: {} },
                           { title: 'Prometheus', icon: 'glyphicon glyphicon-share', external: vm.prometheusurl, label: 'link', router: '', params: {} },
                           { title: 'Alertmanager', icon: 'glyphicon glyphicon-share', external: vm.alertmanagerurl, label: 'link', router: '', params: {} },
