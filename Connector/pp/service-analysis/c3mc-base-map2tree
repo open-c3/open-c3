@@ -1,0 +1,74 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use utf8;
+use JSON;
+use Encode;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+=head1 SYNOPSIS
+
+ echo treemap | $0
+
+=cut
+
+my @x = <STDIN>;
+chomp @x;
+exit unless @x;
+
+my %x;
+
+for my $x ( @x )
+{
+    my @xx = split /:::/, $x;
+    for( 0 .. $#xx )
+    {
+        my $xx = join ":::", map{ $xx[$_] } 0 .. $_;
+	$x{$xx} = 1;
+    }
+}
+
+@x = sort keys %x;
+my $id = 1;
+
+my @map = map{ [ $id ++, $_ ] }@x;
+my $data = [];
+for ( @map )
+{
+    my ( $id, $name ) = @$_;
+    $data = maketree( $data, $id, $name );
+}
+
+my $v = eval{ JSON::encode_json $data };
+print $v;
+
+sub maketree
+{
+    my ( $data, $id, $name ) = @_;
+    my ( $name1, $name2 )= split /:::/, $name, 2;
+
+    unless( defined $name2 )
+    {
+        push @$data, +{ id => $id, name => $name };
+        return $data;
+    }
+    else
+    {
+        for my $d ( @$data )
+        {
+            if( $d->{name} eq $name1 )
+            {
+                $d->{children} = [] unless defined $d->{children};
+                $d->{children} = maketree( $d->{children}, $id, $name2 );
+                return $data;
+            }
+        }
+        return $data;
+    }
+};
+
