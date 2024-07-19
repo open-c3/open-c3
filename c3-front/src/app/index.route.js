@@ -660,6 +660,14 @@
                 controller: 'ConnectorTreeController',
                 controllerAs: 'connectortree'
             })
+
+            .state('home.connector.serviceanalysis', {
+                url: 'serviceanalysis/:treeid',
+                templateUrl: 'app/pages/connector/serviceanalysis/serviceanalysis.html',
+                controller: 'ConnectorServiceAnalysisController',
+                controllerAs: 'connectorserviceanalysis'
+            })
+
             .state('home.business.notify', {
                 url: 'notify/:treeid',
                 templateUrl: 'app/pages/business/notify/notify.html',

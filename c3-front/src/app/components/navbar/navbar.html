@@ -82,8 +82,17 @@
 
     <!-- CMDB -->
     <ul class="nav navbar-nav navbar-left" ng-click="nav.toggleCard(false)">
-        <li class="nav-padding">
-          <a ng-if="nav.user.menu['CMDB'] == 2" ui-sref="home.device.menu({treeid: nav.state.params.treeid})" class="p15 lh30"> <span>CMDB</span> </a>
+        <li ng-if="nav.user.menu['CMDB'] == 2" class="dropdown nav-padding" uib-dropdown>
+            <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple " uib-dropdown-toggle>
+                <span>{{'C3T.CMDB'|translate}}</span>
+                <span class="caret caret-tp hidden-xs"></span>
+            </a>
+            <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
+                <li class="list-group-item">
+                    <a ng-if="nav.user.menu['CMDB.CMDB'] == 2" ui-sref="home.device.menu({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-database"></span><span>{{'C3T.CMDB'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['CMDB.服务分析'] == 2" ui-sref="home.connector.serviceanalysis({treeid: nav.state.params.treeid})" > <span class="fa fa-code-fork"></span><span>{{'C3T.服务分析'|translate}}</span> </a>
+                </li>
+            </ul>
         </li>
     </ul>
     <!-- 监控 -->

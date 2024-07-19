@@ -48,19 +48,22 @@ class ClaudeApi(object):
         }
 
         body = json.dumps(prompt_config)
-
         model_id = "anthropic.claude-3-5-sonnet-20240620-v1:0"
         accept = "application/json"
         content_type = "application/json"
 
-        response = self.bedrock.invoke_model(
-            body=body, modelId=model_id, accept=accept, contentType=content_type
-        )
-        
-        response_body = json.loads(response.get("body").read())
-        results = response_body.get("content")[0].get("text")
-        logger.info(f"Received response from Claude: {results}") 
-        return results
+        try:
+            response = self.bedrock.invoke_model(
+                body=body, modelId=model_id, accept=accept, contentType=content_type
+            )
+            
+            response_body = json.loads(response.get("body").read())
+            results = response_body.get("content")[0].get("text")
+            logger.info(f"Received response from Claude: {results}") 
+            return results
+        except Exception as e:
+            logger.error(f"Error calling Claude API: {e}")
+            raise
 
 def load_config():
     # 配置文件的绝对路径
@@ -76,10 +79,10 @@ def process_alarm(message):
         
         {message}
         
-        如果告警信息里面"alarm_status": "alarm" 则alarm_status赋值:"告警发生中"，"alarm_status": "ok" 则alarm_status赋值:"告警恢复"
+        如果告警信息里面"alarm_status": "alarm" 则alarm_status赋值:"告警发生中"，"alarm_status": "ok" 则alarm_status赋值:"告警已恢复"
         不要包含任何引导语或额外解释，直接列出信息
 
-        请把信息整理成JSON格式输出:
+        请把信息整理成输出:
         alarm_name:
         alarm_status: 
         metric_name: 
@@ -90,13 +93,15 @@ def process_alarm(message):
         alarm_time:
         alarm_level:
         region:
+        上面的这些字段，字段名称同时改成中文
+
+        同时注意一下，如果无法解析到上面的数据，就不需要这些字段了，可能不是告警的内容，你帮我对信息进行整理后返回给我.
         """
 
         logger.info(f"Received data: {message}")
         analysis = claude_api.call_claude_sonet(prompt)
-        analysis_dict = json.loads(analysis)
         
-        return {"analysis": analysis_dict}
+        return analysis
     except Exception as e:
         logger.error(f"Error processing alarm data: {e}")
         return {"error": "Failed to process alarm data"}
@@ -119,5 +124,5 @@ if __name__ == '__main__':
     result = process_alarm(input_data)
     
     # 输出结果
-    print(json.dumps(result, indent=4, ensure_ascii=False))
+    print(result)
 

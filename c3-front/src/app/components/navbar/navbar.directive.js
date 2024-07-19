@@ -84,7 +84,8 @@
                         router: '',
                         params: {},
                         list: [
-                          { title: 'C3T.CMDB', icon: 'fa fa-database', label: 'CMDB', router: 'home.device.menu', params: {} },
+                          { title: 'C3T.CMDB', icon: 'fa fa-database', label: 'CMDB.CMDB', router: 'home.device.menu', params: {} },
+                          { title: 'C3T.服务分析', icon: 'fa fa-code-fork', label: 'CMDB.服务分析', params: {}, router: 'home.connector.serviceanalysis' },
                         ]
                       },
                       // 监控

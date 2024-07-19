@@ -1,0 +1,130 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use Encode;
+use DateTime::Format::ISO8601;
+use DateTime::TimeZone;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+sub bj_time
+{
+    my $iso8601_str = shift @_;
+
+    my $dt = DateTime::Format::ISO8601->parse_datetime($iso8601_str);
+
+    $dt->set_time_zone('UTC');
+
+    my $bj_time_zone = DateTime::TimeZone->new(name => 'Asia/Shanghai');
+    $dt->set_time_zone($bj_time_zone);
+
+    return $dt->strftime('%Y-%m-%dT%H:%M:%S.%3N%z');
+}
+
+
+my %task;
+
+$task{nexus} = sub
+{
+    my ( $file, $cont ) = @_;
+
+    my %res;
+    return unless $cont->{component};
+
+    my $to = "\@$cont->{group}";
+    die "to error" unless $to && $to =~ /^[a-zA-Z0-9\.\-_@]+$/;
+
+    my @user = `c3mc-app-usrext '$to'`;
+    chomp @user;
+
+    return unless @user;
+
+    $res{to} = \@user;
+    $res{mesg} = "unknown";
+    my @mesg;
+    push @mesg, "nexus Event";
+    push @mesg, "action: $cont->{action}";
+    push @mesg, "timestamp: " . bj_time( $cont->{timestamp} );
+    push @mesg, "repositoryName: $cont->{repositoryName}";
+    push @mesg, "group: $cont->{component}{group}";
+    push @mesg, "name: $cont->{component}{name}";
+    push @mesg, "version: $cont->{component}{version}";
+
+    $res{mesg} = join "\n", @mesg;
+    return \%res;
+};
+
+$task{default} = sub
+{
+    my ( $file, $cont ) = @_;
+
+    my %res;
+
+    my $to = "\@$cont->{group}";
+    die "to error" unless $to && $to =~ /^[a-zA-Z0-9\.\-_@]+$/;
+
+    my @user = `c3mc-app-usrext '$to'`;
+    chomp @user;
+
+    return unless @user;
+
+    $res{to} = \@user;
+    delete $cont->{unsubscribe_url};
+    my $mesg = YAML::XS::Dump $cont;
+
+    my $tmp = "/tmp/c3mc-mon-exmesg.$$.temp";
+    my $aimsg = `cat $file | /data/Software/mydan/dan/tools/alarm 30 c3mc-mai-bedrock`;
+    $mesg = "下面信息由AI整理生成\n$aimsg" unless $?;
+
+    $res{mesg} = Encode::decode( 'utf8', $mesg );
+
+    $res{call} = "C3报告信息";
+
+    delete $res{call} if ${mesg} =~ /已恢复/;
+    delete $res{call} if ${mesg} =~ /告警恢复/;
+
+    return \%res;
+};
+
+
+my $datapath = "/data/open-c3-data/monitor-exmesg";
+my ( $error, $fail, $succ ) = grep{ system "mkdir -p '$_'" unless -d $_; 1 }map{ "$datapath/$_" }qw( error fail succ );
+
+
+for my $file ( glob "$datapath/queue/*" )
+{
+    my $cont = eval{ YAML::XS::LoadFile $file };
+    if( $@ )
+    {
+        warn "load $file fail: $@";
+        system "mv '$file' '$error'";
+        next;
+    }
+
+    $cont->{type}  ||= 'default';
+    $cont->{group} ||= 'report';
+
+    my $task = $task{$cont->{type}} || $task{default};
+    my $res = &$task( $file, $cont );
+
+    if( $res )
+    {
+        my $tmp = "/tmp/c3mc-mon-exmesg.$$.temp";
+        YAML::XS::DumpFile $tmp, $res;
+        system "cat $tmp | c3mc-base-send";
+        system "mv '$file' '$succ'";
+    }
+    else
+    {
+        system "mv '$file' '$fail'";
+    }
+}
+

@@ -39,7 +39,7 @@ sub run
 
     return if $has->{$name};
 
-    $conf->{password} =~ s/@/%40/g if defined $conf->{password};
+#    $conf->{password} =~ s/@/%40/g if defined $conf->{password};
     $conf->{password} =~ s/:/%3a/g if defined $conf->{password};
 
     system "docker rm $name >/dev/null 2>&1";

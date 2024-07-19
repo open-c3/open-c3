@@ -38,18 +38,11 @@ sub call
 {
     my ( $user, $mesg ) = @_;
 
-    # 默认模板颜色
-    my $template = "blue";
-    # 默认标题内容  
-    my $header_content = "openc3-通知";  
+    my ( $template, $header_content ) = ( "blue",  "openc3-通知"     );
+       ( $template, $header_content ) = ( "red",   "openc3-告警通知" ) if $mesg =~ /告警发生中/;
+       ( $template, $header_content ) = ( "green", "openc3-告警恢复" ) if $mesg =~ /告警已恢复/;
 
-    if ($mesg =~ /告警发生中/) {
-        $template = "red";
-        $header_content = "openc3-告警通知";
-    } elsif ($mesg =~ /告警已恢复/) {
-        $template = "green";
-        $header_content = "openc3-告警恢复";
-    }
+    my $ack = $mesg =~ s/ACK:(http[^\s]+)\n?// ? $1 : undef;
 
     my %form = (
         msg_type => 'interactive',
@@ -72,6 +65,30 @@ sub call
             ]
         }
     );
+
+    # 如果存在 ACK 链接，添加按钮
+    if ($ack) {
+        # 添加水平分隔线
+        push @{$form{card}{elements}}, { tag => "hr" };
+
+        push @{$form{card}{elements}}, {
+            tag => "action",
+            actions => [
+                {
+                    tag => "button",
+                    text => {
+                        content => "跟进处理",
+                        tag => "plain_text"
+                    },
+                    url => $ack,
+                    type => "primary",
+                    value => {
+                        key1 => "value1"
+                    }
+                }
+            ]
+        };
+    }
 
     my $url = "https://open.feishu.cn/open-apis/bot/v2/hook/$user";
     my $res = $ua->post( $url,
