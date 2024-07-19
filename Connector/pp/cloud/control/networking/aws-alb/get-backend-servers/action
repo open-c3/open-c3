@@ -3,126 +3,145 @@
 
 import sys
 import json
-import subprocess
-
 import boto3
+import warnings
+from botocore.exceptions import ClientError
 
+warnings.filterwarnings("ignore", message="Boto3 will no longer support Python 3.7")
 
-class AlbBackendServers:
+class AwsElbBackendServers:
     """
-        输出aws alb的后端服务器列表信息
+    输出AWS ELB的后端服务器列表信息，包括监听器端口和后端实例端口
     """
 
-    def __init__(self, access_id, access_key, region, alb_arn):
+    def __init__(self, access_id, access_key, region, load_balancer_arn):
         self.access_id = access_id
         self.access_key = access_key
         self.region = region
-        self.alb_arn = alb_arn
-        self.client = self.create_client()
+        self.load_balancer_arn = load_balancer_arn
+        self.elbv2_client = self.create_client('elbv2')
+        self.ec2_client = self.create_client('ec2')
 
-    def create_client(self):
-        client = boto3.client(
-            "elbv2",
-            aws_access_key_id=self.access_id,
-            aws_secret_access_key=self.access_key,
-            region_name=self.region,
-        )
-        return client
+    def create_client(self, service_name):
+        return boto3.client(service_name,
+                            region_name=self.region,
+                            aws_access_key_id=self.access_id,
+                            aws_secret_access_key=self.access_key)
 
-    def get_backend_servers(self):
-        target_group_arns = []
-        response = self.client.describe_target_groups(
-            LoadBalancerArn=self.alb_arn)
-        for item in response["TargetGroups"]:
-            target_group_arns.append(item["TargetGroupArn"])
-        while "NextMarker" in response:
-            response = self.client.describe_target_groups(
-                LoadBalancerArn=self.alb_arn,
-                Marker=response["NextMarker"]
-            )
-            for item in response["TargetGroups"]:
-                target_group_arns.append(item["TargetGroupArn"])
+    def get_listeners(self):
+        try:
+            response = self.elbv2_client.describe_listeners(LoadBalancerArn=self.load_balancer_arn)
+            return response['Listeners']
+        except ClientError as e:
+            print(f"Error getting listeners: {e}")
+            return []
 
-        ec2_id_list = []
-        for target_group_arn in target_group_arns:
-            response = self.client.describe_target_health(
-                TargetGroupArn=target_group_arn,
-            )
-            for item in response["TargetHealthDescriptions"]:
-                ec2_id_list.append(item["Target"]["Id"])
+    def get_target_groups(self):
+        try:
+            response = self.elbv2_client.describe_target_groups(LoadBalancerArn=self.load_balancer_arn)
+            return response['TargetGroups']
+        except ClientError as e:
+            print(f"Error getting target groups: {e}")
+            return []
 
-        result = {
-            "ip_data": [],
-            "eks_pod_ips": [],
-            "lambda_arn": []
-        }
-        m = {}
-        for ec2_id in ec2_id_list:
-            if ec2_id in m:
-                continue
-            else:
-                m[ec2_id] = {}
+    def get_target_health(self, target_group_arn):
+        try:
+            response = self.elbv2_client.describe_target_health(TargetGroupArn=target_group_arn)
+            return response['TargetHealthDescriptions']
+        except ClientError as e:
+            print(f"Error getting target health: {e}")
+            return []
 
-            if self.is_valid_ipv4(ec2_id):
-                result["eks_pod_ips"].append(ec2_id)
-            elif ec2_id.startswith("arn:"):
-                result["lambda_arn"].append(ec2_id)
-            else:
-                ec2_info_str = self.get_ec2_info(ec2_id)
-                if ec2_info_str == "":
-                    continue
+    def get_instance_details(self, instance_ids):
+        try:
+            response = self.ec2_client.describe_instances(InstanceIds=instance_ids)
+            instances = {}
+            for reservation in response['Reservations']:
+                for instance in reservation['Instances']:
+                    instances[instance['InstanceId']] = {
+                        'PrivateIpAddress': instance.get('PrivateIpAddress', 'N/A'),
+                        'PublicIpAddress': instance.get('PublicIpAddress', 'N/A'),
+                        'State': instance['State']['Name']
+                    }
+            return instances
+        except ClientError as e:
+            print(f"Error getting instance details: {e}")
+            return {}
 
-                try:
-                    ec2_info = json.loads(ec2_info_str)
-                except Exception as e:
-                    raise RuntimeError(f"lb后端ec2详情解析失败, id: {ec2_id}") from e
-                
-                data = {
-                    "ec2_id": ec2_info["InstanceId"],
-                    "private_ip": ec2_info["PrivateIpAddress"],
-                }
-                if "PublicIpAddress" in ec2_info:
-                    data["public_ip"] = ec2_info["PublicIpAddress"]
-                if ec2_info["InstanceType"].startswith("p2") or ec2_info["InstanceType"].startswith("g2"):
-                    data["is_gpu"] = 1
-                else:
-                    data["is_gpu"] = 0
-                result["ip_data"].append(data)
+    def get_backend_server_info(self):
+        result = []
+        listeners = self.get_listeners()
+        target_groups = self.get_target_groups()
+        
+        tg_port_map = {tg['TargetGroupArn']: tg['Port'] for tg in target_groups}
+
+        for listener in listeners:
+            listener_port = listener['Port']
+            protocol = listener['Protocol']
+            
+            for action in listener['DefaultActions']:
+                if action['Type'] == 'forward':
+                    tg_arn = action['TargetGroupArn']
+                    targets = self.get_target_health(tg_arn)
+                    
+                    instance_ids = [t['Target']['Id'] for t in targets if t['Target']['Id'].startswith('i-')]
+                    instance_details = self.get_instance_details(instance_ids) if instance_ids else {}
+                    
+                    for target in targets:
+                        target_id = target['Target']['Id']
+                        target_info = {
+                            'ListenerPort': listener_port,
+                            'Protocol': protocol,
+                            'TargetId': target_id,
+                            'TargetType': 'instance' if target_id.startswith('i-') else 'ip',
+                            'TargetHealth': target['TargetHealth']['State'],
+                            'InstancePort': tg_port_map.get(tg_arn, 'N/A'),
+                        }
+                        
+                        if target_id.startswith('i-'):
+                            if target_id in instance_details:
+                                info = instance_details[target_id]
+                                target_info.update({
+                                    'PrivateIpAddress': info['PrivateIpAddress'],
+                                    'PublicIpAddress': info['PublicIpAddress'],
+                                    'InstanceState': info['State'],
+                                })
+                        else:
+                            target_info['IpAddress'] = target_id
+                        
+                        result.append(target_info)
+        
         return result
 
     def show(self):
-        result = self.get_backend_servers()
-        print(json.dumps(result, default=str))
+        result = self.get_backend_server_info()
+        print(json.dumps(result, indent=2))
 
-    def get_ec2_info(self, ec2_id):
-        output = subprocess.getoutput(
-            "c3mc-cloud-aws-ec2-by-id {} {} {} {}".format(
-                self.access_id, self.access_key, self.region, ec2_id))
-        return output
+def main():
+    if len(sys.argv) < 4:
+        print(json.dumps({"error": "Not enough arguments. Usage: python script.py <access_id> <access_key> <region>"}))
+        return
 
-    def is_valid_ipv4(self, s):
-        pieces = s.split('.')
-        if len(pieces) != 4:
-            return False
-        try:
-            return all(0 <= int(p) < 256 for p in pieces)
-        except ValueError:
-            return False
+    access_id = sys.argv[2]
+    access_key = sys.argv[3]
+    region = sys.argv[4]
 
+    # 从标准输入读取 JSON 数据
+    try:
+        input_data = json.loads(sys.stdin.read().strip())
+        load_balancer_arn = input_data.get('LoadBalancerArn')
+    except json.JSONDecodeError:
+        print(json.dumps({"error": "Invalid JSON input"}))
+        return
 
-def main(access_id, access_key, region, alb_arn):
-    AlbBackendServers(access_id, access_key, region, alb_arn).show()
+    if not load_balancer_arn:
+        print(json.dumps({"error": "LoadBalancerArn not found in input JSON"}))
+        return
 
+    try:
+        AwsElbBackendServers(access_id, access_key, region, load_balancer_arn).show()
+    except Exception as e:
+        print(json.dumps({"error": f"Unexpected error: {str(e)}"}))
 
 if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式错误, 需要一行json数据")
-
-    field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field networking aws-alb LoadBalancerArn")
-
-    data = json.loads(l[0])
-    main(sys.argv[2], sys.argv[3], sys.argv[4], data[field_name])
+    main()

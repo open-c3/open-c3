@@ -1,0 +1,176 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import boto3
+import warnings
+from botocore.exceptions import ClientError
+
+warnings.filterwarnings("ignore", message="Boto3 will no longer support Python 3.7")
+
+class AwsGlobalAcceleratorBackendServices:
+    """
+    输出AWS Global Accelerator的后端服务信息，包括监听器端口和后端负载均衡器、实例或IP地址
+    """
+
+    def __init__(self, access_id, access_key, accelerator_arn):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.accelerator_arn = accelerator_arn
+        self.ga_client = self.create_client('globalaccelerator')
+        self.ec2_client = self.create_client('ec2')
+        self.elbv2_client = self.create_client('elbv2')
+
+    def create_client(self, service_name):
+        return boto3.client(service_name,
+                            region_name='us-west-2',  # Global Accelerator API 总是使用 us-west-2
+                            aws_access_key_id=self.access_id,
+                            aws_secret_access_key=self.access_key)
+
+    def get_listeners(self):
+        try:
+            response = self.ga_client.list_listeners(AcceleratorArn=self.accelerator_arn)
+            return response['Listeners']
+        except ClientError as e:
+            print(f"Error getting listeners: {e}")
+            return []
+
+    def get_endpoint_groups(self, listener_arn):
+        try:
+            response = self.ga_client.list_endpoint_groups(ListenerArn=listener_arn)
+            return response['EndpointGroups']
+        except ClientError as e:
+            print(f"Error getting endpoint groups: {e}")
+            return []
+
+    def get_instance_details(self, instance_ids, region):
+        try:
+            ec2 = boto3.client('ec2', region_name=region,
+                               aws_access_key_id=self.access_id,
+                               aws_secret_access_key=self.access_key)
+            response = ec2.describe_instances(InstanceIds=instance_ids)
+            instances = {}
+            for reservation in response['Reservations']:
+                for instance in reservation['Instances']:
+                    instances[instance['InstanceId']] = {
+                        'PrivateIpAddress': instance.get('PrivateIpAddress', 'N/A'),
+                        'PublicIpAddress': instance.get('PublicIpAddress', 'N/A'),
+                        'State': instance['State']['Name']
+                    }
+            return instances
+        except ClientError as e:
+            print(f"Error getting instance details: {e}")
+            return {}
+
+    def get_load_balancer_details(self, lb_arn, region):
+        try:
+            elbv2 = boto3.client('elbv2', region_name=region,
+                                 aws_access_key_id=self.access_id,
+                                 aws_secret_access_key=self.access_key)
+            response = elbv2.describe_load_balancers(LoadBalancerArns=[lb_arn])
+            if response['LoadBalancers']:
+                lb = response['LoadBalancers'][0]
+                return {
+                    'DNSName': lb['DNSName'],
+                    'Type': lb['Type'],
+                    'Scheme': lb['Scheme'],
+                    'State': lb['State']['Code']
+                }
+            return {}
+        except ClientError as e:
+            print(f"Error getting load balancer details: {e}")
+            return {}
+
+    def get_backend_service_info(self):
+        result = []
+        listeners = self.get_listeners()
+
+        for listener in listeners:
+            listener_port = listener['PortRanges'][0]['FromPort']
+            protocol = listener['Protocol']
+
+            endpoint_groups = self.get_endpoint_groups(listener['ListenerArn'])
+            for group in endpoint_groups:
+                region = group['EndpointGroupRegion']
+
+                instance_ids = []
+                lb_arns = []
+                for endpoint in group['EndpointDescriptions']:
+                    endpoint_info = {
+                        'ListenerPort': listener_port,
+                        'Protocol': protocol,
+                        'Region': region,
+                        'EndpointId': endpoint['EndpointId'],
+                        'Weight': endpoint['Weight'],
+                        'HealthState': endpoint['HealthState'],
+                    }
+
+                    if endpoint['EndpointId'].startswith('i-'):
+                        instance_ids.append(endpoint['EndpointId'])
+                    elif endpoint['EndpointId'].startswith('arn:aws:elasticloadbalancing'):
+                        lb_arns.append(endpoint['EndpointId'])
+                    else:
+                        endpoint_info['Type'] = 'IP Address'
+                        endpoint_info['IpAddress'] = endpoint['EndpointId']
+                    
+                    result.append(endpoint_info)
+
+                if instance_ids:
+                    instance_details = self.get_instance_details(instance_ids, region)
+                    for endpoint in result:
+                        if endpoint['EndpointId'] in instance_details:
+                            info = instance_details[endpoint['EndpointId']]
+                            endpoint.update({
+                                'Type': 'EC2 Instance',
+                                'PrivateIpAddress': info['PrivateIpAddress'],
+                                'PublicIpAddress': info['PublicIpAddress'],
+                                'InstanceState': info['State'],
+                            })
+
+                if lb_arns:
+                    for lb_arn in lb_arns:
+                        lb_details = self.get_load_balancer_details(lb_arn, region)
+                        for endpoint in result:
+                            if endpoint['EndpointId'] == lb_arn:
+                                endpoint.update({
+                                    'Type': 'Load Balancer',
+                                    'DNSName': lb_details.get('DNSName'),
+                                    'LoadBalancerType': lb_details.get('Type'),
+                                    'Scheme': lb_details.get('Scheme'),
+                                    'State': lb_details.get('State'),
+                                })
+
+        return result
+
+    def show(self):
+        result = self.get_backend_service_info()
+        print(json.dumps(result, indent=2))
+
+def main():
+    if len(sys.argv) < 4:
+        print(json.dumps({"error": "Not enough arguments. Usage: python script.py <access_id> <access_key> <accelerator_arn>"}))
+        return
+
+    access_id = sys.argv[2]
+    access_key = sys.argv[3]
+
+    # 从标准输入读取 JSON 数据
+    try:
+        input_data = json.loads(sys.stdin.read().strip())
+        accelerator_arn = input_data.get('AcceleratorArn')
+    except json.JSONDecodeError:
+        print(json.dumps({"error": "Invalid JSON input"}))
+        return
+
+    if not accelerator_arn:
+        print(json.dumps({"error": "AcceleratorArn not found in input JSON"}))
+        return
+
+    try:
+        AwsGlobalAcceleratorBackendServices(access_id, access_key, accelerator_arn).show()
+    except Exception as e:
+        print(json.dumps({"error": f"Unexpected error: {str(e)}"}))
+
+if __name__ == '__main__':
+    main()
