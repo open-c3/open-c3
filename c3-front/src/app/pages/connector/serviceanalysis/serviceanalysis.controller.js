@@ -12,6 +12,24 @@
             var toastr = toastr || $injector.get('toastr');
             vm.hideMenu = true;  //是否显示右键菜单
 
+            vm.selectedtimemachine = 'curr';
+            vm.timemachine = [];
+            vm.reloadtimemachine = function () {
+            $http.get('/api/agent/device/timemachine' ).success(function(data){
+                if (data.stat){
+                    vm.timemachine = data.data;
+                }else {
+                    swal({ title:'获取时间机器列表失败', text: data.info, type:'error' });
+                }
+             });
+            };
+            vm.reloadtimemachine();
+
+            vm.search = '';
+            vm.search2 = '';
+
+            vm.limit = '10';
+
             // tree height auto
             angular.element('.scroller').css('height', $window.innerHeight-95);
             angular.element($window).bind('resize', function(){
@@ -24,7 +42,9 @@
                 }
             };
 
-            vm.sync = $http.get('/api/ci/v2/c3mc/serviceanalysis/tree').success(function(nodes) {
+            vm.loadover = false;
+            vm.sync = $http.get(`/api/ci/v2/c3mc/serviceanalysis/tree?timemachine=${vm.selectedtimemachine}&search=${vm.search}&search2=${vm.search2}&limit=${vm.limit}`).success(function(nodes) {
+		vm.loadover = true;
                 var treedata = [ { id: 0, name: 'ROOT', children: nodes.data } ]
                 $.fn.zTree.init(angular.element('#openc3treeclone'), setting, treedata);
                 vm.zTree = $.fn.zTree.getZTreeObj('openc3treeclone');
@@ -99,7 +119,9 @@
             // tree reload
             vm.reload = function(){
                 angular.element('.treeFresh').addClass('fa-spin');
-                $http.get('/api/ci/v2/c3mc/serviceanalysis/tree').success(function(nodes) {
+		vm.loadover = false;
+                $http.get(`/api/ci/v2/c3mc/serviceanalysis/tree?timemachine=${vm.selectedtimemachine}&search=${vm.search}&search2=${vm.search2}&limit=${vm.limit}`).success(function(nodes) {
+		    vm.loadover = true;
                     var treedata = [ { id: 0, name: 'ROOT', children: nodes.data } ]
                     $.fn.zTree.init(angular.element('#openc3treeclone'), vm.zTree.setting, treedata);
                     angular.element('.treeFresh').removeClass('fa-spin');
