@@ -28,6 +28,8 @@
             vm.search = '';
             vm.search2 = '';
 
+            vm.limit = '10';
+
             // tree height auto
             angular.element('.scroller').css('height', $window.innerHeight-95);
             angular.element($window).bind('resize', function(){
@@ -41,7 +43,7 @@
             };
 
             vm.loadover = false;
-            vm.sync = $http.get(`/api/ci/v2/c3mc/serviceanalysis/tree?timemachine=${vm.selectedtimemachine}&search=${vm.search}&search2=${vm.search2}`).success(function(nodes) {
+            vm.sync = $http.get(`/api/ci/v2/c3mc/serviceanalysis/tree?timemachine=${vm.selectedtimemachine}&search=${vm.search}&search2=${vm.search2}&limit=${vm.limit}`).success(function(nodes) {
 		vm.loadover = true;
                 var treedata = [ { id: 0, name: 'ROOT', children: nodes.data } ]
                 $.fn.zTree.init(angular.element('#openc3treeclone'), setting, treedata);
@@ -118,7 +120,7 @@
             vm.reload = function(){
                 angular.element('.treeFresh').addClass('fa-spin');
 		vm.loadover = false;
-                $http.get(`/api/ci/v2/c3mc/serviceanalysis/tree?timemachine=${vm.selectedtimemachine}&search=${vm.search}&search2=${vm.search2}`).success(function(nodes) {
+                $http.get(`/api/ci/v2/c3mc/serviceanalysis/tree?timemachine=${vm.selectedtimemachine}&search=${vm.search}&search2=${vm.search2}&limit=${vm.limit}`).success(function(nodes) {
 		    vm.loadover = true;
                     var treedata = [ { id: 0, name: 'ROOT', children: nodes.data } ]
                     $.fn.zTree.init(angular.element('#openc3treeclone'), vm.zTree.setting, treedata);

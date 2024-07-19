@@ -18,6 +18,12 @@
 		    <li><input style="display: inline-block; margin-left: 0px; padding-left: 0px; position: relative;width: 300px"  type="text" class="form-control" placeholder="{{'C3T.模糊搜索'|translate}}" ng-model="connectorserviceanalysis.search"></li>
                     <li>{{'C3T.二级模糊搜索'|translate}}</li>
 		    <li><input style="display: inline-block; margin-left: 0px; padding-left: 0px; position: relative;width: 300px"  type="text" class="form-control" placeholder="{{'C3T.二级模糊搜索'|translate}}" ng-model="connectorserviceanalysis.search2"></li>
+                    <li>{{'C3T.条数'|translate}}</li>
+                    <li>
+                        <select style="display: inline-block; margin-left: 0px; padding-left: 0px; position: relative;width: 80px" class="form-control" ng-change="connectorserviceanalysis.reload()" ng-model="connectorserviceanalysis.limit" >
+                            <option ng-repeat="t in [ 10, 20, 30, 40, 100, 200, 1000, 2000, 5000, 10000, 50000 ]" value="{{t}}">{{t}}</option>
+                        </select>
+                    </li>
 		    <button type="submit" ng-click="connectorserviceanalysis.reload()" class="btn btn-info menu-panel-form-button" style="padding: 10px 20px"><i class="fa fa-search" aria-hidden="true"></i>{{'C3T.搜索'|translate}}</button>
                 </ol>
             </div>

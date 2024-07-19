@@ -25,6 +25,7 @@ any '/c3mc/serviceanalysis/tree' => sub {
         timemachine  => qr/^[a-z0-9][a-z0-9\-]+[a-z0-9]$/, 1,
         search       => qr/^[a-zA-Z0-9\.\-_:]*$/, 0,
         search2      => qr/^[a-zA-Z0-9\.\-_:]*$/, 0,
+        limit        => qr/^\d*$/, 0,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
@@ -40,8 +41,8 @@ any '/c3mc/serviceanalysis/tree' => sub {
     $file = '/data/Software/mydan/Connector/pp/service-analysis/tree.data' unless -f $file;
 
     my $cmd = "cat $file $grep $grep2 | c3mc-base-map2tree 2>&1";
-    my $filter = +{};
 
+    my $filter = +{ limit => $param->{limit} // 10 };
     my $handle = 'serviceanalysistree';
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $?, $filter ); 
@@ -53,7 +54,7 @@ $handle{serviceanalysistree} = sub
     return +{ stat => $JSON::false, info => "fail: $x" } if $status;
 
     my $d = eval{ YAML::XS::Load Encode::encode_utf8($x);};
-    return $@ ? +{ stat => $JSON::false, data => "data load fail: $@" } : +{ stat => $JSON::true, data => $d };
+    return $@ ? +{ stat => $JSON::false, data => "data load fail: $@" } : +{ stat => $JSON::true, data => $d = [ splice @$d, 0, $filter->{limit} ] };
 };
 
 true;
