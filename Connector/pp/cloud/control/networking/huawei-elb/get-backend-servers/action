@@ -9,10 +9,9 @@ from huaweicloudsdkcore.auth.credentials import BasicCredentials
 from huaweicloudsdkelb.v2.region.elb_region import ElbRegion
 from huaweicloudsdkelb.v2 import *
 
-
 class ElbBackendServers:
     """
-        输出huawei elb的后端服务器列表信息
+    输出huawei elb的后端服务器列表信息
     """
 
     def __init__(self, access_id, access_key, project_id, region, load_balancer_id):
@@ -65,11 +64,9 @@ class ElbBackendServers:
         result = self.get_backend_server_info()
         print(str(result))
 
-
 def main(access_id, access_key, project_id, region, load_balancer_id):
     ElbBackendServers(access_id, access_key, project_id,
                       region, load_balancer_id).show()
-
 
 if __name__ == '__main__':
     l = []
