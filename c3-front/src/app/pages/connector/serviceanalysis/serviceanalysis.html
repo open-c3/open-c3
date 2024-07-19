@@ -1,5 +1,29 @@
+<cmloading ng-if="!connectorserviceanalysis.loadover"  style="position: fixed; z-index: 9999;  top: 20%; left: 50%; transform: translate(-50%, -50%); padding: 20px;  border-radius: 5px; " ></cmloading>
+
 <div style="width: 100%">
+
     <div id="sidebar_left" style="width: 100%;">
+
+        <div id="topbar" style="white-space: nowrap;" >
+            <div class="topbar-left">
+                <ol class="breadcrumb">
+                    <li>
+                        <select class="form-control" ng-change="connectorserviceanalysis.reload()" ng-model="connectorserviceanalysis.selectedtimemachine" >
+                            <option value="curr">current</option>
+                            <option ng-repeat="t in connectorserviceanalysis.timemachine" value="{{t}}">{{t}}</option>
+                        </select>
+                    </li>
+ 
+                    <li>{{'C3T.服务分析'|translate}}</li>
+		    <li><input style="display: inline-block; margin-left: 0px; padding-left: 0px; position: relative;width: 300px"  type="text" class="form-control" placeholder="{{'C3T.模糊搜索'|translate}}" ng-model="connectorserviceanalysis.search"></li>
+                    <li>{{'C3T.二级模糊搜索'|translate}}</li>
+		    <li><input style="display: inline-block; margin-left: 0px; padding-left: 0px; position: relative;width: 300px"  type="text" class="form-control" placeholder="{{'C3T.二级模糊搜索'|translate}}" ng-model="connectorserviceanalysis.search2"></li>
+		    <button type="submit" ng-click="connectorserviceanalysis.reload()" class="btn btn-info menu-panel-form-button" style="padding: 10px 20px"><i class="fa fa-search" aria-hidden="true"></i>{{'C3T.搜索'|translate}}</button>
+                </ol>
+            </div>
+        </div>
+
+
             <div id="sidebar-scroll nav sidebar-menu">
                 <div class="sidebar-content">
                     <div class="panel" style="margin: 0;">
