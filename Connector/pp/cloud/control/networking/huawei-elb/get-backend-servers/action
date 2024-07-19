@@ -9,10 +9,9 @@ from huaweicloudsdkcore.auth.credentials import BasicCredentials
 from huaweicloudsdkelb.v2.region.elb_region import ElbRegion
 from huaweicloudsdkelb.v2 import *
 
-
 class ElbBackendServers:
     """
-        输出huawei elb的后端服务器列表信息
+    输出huawei elb的后端服务器列表信息
     """
 
     def __init__(self, access_id, access_key, project_id, region, load_balancer_id):
@@ -51,25 +50,34 @@ class ElbBackendServers:
     def get_backend_server_info(self):
         result = []
         elb_info = json.loads(self.get_elb_info())
-        m = {}
-        for pool in elb_info["pools"]:
-            pool_resp = self.list_members(pool["id"])
-            for item in pool_resp.members:
-                if item.address in m:
-                    continue
-                m[item.address] = {}
-                result.append(item)
+        
+        for listener in elb_info["listeners"]:
+            listener_port = listener["protocol_port"]
+            listener_protocol = listener["protocol"]
+            
+            for pool in elb_info["pools"]:
+                if pool["id"] == listener["default_pool_id"]:
+                    pool_resp = self.list_members(pool["id"])
+                    for member in pool_resp.members:
+                        result.append({
+                            "listener_port": listener_port,
+                            "listener_protocol": listener_protocol,
+                            "address": member.address,
+                            "port": member.protocol_port,
+                            "admin_state_up": member.admin_state_up,
+                            "operating_status": member.operating_status,
+                            "weight": member.weight
+                        })
+        
         return result
 
     def show(self):
         result = self.get_backend_server_info()
-        print(str(result))
-
+        print(json.dumps(result, indent=2))
 
 def main(access_id, access_key, project_id, region, load_balancer_id):
     ElbBackendServers(access_id, access_key, project_id,
                       region, load_balancer_id).show()
-
 
 if __name__ == '__main__':
     l = []

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import json
 
 from huaweicloudsdkcore.auth.credentials import BasicCredentials
 from huaweicloudsdkelb.v2.region.elb_region import ElbRegion
@@ -10,31 +11,52 @@ from huaweicloudsdkelb.v2 import *
 
 def get_elb_by_id(access_id, access_key, project_id, region, load_balancer_id):
     """
-        输出huawei elb的详情(json格式)
+    输出huawei elb的详情(json格式)
     """
     if project_id == "None":
         project_id = None
-    credentials = BasicCredentials(access_id, access_key, project_id) \
+    credentials = BasicCredentials(access_id, access_key, project_id)
 
     client = ElbClient.new_builder() \
         .with_credentials(credentials) \
         .with_region(ElbRegion.value_of(region)) \
         .build()
 
-    request = ListLoadbalancersRequest()
-    request.id = load_balancer_id
-    response = client.list_loadbalancers(request)
-    for instance in response.loadbalancers:
-        if instance.id == load_balancer_id:
-            return instance
-    raise Exception("根据load_balancer_id {} 未找到elb".format(load_balancer_id))
+    request = ShowLoadbalancerRequest()
+    request.loadbalancer_id = load_balancer_id
+    response = client.show_loadbalancer(request)
+    
+    if response.loadbalancer:
+        # 获取负载均衡器详情
+        elb_info = response.loadbalancer.to_dict()
+        
+        # 获取监听器详情
+        listeners_request = ListListenersRequest()
+        listeners_request.loadbalancer_id = load_balancer_id
+        listeners_response = client.list_listeners(listeners_request)
+        elb_info['listeners'] = [listener.to_dict() for listener in listeners_response.listeners]
+        
+        # 获取后端服务器组详情
+        pools_request = ListPoolsRequest()
+        pools_request.loadbalancer_id = load_balancer_id
+        pools_response = client.list_pools(pools_request)
+        elb_info['pools'] = [pool.to_dict() for pool in pools_response.pools]
+        
+        return elb_info
+    else:
+        raise Exception(f"根据load_balancer_id {load_balancer_id} 未找到elb")
 
 
 def main(access_id, access_key, project_id, region, load_balancer_id):
-    data = get_elb_by_id(access_id, access_key, project_id,
-                         region, load_balancer_id)
-    print(str(data))
-
+    try:
+        data = get_elb_by_id(access_id, access_key, project_id, region, load_balancer_id)
+        print(json.dumps(data, indent=2))
+    except Exception as e:
+        print(f"Error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == '__main__':
+    if len(sys.argv) != 6:
+        print("Usage: python script.py <access_id> <access_key> <project_id> <region> <load_balancer_id>", file=sys.stderr)
+        sys.exit(1)
     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
