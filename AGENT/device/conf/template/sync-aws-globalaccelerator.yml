@@ -1,0 +1,88 @@
+download:
+  - url: "cmd:c3mc-cloud-account-list --type aws-globalaccelerator |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-aws-globalaccelerator --account aws --raw --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tags --key Key --value Value | c3mc-cloud-attach-department-info  | c3mc-base-json2tab "
+    datatype: tsv
+    type: networking 
+    subtype: aws-globalaccelerator
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    util:
+      defaulttree: defaulttree.pool
+      extcol:
+        - name: audit
+          alias: 审计
+          select: ["YES", "NO"]
+        - name: remarks
+          alias: 备注
+        - name: _buildintree_
+          alias: 内置服务树
+          readonly: 1
+
+      grpcol:
+        baseinfo:
+          - name: 业务负责人
+          - name: 运维负责人
+          - name: 状态
+            success:
+              - active
+          - name: 部门
+          - name: 实例ID
+          - name: 名称
+          - name: 创建时间
+          - name: 区域
+        system:
+          - prefix: tag.
+
+    check:
+      col: ["实例ID"]
+      min: 0
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    alias:
+      DnsName: "实例ID"
+      Name: "名称"
+      IpSets: "加速IP"
+      CreatedTime: "创建时间"
+      _oneDeptName_: 一级部门
+      _twoDeptName_: 二级部门
+      _sybDeptName_: 产品线
+      _product_owner_: 业务负责人
+      _ops_owner_: "运维负责人"
+      _department_: "部门"
+    filter:
+      - name: "account"
+        alias: 账号
+      - name: "区域"
+        alias: 区域
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "产品线"
+        alias: 产品线
+      - name: "一级部门"
+        alias: 一级部门
+      - name: "二级部门"
+        alias: 二级部门
+      - name: "部门"
+        alias: 部门
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "account"
+        - "实例ID"
+        - "名称"
+        - "区域"
+      system:
+        - "Status"
+        - "Name"
+        - "IpSets.0.IpAddresses.0"
+        - "IpSets.0.IpAddresses.1"
+      contact:
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"
+        - "服务树"

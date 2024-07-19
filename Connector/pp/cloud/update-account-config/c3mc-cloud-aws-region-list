@@ -41,6 +41,9 @@ class Aws:
         if self.resource_type == "subdomain":
             # aws route53属于全局资源，输出一个区域进行查询
             print(self.region)
+        elif self.resource_type == "globalaccelerator":
+            # aws globalaccelerator属于全局资源，API 调用只能使用 us-west-2
+            print("us-west-2")
         else:
             regions = self.list_ec2_regions()
             for region in regions:
