@@ -1,0 +1,129 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use JSON;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my %alias =
+(
+    'dns'        => 'DNS',
+    'aws-nlb'    => 'AWSnlb',
+    'aws-alb'    => 'AWSalb',
+    'nginx'      => 'NG',
+    'huawei-elb' => 'HWelb',
+);
+
+
+my %handle = 
+(
+    default => sub
+    {
+        my $name = shift @_;
+
+        my @x = `cat $name/data.txt`;
+        chomp @x;
+
+        return map{ my @xx = split /\s+/, $_; splice @xx, 1,0, $alias{$name} ? "$alias{$name}:" : "$name:";  \@xx}@x;
+    },
+);
+
+sub seed
+{
+    my $seed = shift @_;
+    return [ split /\s+/, $seed ] if $seed;
+    my @x = `c3mc-device-data-get curr domain aws-subdomain host_domain_name|sort|uniq | grep -v ^_|grep -v '\\\\100\\.'|grep -v '\\\\052\\.'`;
+    chomp @x;
+    return map{ [ "$_", "$_\{Port:443,Domain:$_}" ] }@x;
+}
+
+sub matchk
+{
+    my ( $k1, $k2 ) = @_;
+    return 1 unless $k2;
+
+    my %k1 = map{ split /:/, $_, 2 }split /,/, $k1;
+    my %k2 = map{ split /:/, $_, 2 }split /,/, $k2;
+
+    for my $k ( keys %k2 )
+    {
+        return 0 unless $k1{$k} && $k1{$k} eq $k2{$k};
+    }
+
+    return 1;
+}
+
+sub mergek
+{
+    my ( $k1, $k2 ) = @_;
+    $k1 ||= '';
+    $k2 ||= '';
+    my %k1 = map{ split /:/, $_, 2 }split /,/, $k1;
+    my %k2 = map{ split /:/, $_, 2 }split /,/, $k2;
+
+    my %res = ( %k1, %k2 );
+    return sprintf "%s", join ",", map{ "$_:$res{$_}" }sort keys %res;
+}
+
+sub analysis
+{
+    my @res = @_;
+    my ( @tmp, %tmp );
+    map{ push @tmp, $handle{$_} ? $handle{$_}() : $handle{default}( $_ ); }keys %alias;
+
+    for ( @tmp )
+    {
+        my ( $idx, @cnt ) = @$_;
+        my ( $vidx, $vmatch ) = $idx =~ /^([^\{]+)\{(.+)\}/ ? ( $1, $2 ) : ( $idx, undef );
+        $tmp{$vidx} = [] unless $tmp{$vidx};
+        push @{$tmp{$vidx}}, +{ vmatch => $vmatch, value => \@cnt };
+    }
+
+    for my $x ( 1..10 )
+    {
+        my @newres;
+        for my $r ( @res )
+        {
+            my $idx = $r->[-1];
+            my ( $vidx, $vmatch ) = $idx =~ /^([^\{]+)\{(.+)\}/ ? ( $1, $2 ) : ( $idx, undef );
+            my $keepdata = 1;
+            if( $tmp{ $vidx} )
+            {
+                for( @{ $tmp{ $vidx} } )
+                {
+                    my ( $tmpvmatch, $value ) = @$_{qw( vmatch value )};
+                    if( matchk( $vmatch, $tmpvmatch ) )
+                    {
+                        my $newkey = mergek( $vmatch, $tmpvmatch );
+
+                        my $tail = $value->[-1];
+                        if( $tail =~ /^([^\{]+)\{(.+)\}/ )
+                        {
+                            my ( $tk, $tm ) = ( $1, $2 );
+                            $tail = $tk;
+                            $newkey = mergek( $newkey, $tm );
+                        }
+                        my $relkey = $newkey ? "$tail\{$newkey\}" : $tail;
+
+                        my @rr = ( @$r,":::", @$value, $relkey );
+                        push @newres, \@rr;
+                        $keepdata = 0;
+                    }
+                }
+            }
+            push @newres, $r if $keepdata;
+        }
+        @res = @newres;
+    }
+    return @res;
+}
+
+my @x = analysis( seed( @ARGV ) ); map{ printf "%s\n", join "\t", @$_ }@x;
+

@@ -1,0 +1,25 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use JSON;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+
+my @x = `c3mc-device-data-get curr others nginx-location ip server_name path upstream port`;
+chomp @x;
+for my $x ( @x )
+{
+    my ( $ip, $server_name, $path, $upstream, $port ) = split /\t/, $x;
+    map{
+        my ( $tip, $tport ) = split /:/, $_;
+        $tport //= '80';
+        printf "%s\n", join " ", "$ip\{Port:$port,Domain:$server_name\}", "ip:$ip", "server_name:$server_name", "path:$path", "port:$port", $_, "$tip\{Port:$tport\}"
+    }split /,/, $upstream;
+}
