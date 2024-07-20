@@ -1,0 +1,22 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use JSON;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my @x = `c3mc-device-data-get curr compute aws-ec2 uuid 内网IP 公网IP 名称`;
+chomp @x;
+
+for( @x )
+{
+    my ( $uuid, $inip, $exip, $name ) = split /\t/, $_;
+    map{ printf "%s\n", join " ", $_, grep{$_}($uuid, $inip, $exip, $name) }grep{$_}( $uuid, $inip, $exip );
+}
+
