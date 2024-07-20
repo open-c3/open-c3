@@ -1,0 +1,21 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use JSON;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my @x = `c3mc-device-data-get curr others k8s-service spec.clusterIP 集群名称 命名空间 名称`;
+chomp @x;
+
+for( @x )
+{
+    my @xx = split /\t/, $_;
+    printf "%s\n", join " ", @xx if $xx[0] && $xx[0] =~ /^\d+\.\d+\.\d+\.\d+$/;
+}
