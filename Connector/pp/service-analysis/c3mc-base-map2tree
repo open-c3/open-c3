@@ -52,9 +52,12 @@ sub maketree
     my ( $data, $id, $name ) = @_;
     my ( $name1, $name2 )= split /:::/, $name, 2;
 
+    $name1 =~ s/\s+[a-zA-Z0-9:_\-\.]+{[a-zA-Z0-9:_\-\.,]+}\s*$//;
     unless( defined $name2 )
     {
-        push @$data, +{ id => $id, name => $name };
+        my $info = $name;
+        $name =~ s/\s+[a-zA-Z0-9:_\-\.]+{[a-zA-Z0-9:_\-\.,]+}\s*$//;
+        push @$data, +{ id => $id, name => $name, info => $info };
         return $data;
     }
     else
