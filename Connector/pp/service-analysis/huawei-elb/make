@@ -1,0 +1,48 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use JSON;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+
+my @x = `c3mc-device-data-get curr networking huawei-elb uuid 名称 vip_address publicips.0.publicip_address`;
+chomp @x;
+
+for ( @x )
+{
+    my ( $uuid, $name, $private_address, $public_address ) = split /\t/, $_;
+    next unless $uuid =~ /^[a-zA-Z0-9][a-zA-Z0-9\-\.]+$/;
+    my $x = `c3mc-cloud-control --type networking --subtype 'huawei-elb' --uuid '$uuid' --ctrl get-backend-servers x`;
+    my $data = eval{JSON::from_json $x };
+    if( $@ )
+    {
+        warn "get backend-server fail: $@";
+        next;
+    }
+
+    for my $d ( @{ $data } )
+    {
+        my ( $pubAddr, $lport, $priAddr, $port ) = ( $uuid, $d->{listener_port}, $d->{address}, $d->{port} );
+        printf "%s\n", join " ", "$pubAddr\{Port:$lport\}", $pubAddr, $lport, $priAddr, $port, "$priAddr\{Port:$port\}";
+
+        if( $public_address )
+        {
+            $pubAddr = $public_address;
+            printf "%s\n", join " ", "$pubAddr\{Port:$lport\}", $pubAddr, $lport, $priAddr, $port, "$priAddr\{Port:$port\}";
+        }
+        if( $private_address )
+        {
+            $pubAddr = $private_address;
+            printf "%s\n", join " ", "$pubAddr\{Port:$lport\}", $pubAddr, $lport, $priAddr, $port, "$priAddr\{Port:$port\}";
+        }
+
+    }
+}
+

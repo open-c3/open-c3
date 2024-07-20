@@ -1,0 +1,32 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+
+my @node = `cat /data/open-c3-data/service-analysis/nginx.node`;
+chomp @node;
+
+sub syncdata
+{
+    my ( $node, $path, $name ) = split /\s+/, shift @_;
+    ( $name ) = reverse split /\//, $path unless $name; 
+    return unless $node =~ /^\d+\.\d+\.\d+\.\d+$/;
+    return unless $path =~ /^\/[a-zA-Z0-9][a-zA-Z0-9\/\._]+$/;
+    return unless $name =~ /^[a-zA-Z0-9\._]+$/;
+    print "node $node ; path: $path\n";
+    system "/data/Software/mydan/dan/tools/rcall -r '$node' exec 'cd '$path' && tar -zcvf /tmp/open-c3-service-analysis.temp.tar.gz *'";
+    system "/data/Software/mydan/dan/tools/load --host '$node' --sp /tmp/open-c3-service-analysis.temp.tar.gz";
+    my $dir = "/data/open-c3-data/service-analysis/nginx/$node/$name";
+    system "mkdir -p '$dir'" unless -d $dir;
+    system "tar -zxvf /tmp/open-c3-service-analysis.temp.tar.gz -C '$dir'";
+}
+
+map{ syncdata( $_ ) }@node;

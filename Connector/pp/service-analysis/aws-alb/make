@@ -1,0 +1,43 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use JSON;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my @uuid = `c3mc-device-data-get curr networking aws-alb uuid`;
+chomp @uuid;
+
+for my $uuid ( @uuid )
+{
+    next unless $uuid =~ /^[a-zA-Z0-9][a-zA-Z0-9\-\.]+$/;
+    my $x = `c3mc-cloud-control --type networking --subtype 'aws-alb' --uuid '$uuid' --ctrl get-backend-servers x`;
+    my $data = eval{ JSON::from_json $x };
+
+    if( $@ )
+    {
+        warn "get backend-server fail: $@";
+        next;
+    }
+
+    for my $d ( @$data )
+    {
+        my ( $pubAddr, $lport, $priAddr, $port ) = ( $uuid, $d->{ListenerPort}, $d->{PrivateIpAddress} // $d->{IpAddress}, $d->{InstancePort} );
+        printf "%s\n", join " ", "$pubAddr\{Port:$lport\}", $pubAddr, $lport, $priAddr, $port, "$priAddr\{Port:$port\}";
+
+        if( $d->{PublicIpAddress} )
+        {
+            $pubAddr = $d->{PublicIpAddress};
+           printf "%s\n", join " ", "$pubAddr\{Port:$lport\}", $pubAddr, $lport, $priAddr, $port, "$priAddr\{Port:$port\}";
+        }
+
+    }
+
+}
+
