@@ -15,14 +15,18 @@ $|++;
 my %alias =
 (
     'dns'        => 'DNS',
-    'aws-nlb'    => 'AWSnlb',
-    'aws-alb'    => 'AWSalb',
+    'aws-nlb'    => 'AWSNLB',
+    'aws-alb'    => 'AWSALB',
     'nginx'      => 'NG',
-    'huawei-elb' => 'HWelb',
+    'huawei-elb' => 'HWELB',
 
     'aws-globalaccelerator' => 'AWSGA',
-);
 
+    'aws-ec2'     => 'AWSEC2',
+    'huawei-ecs'  => 'HWECS',
+    'k8s-service' => 'K8SSERVICE',
+    'k8s-pod'     => 'K8SPOD',
+);
 
 my %handle = 
 (
@@ -33,7 +37,12 @@ my %handle =
         my @x = `cat $name/data.txt`;
         chomp @x;
 
-        return map{ my @xx = split /\s+/, $_; splice @xx, 1,0, $alias{$name} ? "$alias{$name}:" : "$name:";  \@xx}@x;
+        return map{
+            my @xx = split /\s+/, $_;
+            splice @xx, 1,0, $alias{$name} ? "$alias{$name}:" : "$name:";
+            splice @xx, 1,0 , $xx[0] if $xx[0] =~ /{/;
+            \@xx
+       }@x;
     },
 );
 
@@ -59,7 +68,7 @@ sub matchk
         return 0 unless $k1{$k} && $k1{$k} eq $k2{$k};
     }
 
-    return 1;
+    return 2;
 }
 
 sub mergek
@@ -98,10 +107,11 @@ sub analysis
             my $keepdata = 1;
             if( $tmp{ $vidx} )
             {
+                my %tmpres;
                 for( @{ $tmp{ $vidx} } )
                 {
                     my ( $tmpvmatch, $value ) = @$_{qw( vmatch value )};
-                    if( matchk( $vmatch, $tmpvmatch ) )
+                    if( my $matchlen = matchk( $vmatch, $tmpvmatch ) )
                     {
                         my $newkey = mergek( $vmatch, $tmpvmatch );
 
@@ -115,12 +125,18 @@ sub analysis
                         my $relkey = $newkey ? "$tail\{$newkey\}" : $tail;
 
                         my @rr = ( @$r,":::", @$value, $relkey );
-                        push @newres, \@rr;
                         $keepdata = 0;
+                        push @{ $tmpres{$matchlen} }, \@rr;
                     }
+                }
+                if( keys %tmpres )
+                {
+                    my ( $x ) = sort{ $b <=> $a }keys %tmpres;
+                    push @newres, @{$tmpres{$x}};
                 }
             }
             push @newres, $r if $keepdata;
+
         }
         @res = @newres;
     }
