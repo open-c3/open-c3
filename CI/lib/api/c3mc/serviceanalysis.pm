@@ -53,7 +53,8 @@ $handle{serviceanalysistree} = sub
     my ( $x, $status, $filter ) = @_;
     return +{ stat => $JSON::false, info => "fail: $x" } if $status;
 
-    my $d = eval{ YAML::XS::Load Encode::encode_utf8($x);};
+    my $d = eval{ YAML::XS::Load $x;};
+    #my $d = eval{ YAML::XS::Load Encode::encode_utf8($x);};
     return $@ ? +{ stat => $JSON::false, data => "data load fail: $@" } : +{ stat => $JSON::true, data => $d = [ splice @$d, 0, $filter->{limit} ] };
 };
 
