@@ -362,7 +362,7 @@ func simplifyUpstreamServers(servers []string) string {
 	simplified := make([]string, len(servers))
 	for i, server := range servers {
 		parts := strings.Fields(server)
-		simplified[i] = strings.Split(parts[0], ":")[0] // 只保留 IP 部分
+		simplified[i] = parts[0] // 保留完整的 IP:端口
 	}
 	return strings.Join(simplified, ",")
 }
