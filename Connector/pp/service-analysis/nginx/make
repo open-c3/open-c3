@@ -20,6 +20,6 @@ for my $x ( @x )
     map{
         my ( $tip, $tport ) = split /:/, $_;
         $tport //= '80';
-        printf "%s\n", join " ", "$ip\{Port:$port,Domain:$server_name\}", "ip:$ip", "server_name:$server_name", "path:$path", "port:$port", $_, "$tip\{Port:$tport\}"
+        printf "%s\n", join " ", "$ip\{Port:$port,Domain:$server_name\}", "ip:$ip", "server_name:$server_name", ':::', "path:$path", "port:$port", $_, "$tip\{Port:$tport\}"
     }split /,/, $upstream;
 }

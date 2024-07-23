@@ -11,11 +11,15 @@ $|++;
 
 =cut
 
-my @x = `c3mc-device-data-get curr others k8s-service spec.clusterIP 集群名称 命名空间 名称`;
+my @x = `c3mc-device-data-get curr others k8s-service spec.type spec.loadBalancerIP spec.ports.0.port 集群名称 命名空间 名称 spec.ports.0.targetPort _pods_`;
 chomp @x;
 
 for( @x )
 {
-    my @xx = split /\t/, $_;
-    printf "%s\n", join " ", @xx if $xx[0] && $xx[0] =~ /^\d+\.\d+\.\d+\.\d+$/;
+    my ( $type, $ip, $lport, $clustername, $namespace, $name, $port, $pods ) = split /\t/, $_;
+    if( $pods && $type eq 'LoadBalancer' )
+    {
+        map{ printf "%s\n", join ' ', "$ip\{Port:$lport\}", $clustername,$namespace, $name,':::', $port, $pods, $_ }
+            map{ my @x = split /:/, $_; $x[0] }split /,/, $pods;
+    }
 }

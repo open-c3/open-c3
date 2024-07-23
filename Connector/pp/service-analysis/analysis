@@ -126,6 +126,10 @@ sub analysis
 
                         my @rr = ( @$r,":::", @$value, $relkey );
                         $keepdata = 0;
+
+                        $matchlen += 100 if $matchlen > 0 && ( $value->[0] =~ /K8SSERVICE/ || $value->[1] =~ /K8SSERVICE/ );
+                        $matchlen += 10  if $matchlen > 0 && ( $value->[0] =~ /NG/         || $value->[1] =~ /NG/         );
+
                         push @{ $tmpres{$matchlen} }, \@rr;
                     }
                 }
