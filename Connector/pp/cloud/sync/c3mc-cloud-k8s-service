@@ -1,0 +1,92 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use JSON;
+use Encode;
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0 id;name id2;name2
+
+=cut
+
+
+my @cluster;
+if( @ARGV )
+{
+    @cluster = @ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; push @cluster, $_; }
+}
+
+my $mark = "/tmp/c3mc-cloud-k8s-service.mark.txt";
+my @mark = `tail -n 100 $mark`;
+chomp @mark;
+my %mark;
+map{$mark{$2} = $1 if $_ =~ /^(\d+)\s(\d+)$/;}@mark;
+
+for( @cluster )
+{
+    my ( $id, $name ) = split /;/, $_;
+    warn "loading .. $id $name\n";
+
+    next if $mark{$id} && $mark{$id} + 3600 > time;
+
+    $name = 'unknown' unless $name && $name =~ /^[a-zA-Z0-9][a-zA-Z0-9_\-\.]*$/;
+
+    my %poduuid;
+    my $x = `c3mc-k8s-kubectl-get -i '$id'  "get endpoints -A --output json --request-timeout=10s"`;
+    if( $? )
+    {
+        system sprintf "echo %s %s >> $mark", int(time), $id;
+        next;
+    }
+    my $xx = eval{JSON::decode_json $x};
+    my @items = @{$xx->{items}};
+    for my $items ( @items )
+    {
+        next unless my $namespace = $items->{metadata}{namespace};
+        next unless my $name      = $items->{metadata}{name     };
+        next unless my $subsets   = $items->{subsets };
+
+        next unless @$subsets > 0;
+        my $subset = $subsets->[0];
+
+        next unless my $addresses = $subset->{addresses};
+        my @pod;
+        map{ push @pod, "$_->{targetRef}{uid}:$_->{targetRef}{name}" if $_->{targetRef}{uid} && $_->{targetRef}{name} }@$addresses;
+        $poduuid{ $namespace }{$name} = join ',', @pod;
+    }
+
+    $x = `c3mc-k8s-kubectl-get -i '$id'  "get service -A  --output json --request-timeout=10s"`;
+    if( $? )
+    {
+        system sprintf "echo %s %s >> $mark", int(time), $id;
+        next;
+    }
+    $xx = eval{JSON::decode_json $x};
+    @items = @{$xx->{items}};
+    for my $items ( @items )
+    {
+        $items->{uuid       } = $items->{metadata}{uid};
+        $items->{clusterid  } = $id;
+        $items->{clustername} = $name;
+
+        my $namespace = $items->{metadata}{namespace};
+        my $name      = $items->{metadata}{name     };
+        $items->{_pods_} = $namespace && $name && $poduuid{ $namespace }{ $name } ? $poduuid{ $namespace }{ $name } : '';
+
+        my $s = eval{JSON::encode_json $items};
+        print $s, "\n";
+    }
+}
