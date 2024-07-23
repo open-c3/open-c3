@@ -3,6 +3,8 @@ use strict;
 use warnings;
 
 $|++;
+use Digest::MD5;
+use POSIX;
 
 =head1 SYNOPSIS
 
@@ -14,19 +16,38 @@ $|++;
 my @node = `cat /data/open-c3-data/service-analysis/nginx.node`;
 chomp @node;
 
+my $uuid =  POSIX::strftime( "%Y-%m-%d-%H-%M-%S", localtime );
+my $base = "/data/open-c3-data/service-analysis/nginx.machine/$uuid";
+
 sub syncdata
 {
     my ( $node, $path, $name ) = split /\s+/, shift @_;
     ( $name ) = reverse split /\//, $path unless $name; 
+
     return unless $node =~ /^\d+\.\d+\.\d+\.\d+$/;
     return unless $path =~ /^\/[a-zA-Z0-9][a-zA-Z0-9\/\._]+$/;
     return unless $name =~ /^[a-zA-Z0-9\._]+$/;
+
     print "node $node ; path: $path\n";
-    system "/data/Software/mydan/dan/tools/rcall -r '$node' exec 'cd '$path' && tar -zcvf /tmp/open-c3-service-analysis.temp.tar.gz *'";
-    system "/data/Software/mydan/dan/tools/load --host '$node' --sp /tmp/open-c3-service-analysis.temp.tar.gz";
-    my $dir = "/data/open-c3-data/service-analysis/nginx/$node/$name";
-    system "mkdir -p '$dir'" unless -d $dir;
-    system "tar -zxvf /tmp/open-c3-service-analysis.temp.tar.gz -C '$dir'";
+
+    my $x = `/data/Software/mydan/dan/tools/rcall --verbose -r '$node' exec 'cd '$path' && tar -zcvf /tmp/open-c3-service-analysis.temp.tar.gz * >/dev/null && echo OK'`;
+    chomp $x;
+    unless( $x =~ /:OK/ )
+    {
+        warn "$node: tar fail";
+        next;
+    }
+
+    my ( $datapath, $temppath )= ( "$base/data/$node/$name", "$base/temp" );
+    system "mkdir -p '$datapath' '$temppath'";
+
+    my $tmp = sprintf "$temppath/open-c3-service-analysis.temp.%s.tar.gz", Digest::MD5->new->add( $node.$path )->hexdigest;
+
+    system "/data/Software/mydan/dan/tools/load --host '$node' --sp /tmp/open-c3-service-analysis.temp.tar.gz --dp $tmp >/dev/null";
+
+    system "tar -zxf $tmp -C '$datapath'";
 }
 
 map{ syncdata( $_ ) }@node;
+
+system "ln -fsn nginx.machine/$uuid/data /data/open-c3-data/service-analysis/nginx";

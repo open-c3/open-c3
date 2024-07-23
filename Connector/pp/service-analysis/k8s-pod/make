@@ -11,11 +11,13 @@ $|++;
 
 =cut
 
-my @x = `c3mc-device-data-get curr others k8s-pod PodIP NodeIP 集群名称 命名空间 名称 镜像`;
+my @x = `c3mc-device-data-get curr others k8s-pod uuid PodIP NodeIP 集群名称 命名空间 名称 镜像`;
 chomp @x;
 
 for( @x )
 {
     my @xx = split /\t/, $_;
+    printf "%s\n", join " ", @xx if $xx[0];
+    ( $xx[0], $xx[1]) = ( $xx[1], $xx[0] );
     printf "%s\n", join " ", @xx if $xx[0];
 }
