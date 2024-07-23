@@ -1,0 +1,73 @@
+download:
+  - url: "cmd:c3mc-service-analysis-get-nginx-conf  /data/open-c3-data/service-analysis/nginx/ | c3mc-base-json2tab "
+    datatype: tsv # 固定值。表示url中命令最终输出的文件格式
+    type: others # 资源类型。cmdb页面中的分类
+    subtype: nginx-location # 上面资源类型的子类型。
+    treeinfo:
+      treename: "服务树" # 指明哪一列对应服务树。这一列没有对应列，页面显示的值为空
+      treeinfo:
+        - ["uuid", "instance"] # 和监控相关 。 指标是 treeinfo
+    check:
+      col: ["uuid"] # 打印出的数据必须有的字段
+      min: 0 # url中明林执行后最少一行输出，否则认为出错
+    util:
+      defaulttree: defaulttree.pool # 默认的服务树，资源归还后被放到这里
+      extcol:
+        - name: audit
+          alias: 审计
+          select: ["YES", "NO"]
+        - name: remarks
+          alias: 备注
+        - name: _buildintree_
+          alias: 内置服务树
+          readonly: 1
+      grpcol:
+        baseinfo:
+          - name: uuid
+          - name: 集群ID
+          - name: 集群名称
+          - name: 名称
+          - name: POD状态
+            success:
+              - Running
+          - name: 镜像
+        system:
+          - name: 命名空间
+          - name: PodIP
+          - name: NodeIP
+    colmap:
+      treename: "服务树"
+      uuid: "uuid" # 指明哪一列作为uuid列
+    alias:
+      clusterid: "集群ID"
+      clustername: "集群名称"
+      metadata.name: "名称"
+      status.phase: "POD状态"
+      status.podIP: "PodIP"
+      status.hostIP: "NodeIP"
+      metadata.namespace: "命名空间"
+      status.containerStatuses.0.image: "镜像"
+    filter:
+      - name: "集群名称"
+        alias: 集群名称
+      - name: "命名空间"
+        alias: 命名空间
+      - name: "POD状态"
+        alias: POD状态
+    outline:
+      uuid:
+        - "uuid"
+      baseinfo:
+        - "集群ID"
+        - "集群名称"
+        - "命名空间"
+        - "名称"
+      system:
+        - "POD状态"
+        - "PodIP"
+        - "NodeIP"
+      contact:
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"
+        - "服务树"
