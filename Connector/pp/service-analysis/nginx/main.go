@@ -190,14 +190,18 @@ func processFile(filePath, ip string) VirtualHost {
 	var currentUpstream string
 	inUpstreamBlock := false
 
+	var serverNames []string
+
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 
 		if strings.HasPrefix(line, "listen") {
 			vhost.Listen = extractListenValue(line)
 		} else if strings.HasPrefix(line, "server_name") {
-			vhost.ServerName = extractValue(line)
-			vhost.Domain = extractDomain(vhost.ServerName)
+			//vhost.ServerName = extractValue(line)
+			//vhost.Domain = extractDomain(vhost.ServerName)
+			serverNames = extractServerNames(line)
+			vhost.ServerName = strings.Join(serverNames, " ")
 		} else if strings.HasPrefix(line, "location") {
 			if currentLocation != nil {
 				vhost.Locations = append(vhost.Locations, *currentLocation)
@@ -417,4 +421,24 @@ func extractDomain(serverName string) string {
 		return strings.Join(parts[len(parts)-2:], ".")
 	}
 	return serverName
+}
+
+// extractServerNames 从输入的字符串中提取服务器名称列表。
+// 参数 line 是待处理的字符串，预计包含以空格分隔的单词，其中服务器名称可能以分号结尾。
+// 返回值是提取出的服务器名称列表，不包含空字符串或仅包含分号的项。
+func extractServerNames(line string) []string {
+	// 使用 strings.Fields 函数将输入字符串分割成单词列表。
+	parts := strings.Fields(line)
+	var names []string
+	// 遍历分割后的单词列表，从第二个单词开始（索引为1），因为第一个单词可能是命令或其他非服务器名称的标识。
+	for i := 1; i < len(parts); i++ {
+		// 使用 strings.Trim 函数去除单词两端的分号，以确保服务器名称不包含分号。
+		name := strings.Trim(parts[i], ";")
+		// 如果处理后的单词非空，则将其添加到服务器名称列表中。
+		if name != "" {
+			names = append(names, name)
+		}
+	}
+	// 返回提取出的服务器名称列表。
+	return names
 }
