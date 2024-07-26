@@ -1,0 +1,54 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use JSON;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ \$0
+
+=cut
+
+my @x = `c3mc-device-data-get curr domain huawei-dns uuid host_domain_name record_info region`;
+chomp @x;
+for my $x (@x)
+{
+    my ($uuid, $domain, $record, $region) = split /\t/, $x;
+    my $data = eval { JSON::from_json($record) };
+    if ($@)
+    {
+        warn "Failed to parse JSON for domain $domain: $@";
+        next;
+    }
+
+    unless (ref $data eq 'ARRAY')
+    {
+        warn "Unexpected data structure for domain $domain: not an array";
+        next;
+    }
+
+    for my $d (@$data)
+    {
+        unless (exists $d->{type} && exists $d->{records})
+        {
+            warn "Missing required fields for domain $domain";
+            next;
+        }
+
+        if ($d->{type} eq 'A' || $d->{type} eq 'CNAME')
+        {
+            for my $record (@{$d->{records}})
+            {
+                $record =~ s/\.$//;  # 去掉记录值末尾的点
+                
+                if ($domain =~ /\.private/) {
+                    printf "%s{Region:%s}  %s %s %s\n", $domain, $region, $domain, $d->{type}, $record;
+                } else {
+                    printf "%s %s %s\n", $domain, $d->{type}, $record;
+                }
+            }
+        }
+    }
+}
