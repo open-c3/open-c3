@@ -7,25 +7,36 @@ $|++;
 
 =head1 SYNOPSIS
 
- $0
+ \$0
 
 =cut
 
-my @x = `c3mc-device-data-get curr domain aws-subdomain uuid host_domain_name record_info`;
+my @x = `c3mc-device-data-get curr domain aws-subdomain uuid host_domain_name record_info region`;
 chomp @x;
-for my $x ( @x )
+for my $x (@x)
 {
-    my ( $uuid, $domain, $record ) = split /\t/, $x;
-    my $data = eval{JSON::from_json $record };
-    if( $@ )
+    my ($uuid, $domain, $record, $region) = split /\t/, $x;
+    my $data = eval { JSON::from_json($record) };
+    if ($@)
     {
         warn "get data fail: $@";
         next;
     }
 
-    for my $d ( @$data )
+    for my $d (@$data)
     {
         next unless $d->{Type} eq 'A' || $d->{Type} eq 'CNAME';
-        map{ printf "%s\n", join " ", $domain, $d->{Type}, $_->{Value} }@{$d->{ResourceRecords}};
+        for my $rr (@{$d->{ResourceRecords}})
+        {
+            my $value = $rr->{Value};
+            $value =~ s/\.$//;  # 去掉记录值末尾的点
+            
+            if ($domain =~ /prodtn\.private/) {
+                printf "%s{Region:%s}  %s %s %s\n", $domain, $region, $domain, $d->{Type}, $value;
+            } else {
+                printf "%s %s %s\n", $domain, $d->{Type}, $value;
+            }
+        }
     }
 }
+

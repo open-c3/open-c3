@@ -88,6 +88,8 @@ class Huawei:
             regions = self.list_regions("分布式缓存服务 Redis")
         elif self.resource_type == "kafka":
             regions = self.list_regions("分布式消息服务 DMS")
+        elif self.resource_type == "dns":
+            regions = self.list_regions("云解析服务 DNS")
         else:
             raise RuntimeError("不支持的资源类型")
         
