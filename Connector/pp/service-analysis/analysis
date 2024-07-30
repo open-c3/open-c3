@@ -14,7 +14,8 @@ $|++;
 
 my %alias =
 (
-    'dns'        => 'DNS',
+    'dig-dns'    => 'DIGDNS',
+    'aws-dns'    => 'AWSDNS',
     'aws-nlb'    => 'AWSNLB',
     'aws-alb'    => 'AWSALB',
     'nginx'      => 'NG',
@@ -52,16 +53,14 @@ sub seed
     my $seed = shift @_;
     return [ split /\s+/, $seed ] if $seed;
     
-    my @aws_domains = `c3mc-device-data-get curr domain aws-subdomain host_domain_name|sort|uniq | grep -v ^_|grep -v '\\\\100\\.'|grep -v '\\\\052\\.'|grep -v 'private'`;
-    chomp @aws_domains;
+    my %domain;
+    {
+        my @x = `./seed`;
+        chomp @x;
+        map{ $domain{$_} ++ }grep{ $_ =~ /^[a-zA-Z][a-zA-Z0-9\.\-_]+[a-zA-Z]$/ && $_ =~ /\./ }map{split /\s+/, $_ }@x;
+    }
     
-    my @huawei_domains = `c3mc-device-data-get curr domain huawei-dns host_domain_name|sort|uniq | grep -v ^_|grep -v '\\\\100\\.'|grep -v '\\\\052\\.'|grep -v 'private'`;
-    chomp @huawei_domains;
-    
-    my %unique_domains = map { $_ => 1 } (@aws_domains, @huawei_domains);
-    my @all_domains = keys %unique_domains;
-    
-    return map{ [ "$_", "$_\{Port:443,Domain:$_}" ] } @all_domains;
+    return map{ [ "$_", "$_\{Port:443,Domain:$_}" ] } keys %domain;
 }
 
 
