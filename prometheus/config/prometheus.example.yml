@@ -75,6 +75,13 @@ scrape_configs:
     file_sd_configs:
       - files:
         - openc3_cloudmon_sd_prometheus-federate.yml
+    metric_relabel_configs:
+    - source_labels: [ 'uid' ]
+      separator: ';'
+      target_label: instance
+      regex: ";*([^;]+).*"
+      replacement: $1
+      action: replace
 
   - job_name: 'openc3-mysql'
     file_sd_configs:
