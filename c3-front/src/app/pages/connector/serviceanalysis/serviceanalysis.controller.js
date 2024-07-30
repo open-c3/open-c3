@@ -45,7 +45,8 @@
             vm.loadover = false;
             vm.sync = $http.get(`/api/ci/v2/c3mc/serviceanalysis/tree?timemachine=${vm.selectedtimemachine}&search=${vm.search}&search2=${vm.search2}&limit=${vm.limit}`).success(function(nodes) {
 		vm.loadover = true;
-                var treedata = [ { id: 0, name: 'ROOT', children: nodes.data } ]
+                var treedata = nodes.data; // [ { id: 0, name: 'ROOT', children: nodes.data } ]
+                //var treedata = [ { id: 0, name: 'ROOT', children: nodes.data } ]
                 $.fn.zTree.init(angular.element('#openc3treeclone'), setting, treedata);
                 vm.zTree = $.fn.zTree.getZTreeObj('openc3treeclone');
                 vm.zTree.expandAll(true);
@@ -122,7 +123,8 @@
 		vm.loadover = false;
                 $http.get(`/api/ci/v2/c3mc/serviceanalysis/tree?timemachine=${vm.selectedtimemachine}&search=${vm.search}&search2=${vm.search2}&limit=${vm.limit}`).success(function(nodes) {
 		    vm.loadover = true;
-                    var treedata = [ { id: 0, name: 'ROOT', children: nodes.data } ]
+                    var treedata = nodes.data; //[ { id: 0, name: 'ROOT', children: nodes.data } ]
+                    //var treedata = [ { id: 0, name: 'ROOT', children: nodes.data } ]
                     $.fn.zTree.init(angular.element('#openc3treeclone'), vm.zTree.setting, treedata);
                     angular.element('.treeFresh').removeClass('fa-spin');
                     vm.expandAll(true)
