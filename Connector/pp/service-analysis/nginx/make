@@ -12,6 +12,26 @@ $|++;
 =cut
 
 
+my %region;
+
+my @cmd =
+(
+    'c3mc-device-data-get curr compute aws-ec2 区域 内网IP 公网IP',
+    'c3mc-device-data-get curr compute huawei-ecs 区域 内网IP 公网IP',
+);
+
+for my $cmd ( @cmd )
+{
+    my @r = `$cmd`;
+    chomp @r;
+
+    for( @r )
+    {
+        my ( $region, @uuid ) = split /\t/, $_;
+        map{ $region{$_} = $region; }@uuid;
+    }
+}
+
 my @x = `c3mc-device-data-get curr others nginx-location ip server_name path upstream port`;
 chomp @x;
 for my $x ( @x )
@@ -20,6 +40,7 @@ for my $x ( @x )
     map{
         my ( $tip, $tport ) = split /:/, $_;
         $tport //= '80';
-        printf "%s\n", join " ", "$ip\{Port:$port,Domain:$server_name\}", "ip:$ip", "server_name:$server_name", ':::', "path:$path", "port:$port", $_, "$tip\{Port:$tport\}"
+        my $region = $region{$ip} // 'unknow';
+        map{ printf "%s\n", join " ", "$ip\{Port:$port,Domain:$_\}", "ip:$ip", "region:$region", "server_name:$_", ':::', "path:$path", "port:$port", $_, "$tip\{Port:$tport,Region:$region\}" }split /\s+/, $server_name;
     }split /,/, $upstream;
 }

@@ -52,5 +52,11 @@ for( @data )
 for my $x ( @node )
 {
     my @alias = keys %{$res{$x}};
-    printf "$x: %s\n", ( @alias == 1 ) ? $alias[0] : "unknown";
+    if( @alias > 1 )
+    {
+        my %alias;
+        map{ my @x = split /\|/, $_; $alias{$_} = scalar @x; }@alias;
+        @alias = sort{ $alias{$b} <=> $alias{$a} }keys %alias;
+    }
+    printf "$x: %s\n", ( @alias >= 1 ) ? $alias[0] : "unknown";
 }

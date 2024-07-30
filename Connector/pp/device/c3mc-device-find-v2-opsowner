@@ -54,6 +54,6 @@ for( @data )
 
 for my $x ( @node )
 {
-    my @owner = keys %{$res{$x}};
+    my @owner = grep{ $_ ne 'null' } keys %{$res{$x}};
     printf "$x: %s\n", ( @owner == 1 ) ? $owner[0] : "unknown";
 }

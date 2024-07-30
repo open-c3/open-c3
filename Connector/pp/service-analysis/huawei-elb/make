@@ -30,17 +30,17 @@ for ( @x )
     for my $d ( @{ $data } )
     {
         my ( $pubAddr, $lport, $priAddr, $port ) = ( $uuid, $d->{listener_port}, $d->{address}, $d->{port} );
-        printf "%s\n", join " ", "$pubAddr\{Port:$lport\}", $pubAddr, $lport, $priAddr, $port, "$priAddr\{Port:$port\}";
+        printf "%s\n", join " ", "$pubAddr\{Port:$lport\}", $pubAddr, $lport, ':::', $priAddr, $port, "$priAddr\{Port:$port\}";
 
         if( $public_address )
         {
             $pubAddr = $public_address;
-            printf "%s\n", join " ", "$pubAddr\{Port:$lport\}", $pubAddr, $lport, $priAddr, $port, "$priAddr\{Port:$port\}";
+            printf "%s\n", join " ", "$pubAddr\{Port:$lport\}", $pubAddr, $lport, ':::', $priAddr, $port, "$priAddr\{Port:$port\}";
         }
         if( $private_address )
         {
             $pubAddr = $private_address;
-            printf "%s\n", join " ", "$pubAddr\{Port:$lport\}", $pubAddr, $lport, $priAddr, $port, "$priAddr\{Port:$port\}";
+            printf "%s\n", join " ", "$pubAddr\{Port:$lport\}", $pubAddr, $lport, ':::', $priAddr, $port, "$priAddr\{Port:$port\}";
         }
 
     }

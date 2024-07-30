@@ -1,0 +1,40 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use JSON;
+
+$|++;
+
+use NetAddr::IP::Util qw(inet_ntoa);
+use Net::DNS::Dig;
+
+=head1 SYNOPSIS
+
+ \$0
+
+=cut
+
+my %domain;
+my @x = `../seed`;
+chomp @x;
+map{ $domain{$_} ++ }grep{ $_ =~ /^[a-zA-Z][a-zA-Z0-9\.\-_]+[a-zA-Z]$/ && $_ =~ /\./ }map{split /\s+/, $_ }@x;
+    
+for my $name ( qw(aws-dns huawei-dns ) )
+{
+    my @x = `cat ../$name/data.txt`;
+    chomp @x;
+    for ( @x )
+    {
+        my ( $x ) = split /\s+/, $_;
+        $x =~ s/\{.+//;
+        delete $domain{$x};
+    }
+}
+
+for my $domain ( keys %domain )
+{
+    my @netaddrs = Net::DNS::Dig->new()->for( $domain )->rdata();
+    foreach ( @netaddrs ) {
+       printf "%s %s %s\n", $domain, 'A', inet_ntoa( $_ );
+    }
+}

@@ -1,0 +1,27 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ \$0
+
+=cut
+
+my @cmd = (
+    "c3mc-device-data-get curr domain aws-subdomain host_domain_name",
+    "c3mc-device-data-get curr domain huawei-dns host_domain_name",
+    "c3mc-device-data-get curr others nginx-location server_name",
+);
+    
+my %domain;
+for my $cmd ( @cmd )
+{
+    my @x = `$cmd`;
+    chomp @x;
+    map{ $domain{$_} ++ }grep{ $_ =~ /^[a-zA-Z][a-zA-Z0-9\.\-_]+[a-zA-Z]$/ && $_ =~ /\./ && $_ !~ /\.private$/ }map{split /\s+/, $_ }@x;
+}
+    
+map{ print "$_\n" }keys %domain;
