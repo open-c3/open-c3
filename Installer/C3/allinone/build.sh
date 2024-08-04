@@ -35,6 +35,14 @@ cp -r /data/open-c3/web-shell temp/
 rm temp/web-shell/node_modules/zeparser/benchmark.html
 cp -r /data/open-c3/Installer/install-cache/bin temp/install-cache-bin
 
+#prometheus
+cp -r /data/open-c3/prometheus temp/
+rm -f temp/prometheus/config/*temp*
+bash -c "cd temp/prometheus/config/targets/ && ls|grep -v example|xargs -i{} rm {}"
+bash -c "cd temp/prometheus/config/ && ls|grep yml|grep -v example|xargs -i{} rm {}"
+bash -c "cd temp/prometheus/config/ && ls|grep yml|grep example |awk '{print \$1,\$1}'| sed 's/.example//' |awk '{print \"cp\", \$2,\$1}' |bash"
+bash -c "cd prometheus && ./download.sh"
+
 sed -i 's/openc3_demo_version_only=0/openc3_demo_version_only=1/g' temp/c3-front/dist/scripts/*
 
 VERSION=$1

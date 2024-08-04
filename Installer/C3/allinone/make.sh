@@ -36,3 +36,6 @@ mkdir -p /data/open-c3-data
 
 date >> /etc/openc3.supervisormin.on
 date >> /etc/openc3.allinon
+
+tar zxf /prometheus.tar.gz -C /usr
+mv /usr/prometheus-2.37.2.linux-amd64 /usr/prometheus

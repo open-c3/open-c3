@@ -106,4 +106,6 @@ mkdir -p /data/open-c3-data/monitor-sender
 /data/Software/mydan/Connector/pp/c3mc-sys-dup
 #=end
 
+nohup /usr/prometheus/prometheus --config.file=/data/Software/mydan/prometheus/config/prometheus.yml --storage.tsdb.path=/data/open-c3-data/prometheus-data --web.enable-lifecycle --storage.tsdb.retention=14d &
+
 /data/Software/mydan/Connector/restart-open-c3-auto-config-change.pl
