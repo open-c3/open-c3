@@ -39,3 +39,6 @@ date >> /etc/openc3.allinon
 
 tar zxf /prometheus.tar.gz -C /usr
 mv /usr/prometheus-2.37.2.linux-amd64 /usr/prometheus
+
+tar zxf /alertmanager.tar.gz -C /usr
+mv /usr/alertmanager-0.27.0.linux-386 /usr/alertmanager

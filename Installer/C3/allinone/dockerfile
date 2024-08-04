@@ -18,6 +18,7 @@ ADD ./temp/CI           /data/Software/mydan/CI
 ADD ./temp/c3-front     /data/Software/mydan/c3-front
 ADD ./temp/web-shell    /data/Software/mydan/web-shell
 ADD ./temp/prometheus   /data/Software/mydan/prometheus
+ADD ./temp/alertmanager /data/Software/mydan/alertmanager
 
 ADD ./temp/init.sql /tmp/init.sql
 
@@ -28,6 +29,7 @@ ADD ./temp/install-cache-bin/yaml2json  /usr/bin/yaml2json
 ADD ./temp/CI/bin/aws_c3 /usr/local/bin/aws_c3
 
 COPY ./prometheus/prometheus.tar.gz /prometheus.tar.gz
+COPY ./alertmanager/alertmanager.tar.gz /alertmanager.tar.gz
 
 RUN /make.sh
 

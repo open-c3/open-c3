@@ -43,6 +43,10 @@ bash -c "cd temp/prometheus/config/ && ls|grep yml|grep -v example|xargs -i{} rm
 bash -c "cd temp/prometheus/config/ && ls|grep yml|grep example |awk '{print \$1,\$1}'| sed 's/.example//' |awk '{print \"cp\", \$2,\$1}' |bash"
 bash -c "cd prometheus && ./download.sh"
 
+#alertmanager
+cp -r /data/open-c3/alertmanager temp/
+bash -c "cd alertmanager && ./download.sh"
+
 sed -i 's/openc3_demo_version_only=0/openc3_demo_version_only=1/g' temp/c3-front/dist/scripts/*
 
 VERSION=$1
