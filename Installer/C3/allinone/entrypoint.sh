@@ -110,4 +110,7 @@ nohup /usr/prometheus/prometheus --config.file=/data/Software/mydan/prometheus/c
 
 nohup /usr/alertmanager/alertmanager --config.file=/data/Software/mydan//alertmanager/config/alertmanager.yml --storage.path=/alertmanager &
 
+rm -f /var/run/grafana-server.pid
+/etc/rc.d/init.d/grafana-server start
+
 /data/Software/mydan/Connector/restart-open-c3-auto-config-change.pl
