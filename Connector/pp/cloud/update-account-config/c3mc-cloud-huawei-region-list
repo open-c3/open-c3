@@ -2,11 +2,15 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import requests
-from bs4 import BeautifulSoup
-
-sys.path.append("/data/Software/mydan/Connector/lib/pp")
-
+from huaweicloudsdkcore.auth.credentials import BasicCredentials
+from huaweicloudsdkcore.exceptions import exceptions
+from huaweicloudsdkiam.v3 import *
+from huaweicloudsdkecs.v2 import *
+from huaweicloudsdkelb.v3 import *
+from huaweicloudsdkdns.v2 import *
+from huaweicloudsdkrds.v3 import *
+from huaweicloudsdkdcs.v2 import *
+from huaweicloudsdkkafka.v2 import *
 
 class Huawei:
     def __init__(self, access_id, access_key, iam_user_id, resource_type):
@@ -14,92 +18,217 @@ class Huawei:
         self.access_key = access_key
         self.iam_user_id = iam_user_id
         self.resource_type = resource_type
-        self.huawei_webpage = self.get_huawei_webpage()
-        self.project_region_list = self.get_project_region_list()
-    
+        self.regions = self.get_regions_and_projects()
 
-    def get_huawei_webpage(self):
-        # 华为云目前没有可以直接查询区域列表的接口, 这里使用爬虫从华为云官网文档获取区域
-        #url = 'https://developer.huaweicloud.com/endpoint?all'
-        url = 'http://OPENC3_SERVER_IP:38080/huawei-endpoint.html'
-        response = requests.get(url)
-        response.encoding = 'utf-8'
-        return response.text
-
-
-    def get_project_region_list(self):
-        from c3mc_cloud_huawei_iam import HuaweiIam
-
-        project_region_list = []
-        official_ecs_region_list = self.list_webpage_regions("弹性云服务 ECS")
-        for region in official_ecs_region_list:
+    def get_regions_and_projects(self):
+        credentials = BasicCredentials(self.access_id, self.access_key)
+        
+        # 尝试不同的 endpoint
+        endpoints = [
+            "https://iam.myhuaweicloud.com", 
+            "https://iam.eu-west-101.myhuaweicloud.eu" 
+        ]
+        
+        for endpoint in endpoints:
             try:
-                project_list = HuaweiIam(
-                    self.access_id, self.access_key, region).list_projects()
-                project_region_list.extend(
-                    project.name for project in project_list if project.name not in ["cn-north-1", "cn-east-2"])
-                return project_region_list
-            except Exception as e:
+                iam_client = IamClient.new_builder() \
+                    .with_credentials(credentials) \
+                    .with_endpoint(endpoint) \
+                    .build()
+
+                request = KeystoneListProjectsRequest()
+                response = iam_client.keystone_list_projects(request)
+
+                region_project_map = {}
+                
+                for project in response.projects:
+                    if project.name not in ['MOS','as-south-0','na-east-0']:
+                        region_project_map[project.name] = project.id
+                
+                return region_project_map
+            
+            except exceptions.ClientRequestException as e:
                 continue
-        return project_region_list
+        
+        return {}
 
-    def list_webpage_regions(self, title):
-        soup = BeautifulSoup(self.huawei_webpage, 'html.parser')
-        target_div = soup.find('div', string=title)
-        parent = target_div.find_parent()
-        target_table = parent.find('table')
+    def get_endpoint(self, service, region_id):
+        # 处理都柏林地区的特殊情况
+        if region_id == "eu-west-101":
+            return f"https://{service}.{region_id}.myhuaweicloud.eu"
+        
+        return f"https://{service}.{region_id}.myhuaweicloud.com"
 
-        result = []
-        for row in target_table.find_all('tr'):
-            i = 0
-            for cell in row.find_all('td'):
-                if i == 1:
-                    result.append(cell.text)
-                    break
-                i += 1
-        return sorted(result)
+    def get_ecs_availability_zones(self):
+        ecs_zones = set()
+        
+        for region, project_id in self.regions.items():
+            credentials = BasicCredentials(self.access_id, self.access_key, project_id)
+            try:
+                endpoint = self.get_endpoint('ecs', region)
+                client = EcsClient.new_builder() \
+                    .with_credentials(credentials) \
+                    .with_endpoint(endpoint) \
+                    .build()
+                
+                request = NovaListAvailabilityZonesRequest()
+                response = client.nova_list_availability_zones(request)
 
-    def list_regions(self, title):
-        webpage_region_list = self.list_webpage_regions(title)
-        intersection = set(self.project_region_list) & set(webpage_region_list)
-        return sorted(list(intersection))
+                for zone_info in response.availability_zone_info:
+                    if zone_info.zone_state.available:
+                        ecs_zones.add(f"{region}")
+
+            except exceptions.ClientRequestException as e:
+                pass
+
+        return list(ecs_zones)
+
+    def get_elb_availability_zones(self):
+        elb_zones = set()
+        for region, project_id in self.regions.items():
+            credentials = BasicCredentials(self.access_id, self.access_key, project_id)
+            try:
+                endpoint = self.get_endpoint('elb', region)
+                client = ElbClient.new_builder() \
+                    .with_credentials(credentials) \
+                    .with_endpoint(endpoint) \
+                    .build()
+
+                request = ListAvailabilityZonesRequest()
+                response = client.list_availability_zones(request)
+
+                for zone_list in response.availability_zones:
+                    for zone in zone_list:
+                        if zone.state == "ACTIVE":  
+                            elb_zones.add(f"{region}")
+
+            except exceptions.ClientRequestException as e:
+                pass
+
+        return list(elb_zones)
+
+    def get_dns_availability_zones(self):
+        dns_zones = set()
+
+        for region, project_id in self.regions.items():
+            credentials = BasicCredentials(self.access_id, self.access_key, project_id)
+            try:
+                endpoint = self.get_endpoint('dns', region)
+                client = DnsClient.new_builder() \
+                    .with_credentials(credentials) \
+                    .with_endpoint(endpoint) \
+                    .build()
+
+                request = ListPrivateZonesRequest()
+                request.type = "private"
+                response = client.list_private_zones(request)
+
+                for zone in response.zones:
+                    if zone.status == "ACTIVE":
+                        for router in zone.routers:
+                            if router.status == "ACTIVE":
+                                dns_zones.add(router.router_region)
+
+            except exceptions.ClientRequestException as e:
+                pass
+
+        return list(dns_zones)
+
+    def get_rds_availability_zones(self):
+        rds_zones = set()
+
+        for region, project_id in self.regions.items():
+            credentials = BasicCredentials(self.access_id, self.access_key, project_id)
+            try:
+                endpoint = self.get_endpoint('rds', region)
+                client = RdsClient.new_builder() \
+                    .with_credentials(credentials) \
+                    .with_endpoint(endpoint) \
+                    .build()
+
+                request = ListInstancesRequest()
+                response = client.list_instances(request)
+
+                if response.total_count:
+                    rds_zones.add(f"{region}")
+
+            except exceptions.ClientRequestException as e:
+                pass
+
+        return list(rds_zones)
+
+    def get_dcs_availability_zones(self):
+        dcs_zones = set()
+
+        for region, project_id in self.regions.items():
+            credentials = BasicCredentials(self.access_id, self.access_key, project_id)
+            try:
+                endpoint = self.get_endpoint('dcs', region)
+                client = DcsClient.new_builder() \
+                    .with_credentials(credentials) \
+                    .with_endpoint(endpoint) \
+                    .build()
+
+                request = ListAvailableZonesRequest()
+                response = client.list_available_zones(request)
+
+                for zone in response.available_zones:
+                    if zone.resource_availability:  
+                        dcs_zones.add(f"{region}")
+
+            except exceptions.ClientRequestException as e:
+                pass
+
+        return list(dcs_zones)
+
+    def get_dms_availability_zones(self):
+        dms_zones = set()
+        for region, project_id in self.regions.items():
+            credentials = BasicCredentials(self.access_id, self.access_key, project_id)
+            try:
+                endpoint = self.get_endpoint('dms', region)
+                client = KafkaClient.new_builder() \
+                    .with_credentials(credentials) \
+                    .with_endpoint(endpoint) \
+                    .build()
+
+                request = ListAvailableZonesRequest()
+                response = client.list_available_zones(request)
+
+                for zone in response.available_zones:
+                    if zone.resource_availability:  
+                        dms_zones.add(f"{region}")
+
+            except exceptions.ClientRequestException as e:
+                pass
+
+        return list(dms_zones)
 
     def display(self):
-        regions = []
-
-        if self.resource_type == "dds":
-            regions = self.list_regions("文档数据库服务 DDS")
-        elif self.resource_type == "ecs":
-            regions = self.list_regions("弹性云服务 ECS")
-        elif self.resource_type == "ecs-volume":
-            regions = self.list_regions("云硬盘 EVS")
-        elif self.resource_type == "elb":
-            regions = self.list_regions("弹性负载均衡 ELB")
-        elif self.resource_type == "nosql":
-            regions = self.list_regions("云数据库 GaussDB NoSQL")
-        elif self.resource_type == "obs":
-            # obs属于全局资源，通过每个区域都可以拉取到所有其他区域的obs资源
-            # 为了避免重复拉取资源，下面regions数组只保留一个元素
-            # regions = self.list_regions("对象存储服务 OBS")
-            regions = ["cn-north-4"]
-        elif self.resource_type == "rds":
-            regions = self.list_regions("云数据库 RDS")
-        elif self.resource_type == "redis":
-            regions = self.list_regions("分布式缓存服务 Redis")
-        elif self.resource_type == "kafka":
-            regions = self.list_regions("分布式消息服务 DMS")
-        elif self.resource_type == "dns":
-            regions = self.list_regions("云解析服务 DNS")
-        else:
-            raise RuntimeError("不支持的资源类型")
+        global_resources = ["obs"]
         
+        if self.resource_type in global_resources:
+            regions = [list(self.regions.keys())[0]] if self.regions.keys() else [] 
+        elif self.resource_type == "ecs":
+            regions = self.get_ecs_availability_zones()
+        elif self.resource_type == "elb":
+            regions = self.get_elb_availability_zones()
+        elif self.resource_type == "dns":
+            regions = self.get_dns_availability_zones()
+        elif self.resource_type == "rds":
+            regions = self.get_rds_availability_zones()
+        elif self.resource_type == "redis":
+            regions = self.get_dcs_availability_zones()
+        elif self.resource_type == "kafka":
+            regions = self.get_dms_availability_zones()
+        else:
+            regions = list(self.regions.keys())
+
         for region in regions:
             print(region)
 
-
 def main(access_id, access_key, iam_user_id, resource_type):
     Huawei(access_id, access_key, iam_user_id, resource_type).display()
-
 
 if __name__ == '__main__':
     main(sys.argv[1], sys.argv[2], sys.argv[5], sys.argv[6])

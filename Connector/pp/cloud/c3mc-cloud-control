@@ -82,7 +82,7 @@ else
     my @argv = @ARGV;
 
     my $tplfile = "/data/Software/mydan/Connector/pp/cloud/control/template/$data->{type}.$data->{subtype}.$o{ctrl}.yml";
-    $tplfile = "/data/Software/mydan/Connector/pp/cloud/control/$data->{type}/$data->{subtype}/$o{ctrl}/tpl.yml" if $cmd =~ /\//;
+    $tplfile = "/data/Software/mydan/Connector/pp/cloud/control/$cmd/tpl.yml" if $cmd =~ /\//;
     my $tmpcont = eval{ YAML::XS::LoadFile $tplfile; };
     die "load tpl fail: $@" if $@;
     unless( @argv )
