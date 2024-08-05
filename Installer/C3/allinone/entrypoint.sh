@@ -36,6 +36,7 @@ cat >> /etc/hosts <<EOF
 127.0.0.1	OPENC3_ALERTMANAGER_IP
 127.0.0.1	OPENC3_LUA_IP
 
+127.0.0.1       openc3-server
 EOF
 
 

@@ -49,6 +49,9 @@ bash -c "cd alertmanager && ./download.sh"
 
 sed -i 's/openc3_demo_version_only=0/openc3_demo_version_only=1/g' temp/c3-front/dist/scripts/*
 
+#lua
+cp -r /data/open-c3/lua      temp/
+
 VERSION=$1
 if [ "X$VERSION" == "X" ];then
     VERSION=$(date +%Y%m%d)
