@@ -1,6 +1,7 @@
 #Author: lijinfeng2011@gmail.com
 
-FROM openc3/basev2:t2206131
+#FROM openc3/basev2:t2204065
+FROM openc3/basev2:t2204065-grafana
 MAINTAINER lijinfeng2011
 
 #RUN sed -i 's/www.cpan.org/mirrors.163.com\/cpan/' /root/.cpan/CPAN/MyConfig.pm
@@ -9,14 +10,19 @@ MAINTAINER lijinfeng2011
 ADD make.sh /make.sh
 ADD ./temp/my.cnf /my.cnf
 
-ADD ./temp/Connector /data/Software/mydan/Connector
-ADD ./temp/MYDan     /data/Software/mydan/MYDan
-ADD ./temp/JOBX      /data/Software/mydan/JOBX
-ADD ./temp/JOB       /data/Software/mydan/JOB
-ADD ./temp/AGENT       /data/Software/mydan/AGENT
-ADD ./temp/CI       /data/Software/mydan/CI
-ADD ./temp/c3-front       /data/Software/mydan/c3-front
-ADD ./temp/web-shell       /data/Software/mydan/web-shell
+ADD ./temp/Connector    /data/Software/mydan/Connector
+ADD ./temp/MYDan        /data/Software/mydan/MYDan
+ADD ./temp/JOBX         /data/Software/mydan/JOBX
+ADD ./temp/JOB          /data/Software/mydan/JOB
+ADD ./temp/AGENT        /data/Software/mydan/AGENT
+ADD ./temp/CI           /data/Software/mydan/CI
+ADD ./temp/c3-front     /data/Software/mydan/c3-front
+ADD ./temp/web-shell    /data/Software/mydan/web-shell
+ADD ./temp/prometheus   /data/Software/mydan/prometheus
+ADD ./temp/alertmanager /data/Software/mydan/alertmanager
+ADD ./temp/lua          /data/Software/mydan/lua
+
+ADD ./temp/grafana-data  /var/lib/grafana
 
 ADD ./temp/init.sql /tmp/init.sql
 
@@ -25,6 +31,9 @@ ADD ./temp/install-cache-bin/json2yaml  /usr/bin/json2yaml
 ADD ./temp/install-cache-bin/yaml2json  /usr/bin/yaml2json
 
 ADD ./temp/CI/bin/aws_c3 /usr/local/bin/aws_c3
+
+COPY ./prometheus/prometheus.tar.gz /prometheus.tar.gz
+COPY ./alertmanager/alertmanager.tar.gz /alertmanager.tar.gz
 
 RUN /make.sh
 

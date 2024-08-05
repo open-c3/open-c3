@@ -179,12 +179,8 @@
             });
         };
 
-        var openc3_demo_version_only=0;
+        vm.reloadAlert();
 
-        if( openc3_demo_version_only == 0 )
-        {
-            vm.reloadAlert();
-        }
         vm.reloadUser = function(){
             vm.loadoverUser = false;
             $http.get('/api/agent/monitor/config/user/' + vm.treeid ).success(function(data){

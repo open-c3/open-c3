@@ -1,0 +1,12 @@
+#Author: lijinfeng2011@gmail.com
+
+FROM openc3/basev2:t2204065
+MAINTAINER lijinfeng2011
+
+COPY grafana.repo /etc/yum.repos.d/grafana.repo
+RUN wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+RUN yum install grafana-9.0.1 -y
+
+COPY grafana.ini /etc/grafana/grafana.ini
+
+ENTRYPOINT [ "/entrypoint.sh" ]

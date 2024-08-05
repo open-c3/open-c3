@@ -1,0 +1,9 @@
+#Author: lijinfeng2011@gmail.com
+
+FROM openc3/basev2:t2204065-grafana
+MAINTAINER lijinfeng2011
+
+COPY ./make.sh /make.sh
+RUN bash /make.sh
+
+ENTRYPOINT [ "/entrypoint.sh" ]
