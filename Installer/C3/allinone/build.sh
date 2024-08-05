@@ -50,6 +50,9 @@ bash -c "cd alertmanager && ./download.sh"
 #lua
 cp -r /data/open-c3/lua      temp/
 
+#grafana-data
+cp -r /data/open-c3/Installer/install-cache/grafana-data temp/
+
 VERSION=$1
 if [ "X$VERSION" == "X" ];then
     VERSION=$(date +%Y%m%d)
