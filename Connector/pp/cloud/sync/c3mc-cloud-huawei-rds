@@ -4,28 +4,63 @@
 import sys
 import json
 
-from huaweicloudsdkcore.auth.credentials import BasicCredentials
+from huaweicloudsdkcore.auth.credentials import GlobalCredentials, BasicCredentials
 from huaweicloudsdkrds.v3.region.rds_region import RdsRegion
 from huaweicloudsdkrds.v3 import *
-
+from huaweicloudsdkiam.v3 import *
 
 class Rds:
     def __init__(self, access_id, access_key, project_id, region):
         self.access_id = access_id
         self.access_key = access_key
-        self.project_id = None if project_id == "None" else project_id.strip()
         self.region = region
+        self.project_id = project_id if project_id not in [None, "None"] else self.get_project_id()
         self.offset = 0
         self.page_size = 25
-
         self.client = self.create_client()
+
+    def get_project_id(self):
+        # 定义 IAM 端点映射
+        iam_endpoints = {
+            "eu-west-101": "https://iam.myhuaweicloud.eu",  # 都柏林地区
+            "default": "https://iam.myhuaweicloud.com"  # 默认端点
+        }
+
+        # 选择合适的 IAM 端点
+        iam_endpoint = iam_endpoints.get(self.region, iam_endpoints["default"])
+
+        credentials = GlobalCredentials(self.access_id, self.access_key)
+        iam_client = IamClient.new_builder() \
+            .with_credentials(credentials) \
+            .with_endpoint(iam_endpoint) \
+            .build()
+
+        try:
+            request = KeystoneListProjectsRequest()
+            response = iam_client.keystone_list_projects(request)
+            for project in response.projects:
+                if project.name == self.region:
+                    return project.id
+
+            raise Exception(f"No project found for region {self.region}")
+        except exceptions.ClientRequestException as e:
+            print(f"Failed to get project ID: {e}")
+            sys.exit(1)
+
+    def get_endpoint(self, region_id):
+        # 处理都柏林地区的特殊情况
+        if region_id == "eu-west-101":
+            return f"https://rds.{region_id}.myhuaweicloud.eu"
+        
+        return f"https://rds.{region_id}.myhuaweicloud.com"
 
     def create_client(self):
         credentials = BasicCredentials(self.access_id, self.access_key, self.project_id)
+        endpoint = self.get_endpoint(self.region)
         return (
-            RdsClient.new_builder()
-            .with_credentials(credentials)
-            .with_region(RdsRegion.value_of(self.region))
+            RdsClient.new_builder() \
+            .with_credentials(credentials) \
+            .with_endpoint(endpoint) \
             .build()
         )
 
@@ -58,7 +93,6 @@ class Rds:
             self.offset = cur_page_number * self.page_size
             self.show()
 
-
 # project_id 可以命令行传 None
 def main(access_id, access_key, project_id, region):
     try:
@@ -70,7 +104,6 @@ def main(access_id, access_key, project_id, region):
             return
         print(f"同步华为云rds资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
         raise e
-
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
