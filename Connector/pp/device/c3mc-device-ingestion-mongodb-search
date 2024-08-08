@@ -1,0 +1,127 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 [ --col uuid,type,addr,auth [uuid|type|addr|auth] ]
+ $0 --uuid uuid
+ $0 --addr addr
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( col => 'uuid,type,addr,auth' )->get( qw( col=s uuid=s addr=s ) )->dump();
+
+my @col = split /,/, $o{col};
+
+my @res;
+for my $ingestion ( glob "/data/open-c3-data/device/curr/database/*/ingestion-mongodb.yml" )
+{
+    my $basepath = $ingestion;
+    $basepath =~ s/\/[^\/]+$//;
+    my ( $datafile, $colmapfile ) = map{ "$basepath/$_" }qw( data.tsv colmap.yml );
+
+    my $x = eval{ YAML::XS::LoadFile $colmapfile };
+    die "load $ingestion fail: $@" if $@;
+
+    my $colmap = eval{ YAML::XS::LoadFile $ingestion };
+    die "load $ingestion fail: $@" if $@;
+
+    map{ $colmap->{$_} = $x->{$_}if !defined $colmap->{$_} }keys %$x;
+
+    map{ die "err" unless $colmap->{$_} }qw( addr tree type );
+    die "err" unless $colmap->{auth} || $colmap->{authfile} || $colmap->{authpath};
+
+    my $exclude = $colmap->{exclude} && ref $colmap->{exclude} eq 'HASH' ? $colmap->{exclude} : undef;
+
+    my %auth;
+    if( $colmap->{authfile} )
+    {
+        my @auth = `cat '$colmap->{authfile}'`;
+        chomp @auth;
+        for( @auth )
+        {
+            my @x = split /;/, $_, 2;
+            $auth{ $x[0] } = $x[1] if @x == 2;
+        }
+    }
+    my ( undef, $subtype, $type ) = reverse split /\//, $datafile;
+    my    @data  = `c3mc-device-cat curr $type $subtype`;
+    chomp @data;
+
+    next unless @data > 1;
+
+    my $title = shift @data;
+
+    utf8::decode( $title );
+    my @title = split /\t/, $title;
+
+    for my $data ( @data )
+    {
+         utf8::decode( $data );
+         my @d = split /\t/, $data;
+         my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
+
+         if( $exclude )
+         {
+             my $skip = 0;
+             for my $col ( keys %$exclude )
+             {
+                 map{ $skip = 1 if defined $d{ $col } && $_ eq $d{ $col } }@{ $exclude->{ $col } };
+             }
+             next if $skip;
+         }
+ 
+         my %tmp = (
+             uuid => $d{ $colmap->{uuid} },
+             addr => ref $colmap->{addr} eq 'ARRAY'
+                     ? join( ":", ( $d{ $colmap->{addr}[0] }, $colmap->{addr}[1] ? $d{ $colmap->{addr}[1] } : '6379' ) )
+                     : $d{ $colmap->{addr} },
+             type =>     $colmap->{type},
+         );
+
+         if( $colmap->{authfile} )
+         {
+             $tmp{auth} = $auth{$tmp{addr}} || '';
+         }
+         elsif( $colmap->{authpath} )
+         {
+             $tmp{auth} = '';
+             my $authfile = "$colmap->{authpath}/$tmp{addr}";
+                $authfile = "$colmap->{authpath}/default" unless -f $authfile;
+             eval{ $tmp{auth} = YAML::XS::LoadFile $authfile } if -f $authfile;
+         }
+         else
+         {
+             $tmp{auth} = ref $colmap->{auth} eq 'ARRAY' ?  join( ":", ( map{ $d{ $_ } } @{ $colmap->{auth} } )) : $colmap->{auth};
+         }
+         push @res, \%tmp;
+    }
+}
+
+for my $m ( qw( uuid addr ) )
+{
+    if( $o{$m} )
+    {
+        for my $x( @res )
+        {
+            next unless $x->{$m} && $o{$m} eq $x->{$m};
+            printf "%s\n", join ";", map{ $x->{$_} // '' }@col;
+        }
+        exit;
+    }
+}
+
+for my $x( @res )
+{
+    printf "%s\n", join ";", map{ $x->{$_} // '' }@col;
+}
