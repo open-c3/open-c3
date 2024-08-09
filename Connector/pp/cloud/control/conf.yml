@@ -36,13 +36,19 @@ networking.aws-alb:
 networking.aws-nlb:
   # nlb和alb都是都是elbv2类型，因此使用相同的查询方式
   get-backend-servers: networking/aws-alb/get-backend-servers
+  get: networking/aws-alb/get
+  tag-add: networking/aws-alb/tag-add
+  tag-delete: networking/aws-alb/tag-delete
 networking.aws-elb:
   get-backend-servers: networking/aws-elb/get-backend-servers
   get: networking/aws-elb/get
   tag-add: networking/aws-elb/tag-add
   tag-delete: networking/aws-elb/tag-delete
 networking.aws-globalaccelerator:
+  get: networking/aws-globalaccelerator/get
   get-backend-servers: networking/aws-globalaccelerator/get-backend-servers
+  tag-add: networking/aws-globalaccelerator/tag-add
+  tag-delete: networking/aws-globalaccelerator/tag-delete
 database.aws-dynamodb:
   get: database/aws-dynamodb/get
   tag-add: database/aws-dynamodb/tag-add
@@ -161,3 +167,4 @@ storage.google-vm-volume:
   get: storage/google-vm-volume/get
   tag-add: storage/google-vm-volume/tag-add
   tag-delete: storage/google-vm-volume/tag-delete
+

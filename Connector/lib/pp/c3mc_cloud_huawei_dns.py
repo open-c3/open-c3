@@ -37,6 +37,13 @@ class HuaweiCloudDNS(object):
         self.project_id = project_id if project_id not in [None, "None"] else self.get_project_id()
         self.client = self.create_client()
 
+    def get_endpoint(self, region_id):
+        # 处理都柏林地区的特殊情况
+        if region_id == "eu-west-101":
+            return f"https://dns.{region_id}.myhuaweicloud.eu"
+        
+        return f"https://dns.{region_id}.myhuaweicloud.com"
+
     def get_project_id(self):
         # 定义 IAM 端点映射
         iam_endpoints = {
@@ -68,9 +75,10 @@ class HuaweiCloudDNS(object):
 
     def create_client(self):
         credentials = BasicCredentials(self.access_key, self.secret_key, self.project_id)
+        endpoint = self.get_endpoint(self.region)
         return DnsClient.new_builder() \
             .with_credentials(credentials) \
-            .with_region(DnsRegion.value_of(self.region)) \
+            .with_endpoint(endpoint) \
             .build()
 
     def get_public_zones(self):
@@ -116,17 +124,27 @@ class HuaweiCloudDNS(object):
         request.resource_type = "DNS-public_zone" if zone_type == 'public' else "DNS-private_zone"
         response = self.client.show_resource_tag(request)
         return response.tags
+
     def get_subdomains(self):
-        public_zones = self.get_public_zones()
-        private_zones = self.get_private_zones()
-        all_zones = public_zones + private_zones
         result = ThreadSafeArray()
 
+        # 只在指定的region中获取公网域名，避免重复
+        if self.region == "af-south-1" or self.region == "eu-west-101" :  
+            public_zones = self.get_public_zones()
+            self.process_zones(public_zones, result, 'public')
+
+        # 在当前region中获取私有域名
+        private_zones = self.get_private_zones()
+        self.process_zones(private_zones, result, 'private')
+
+        return result._array
+
+    def process_zones(self, zones, result, zone_type):
         def worker(zone):
             for attempt in range(MAX_RETRIES):
                 try:
-                    records = self.get_all_recordsets(zone.id, zone.zone_type)
-                    zone_tags = self.get_zone_tags(zone.id, zone.zone_type)
+                    records = self.get_all_recordsets(zone.id, zone_type)
+                    zone_tags = self.get_zone_tags(zone.id, zone_type)
                     zone_name = zone.name.rstrip('.')
 
                     subdomains = []
@@ -153,7 +171,7 @@ class HuaweiCloudDNS(object):
                             "record_values": records_values,
                             "record_info": json.dumps([record.to_dict()], default=str),
                             "Tag": zone_tags,
-                            "zone_type": zone.zone_type,
+                            "zone_type": zone_type,
                             "region": self.region
                         })
 
@@ -166,7 +184,7 @@ class HuaweiCloudDNS(object):
                         time.sleep(RETRY_DELAY)
 
         threads = []
-        for zone in all_zones:
+        for zone in zones:
             while threading.active_count() > MAX_THREADS:
                 time.sleep(0.1)
             t = threading.Thread(target=worker, args=(zone,))
