@@ -1,0 +1,32 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+from huaweicloudsdkdcs.v2 import *
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_huawei_dcs import LibHuaweiDcs
+
+def capacity_downgrade(data, access_id, access_key, project_id, region):
+    lib_client = LibHuaweiDcs(access_id, access_key, project_id, region)
+
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database huawei-redis instance_id"
+    )
+
+    result = lib_client.perform_resize(data[field_name],"downgrade")
+    return result
+
+def main(data, access_id, access_key, project_id, region):
+    result = capacity_downgrade(data, access_id, access_key, project_id, region)
+    print(json.dumps(result, default=str))
+
+if __name__ == "__main__":
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])

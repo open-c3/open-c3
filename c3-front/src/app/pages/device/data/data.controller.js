@@ -291,14 +291,25 @@
               confirmButtonText: "确定",
               closeOnConfirm: true
             }, function () {
+
               $http.post(`/api/agent/device/detail/${type}/${subtype}/${vm.treeid}/${uuid}?timemachine=${vm.selectedtimemachine}`, { 'exturl': config['url'] }).success(function (data) {
                 if (data.stat) {
-                  toastr.success("操作成功！");
-                  vm.reload();
+
+                  $http.get(data.data).success(function (data) {
+                    if (data.stat) {
+                      toastr.success("操作成功！" + data.data );
+                      vm.reload();
+                    } else {
+                      swal({ title: '操作失败', text: data.info, type: 'error' });
+                    }
+                  });
+
                 } else {
                   swal({ title: '操作失败', text: data.info, type: 'error' });
                 }
               });
+
+
             });
           },
           select: function (uuid, type, subtype, config, item) {
