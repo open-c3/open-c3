@@ -1,0 +1,36 @@
+name: Auto Comment on PR
+
+on:
+  pull_request_target:
+    types: [ opened, synchronize ]
+    branches:
+      - v2.6.0
+      - v2.6.1
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create a comment
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PAT  }}
+          script: |
+            const { owner, repo, number: issue_number } = context.issue;
+            const commentBody = "Thanks for your contribution🎉. CodeBot(AI) will review your code first🔥";
+            github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body: commentBody
+            });
+            github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number,
+                labels: ['ready to review','auto merge']
+              });

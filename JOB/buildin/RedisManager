@@ -1,0 +1,60 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib
+use strict;
+use warnings;
+
+=head1 SYNOPSIS
+
+ usage: script.pl <ip:port> <action>
+
+ action: upgrade or downgrade
+
+=cut
+
+sub success
+{
+    map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+    exit;
+}
+
+die "Usage: \$0 <ip:port> <action>\n" unless @ARGV == 2;
+
+my ($ip_port, $action) = @ARGV;
+
+die "Invalid IP:port format\n" unless $ip_port =~ /^(?:\d{1,3}\.){3}\d{1,3}:\d+$/;
+
+die "Invalid action. Use 'upgrade' or 'downgrade'\n" unless $action =~ /^(upgrade|downgrade)$/;
+
+my $result = `c3mc-device-ingestion-redis-search --addr $ip_port --col uuid,type`;
+
+chomp $result;
+
+die "Failed to get UUID and type\n" unless $result;
+
+my ($uuid, $type) = split /;/, $result;
+
+die "Invalid result format\n" unless $uuid && $type;
+
+if ($type eq 'huawei-redis') {
+
+    my $command;
+    if ($action eq 'upgrade') {
+        $command = "c3mc-cloud-control --type database --subtype huawei-redis --uuid $uuid --ctrl capacity-upgrade x 2>&1";
+    } else {
+        $command = "c3mc-cloud-control --type database --subtype huawei-redis --uuid $uuid --ctrl capacity-downgrade x 2>&1";
+    }
+
+    my $output = qx($command);
+    my $exit_code = $? >> 8;
+
+    print "Command output:\n$output\n";
+
+    if ($exit_code == 0) {
+        success();
+    } else {
+        warn "Command failed with exit code: $exit_code\n";
+        exit 1;
+    }
+} else {
+    warn "Type is not huawei-redis. No action taken.\n";
+    exit 0;
+}

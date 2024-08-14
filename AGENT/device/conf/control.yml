@@ -182,6 +182,12 @@ database:
   - type: blank
     name: 终端
     url: '/api/job/cmd/ext/redis/${treeid}?redisaddr=${_redisaddr_}&redisauth=${_redisauth_}&siteaddr=${siteaddr}'
+  - type: button 
+    name: 扩容
+    url: '/api/ci/v2/c3mc/cloud/control/redis_manage/upgrade/{type}/{subtype}/{uuid}'
+  - type: button 
+    name: 缩容 
+    url: '/api/ci/v2/c3mc/cloud/control/redis_manage/downgrade/{type}/{subtype}/{uuid}'
   ksyun-redis:
   - type: blank
     name: 查看监控

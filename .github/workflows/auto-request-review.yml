@@ -1,0 +1,20 @@
+name: Auto Request Review
+
+on:
+  pull_request_target:
+    types: [ opened, ready_for_review, reopened, synchronize ]
+    branches:
+      - v2.6.0
+      - v2.6.1
+
+jobs:
+  auto-request-review:
+    name: Auto Request Review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request review based on files changes and/or groups the author belongs to
+        uses: necojackarc/auto-request-review@v0.13.0
+        with:
+          token: ${{ secrets.PAT }}
+          config: .github/reviewers.yml
+          use_local: false
