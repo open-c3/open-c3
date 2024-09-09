@@ -39,6 +39,7 @@ any '/c3mc/serviceanalysis/tree' => sub {
     my $timemachine = $param->{timemachine};
     my $file = sprintf "/data/open-c3-data/device/%s/serviceanalysis.tree.data", $timemachine eq 'curr' ? 'curr' : "timemachine/$timemachine";
     $file = '/data/Software/mydan/Connector/pp/service-analysis/tree.data' unless -f $file;
+    $file = '/data/Software/mydan/Connector/pp/service-analysis/tree.data' unless $param->{limit};
 
     my $cmd = "cat $file $grep $grep2 | c3mc-base-map2tree 2>&1";
 

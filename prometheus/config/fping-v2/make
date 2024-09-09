@@ -1,0 +1,85 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use YAML::XS;
+use MYDan;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $conf = YAML::XS::LoadFile "$RealBin/conf.yml";
+die "load config fail: $@" if $@;
+
+my @src = `cd '$RealBin/src' && ls`;
+chomp @src;
+
+my @dst = `cd '$RealBin/dst' && ls`;
+chomp @dst;
+
+sub gettarget
+{
+    my ( $type, $name ) = @_;
+    my @target = `cat $type/$name`;
+    chomp @target;
+    return @target;
+}
+
+my @data;
+for my $src ( @src )
+{
+    my %dst;
+    if( defined $conf->{$src}  )
+    {
+        if( ref $conf->{$src} )
+        {
+            for my $x ( @{$conf->{$src}} )
+            {
+                if ( $x =~ /^\// && $x =~ /\/$/ )
+                {
+                    $x =~ s/^\///; $x =~ s/\/$//;
+                    map{ $dst{$_} ++ if $_ =~ /$x/  }@dst;
+                }
+                else
+                {
+                    $dst{$x} ++;
+                }
+            }
+        }
+        else
+        {
+            %dst = ( map{ $_ => 1 } @dst ) if $conf->{$src} eq '*';
+        }
+    }
+
+    for my $dst ( keys %dst )
+    {
+        my @srcip = gettarget( 'src', $src );
+        for my $srcip ( @srcip )
+        {
+            my @dstip = gettarget( 'dst', $dst );
+            for my $dstip ( @dstip )
+            {
+                my %data = (
+                    targets =>  [ "$srcip:9605" ],
+                    labels => +{
+                        instance => $dstip,
+                        __param_target => $dstip,
+                        link => "${src}:${dst}",
+                        src => $src,
+                        srcip => $srcip,
+                        dst => $dst,
+                        dstip => $dstip,
+                        group => $dst =~ /^([a-zA-Z0-9]+)\-/ ? $1 : 'default'
+                    }
+                );
+                push @data, \%data;
+            }
+        }
+    }
+}
+
+print YAML::XS::Dump \@data;

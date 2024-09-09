@@ -143,6 +143,18 @@ function upgradeSelf() {
         echo "[FAIL]copy trouble-ticketing fail."
         exit 1
     fi
+
+    echo =================================================================
+    echo "[INFO]golang build ..."
+    find /data/open-c3/Connector/pp -name golang-build.sh|sed "s/\/golang-build.sh$//"|xargs -i{} bash -c "echo golang build {} && cd {} && ./golang-build.sh"
+
+    if [ $? = 0 ]; then
+        echo "[SUCC]golang build success."
+    else
+        echo "[FAIL]golang build fail."
+        exit 1
+    fi
+
 }
 
 function upgradeCluster() {
