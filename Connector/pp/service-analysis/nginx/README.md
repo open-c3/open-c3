@@ -20,7 +20,7 @@ nginx /usr/local/openresty/nginx/conf/conf.d
 
   文件用空格分隔的三列：
 
-    第一列: 服务树ID、IP地址、"nginx"字样
+    第一列: 服务树ID、IP地址、"nginx"字样。 其中nginx字样表示服务树节点名称是"nginx"的节点下的机器
     第二列: 采集的nginx配置的路径
     第三列: 配置文件的别名、可以忽略、系统会自动生成
 

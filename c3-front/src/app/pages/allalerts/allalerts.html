@@ -70,12 +70,14 @@
                         </td>  
                         <td data-title="'uuid'"  filter="{uuid: 'text'}" ng-if="allalerts.hasDebugStatus">{{m.uuid}}</td>  
                         <td data-title="'C3T.开始时间'|translate" data-sortable="'startsAt'" filter="{startsAt: 'text'}">{{m.startsAt}}</td>
+                        <td data-title="'C3T.持续时间'|translate" data-sortable="'startsAt'">{{getDuration(m.startsAt)}}</td>
                         <td data-title="'C3T.名称'|translate" data-sortable="'labels.alertname'" filter="{labelsAlertname: 'text'}">{{m.labels.alertname}}</td>
                         <td data-title="'C3T.监控对象'|translate" data-sortable="'labels.instance'" filter="{labelsObj: 'text'}">{{allalerts.getinstancename(m.labels)}}</td>
                         <td data-title="'Owner'" data-sortable="'labels.owner'" filter="{owner: 'text'}">{{m.owner}}</td>
                         <td data-title="'OpsOwner'" data-sortable="'labels.opsowner'" filter="{opsowner: 'text'}">{{m.opsowner}}</td>
                         <td data-title="'C3T.服务树'|translate" data-sortable="'labels.tree'" filter="{tree: 'text'}">{{m.tree}}</td>
                         <td data-title="'C3T.资源别名'|translate" data-sortable="'labels.alias'" filter="{alias: 'text'}">{{m.alias}}</td>
+                        <td data-title="'C3T.操作系统'|translate" data-sortable="'labels.os'" filter="{alias: 'text'}">{{m.os}}</td>
                         <td width="70" data-title="'C3T.状态'|translate" data-sortable="'status.state'" filter="{statueState: 'text'}">{{m.status.state}}</td>
                         <td width="90" data-title="'C3T.告警级别'|translate" data-sortable="'labels.severity'" filter="{labelsSeverity: 'text'}">{{m.labels.severity}}</td>
                         <td data-title="'C3T.概要'|translate" data-sortable="'annotations.summary'" filter="{annotationsSummary: 'text'}">{{m.annotations.summary}}</td>
