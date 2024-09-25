@@ -74,7 +74,7 @@ get '/monitor/alert/:projectid' => sub {
 
     if( $ips )
     {
-        for ( qw( v2-owner v2-alias v2-opsowner v2-tree v3-os ))
+        for ( qw( v2-owner v3-alias v2-opsowner v2-tree v3-os ))
         {
             my ( $v, $type ) = split /\-/, $_;
             my @x = `c3mc-device-find-$v-$type $ips`;
