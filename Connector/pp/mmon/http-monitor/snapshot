@@ -1,0 +1,46 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use LWP::UserAgent;
+use JSON;
+use URI::Escape;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout( 15 );
+
+my $url = sprintf "http://openc3-prometheus:9090/api/v1/query?query=%s", URI::Escape::uri_escape( 'probe_http_status_code[3h]' );
+
+my $res = $ua->get( $url );
+
+die sprintf( "http code %s", $res->code ) unless $res->is_success;
+
+my $v = eval{ JSON::decode_json $res->decoded_content };
+die "data no JSON: $@"  if $@;
+die "status no success" unless $v->{status} && $v->{status} eq 'success';
+
+my %res;
+for my $x ( @{$v->{data}{result} })
+{
+    map{ $res{$x->{metric}{instance}}{$_->[1] }++}@{$x->{values}};
+}
+
+for my $url ( keys %res )
+{
+    my %code = %{$res{$url}};
+    delete $code{0} if keys %code > 1 && $code{0};
+    my ( $code ) = sort{ $code{$b} <=> $code{$a} }keys %code;
+    $code = '200' if $code{200};
+    warn sprintf "[Warn]$url %s\n", join ',',sort keys %code if keys %code > 1;
+    next if $code eq '200';
+    printf "$url %d\n", $code;
+}
+
