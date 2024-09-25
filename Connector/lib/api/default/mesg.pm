@@ -35,7 +35,7 @@ post '/default/mesg' => sub {
 
     my $param = params();
     my $error = Format->new( 
-        user => qr/^[a-zA-Z0-9\.\@_\-]+$/, 1,
+        user => qr/^[a-zA-Z0-9\.\@_\:\-]+$/, 1,
         mesg => qr/.+/, 1,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
