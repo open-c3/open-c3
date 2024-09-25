@@ -204,7 +204,7 @@ return sub
         {
             my $nodeinfo_check = Code->new( 'nodeinfo_check' );
 
-            $checkerror = eval{ $nodeinfo_check->run( db => $db, id => $projectid, node => \@node ) };
+            $checkerror = eval{ $nodeinfo_check->run( db => $db, id => $projectid, node => [ grep{ $_ !~ /^f\d+$/ && $_ ne 'fx' && $_ ne 'online.env' && $_ ne 'test.env' }@node ] ) };
             $logs->die( "nodeinfo_check code err:$@" ) if $@;
             print "ERROR: the node not on tree: $checkerror\n" if $checkerror;
         }

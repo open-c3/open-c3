@@ -306,6 +306,18 @@
             });
         };
 
+        vm.validateVariable = function(value) {
+          // 检查第一种情况：等于 test.env 或 online.env
+          if (value === 'test.env' || value === 'online.env') {
+            return true;
+          }
+
+          const strictFormatRegex = /^(f\d+|fx)(;(f\d+|fx))*$/;
+          return strictFormatRegex.test(value);
+
+        };
+
+
 //KubernetesSaveGroup
         vm.KubernetesSaveGroup = function(){
             vm.KubernetesSaveGroupByEnv('test');
@@ -316,6 +328,16 @@
             postData['group_type'] = 'list';
             postData['name'] = '_ci_' + env + '_' + projectid + '_';
             postData['node'] = env + '.env';
+
+            if( env == 'test' && vm.validateVariable( vm.k8sdefaultnodetestenv ) )
+            {
+                postData['node'] = vm.k8sdefaultnodetestenv;
+            }
+            if( env == 'online' && vm.validateVariable( vm.k8sdefaultnodeonlineenv ))
+            {
+                postData['node'] = vm.k8sdefaultnodeonlineenv;
+            }
+ 
             postData['note'] = 'ci';
             var groupid = vm.groupid[env];
 
@@ -361,8 +383,8 @@
                 'plugin_type':'cmd',
                 'name': "kubernetes发布",
                 'user': "0",
-                'node_type': "builtin",
-                'node_cont': "openc3skipnode",
+                'node_type': "variable",
+                'node_cont': "$ip",
                 'scripts_type': "buildin",
                 'scripts_cont': "#!kubernetes",
                 'scripts_argv': "deploy $version",
@@ -376,8 +398,8 @@
                 'plugin_type':'cmd',
                 'name': "检查kubernetes发布状态",
                 'user': "0",
-                'node_type': "builtin",
-                'node_cont': "openc3skipnode",
+                'node_type': "variable",
+                'node_cont': "$ip",
                 'scripts_type': "buildin",
                 'scripts_cont': "#!kubernetes",
                 'scripts_argv': "check $version",
@@ -422,6 +444,9 @@
         };
 //
 
+        vm.k8sdefaultnodetestenv = 'test.env';
+        vm.k8sdefaultnodetestenv = 'online.env';
+
         vm.editreload = function(t)
         {
             vm.getGroupInfo()
@@ -435,10 +460,25 @@
                             if( data.name == '_ci_test_' + projectid + '_' )
                             {
                                 vm.groupid['test'] = data.id
+
+                                $http.get('/api/jobx/group/' + vm.treeid + '/' + data.id).then(
+                                    function successCallback(response) {
+                                         if (response.data.stat){
+                                         vm.k8sdefaultnodetestenv = response.data.data.node;
+                                         }
+                                      });
                             }
                             if( data.name == '_ci_online_' + projectid + '_' )
                             {
                                 vm.groupid['online'] = data.id
+
+                                $http.get('/api/jobx/group/' + vm.treeid + '/' + data.id).then(
+                                    function successCallback(response) {
+                                        if (response.data.stat){
+                                             vm.k8sdefaultnodeonlineenv = response.data.data.node;
+                                         }
+                                     });
+ 
                             }
  
                         });
