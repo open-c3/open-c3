@@ -1,0 +1,48 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --parent Parent_Node_ID --child Child_Node_ID
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get( qw( parent=i child=i ) )->dump();
+             $option->assert( qw( parent child ) );
+
+
+my    @x = `c3mc-base-treemap`;
+chomp @x;
+
+my %tree; map{ my @xx = split /;/, $_; $tree{$xx[0]} = $xx[1] }@x;
+
+sub ischild
+{
+    my ( $parent, $child ) = @_;
+    exit 0 if $parent eq $child;
+    exit 0 if index( $child, "$parent." ) == 0;
+}
+
+die "not find parent in treemap\n" unless my $parent = $tree{$o{parent}};
+die "not find child in treemap\n"  unless my $child  = $tree{$o{child }};
+
+ischild( $parent, $child );
+
+my @parent = split /\./, $parent;
+my @child  = split /\./, $child;
+
+for my $idx ( 0 ..  ( @parent > @child ? $#child : $#parent ) )
+{
+    next unless $parent[$idx] eq 'global';
+    $parent[$idx] = $child[$idx] if $child[$idx];
+}
+
+ischild( join( '.', @parent ), $child );
+
+die "inherit limit.\n";
