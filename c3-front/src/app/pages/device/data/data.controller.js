@@ -76,6 +76,7 @@
           '开机': '/assets/images/cmdb-startup.png',
           '关机':'/assets/images/cmdb-shutdown.png',
           '终端':'/assets/images/cmdb-terminal.png',
+          '控制台':'/assets/images/cmdb-console.jpg',
         }
         vm.tablePageSize = 200
 
