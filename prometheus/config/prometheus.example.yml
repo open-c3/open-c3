@@ -227,3 +227,17 @@ scrape_configs:
     - refresh_interval: 2m
       files:
       - targets/fping-v2.yml
+
+  - job_name: 'blackbox-http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]  # Look for a HTTP 200 response.
+    file_sd_configs:
+    - refresh_interval: 2m
+      files:
+      - targets/blackbox-exporter-http.yml
+    relabel_configs:
+      - source_labels: [__param_target]
+        target_label: instance
+
+
