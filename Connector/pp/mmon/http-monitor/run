@@ -63,13 +63,42 @@ my %ignore = map{ $_ => 1 }map{ $_ =~ s/\s*.*//; $_ =~ s/#.*//; $_ }@ignore;
 my @data;
 
 my @cmd5;
-for my $code ( keys %res )
+my @src = `cat src.txt`;
+chomp @src;
+@src = map{ "$_:9115" }grep{ $_ =~ /^[a-zA-Z0-9][a-zA-Z0-9\-_\.]+$/ }@src;
+
+exit unless @src;
+
+for my $code ( sort keys %res )
 {
     my @url = grep{ ! $ignore{$_} }keys %{$res{$code}};
+
     printf "%s: %d\n", $code, scalar @url;
-    push @data, +{ targets => \@url, labels => +{ code => $code } };  
-    push @cmd5, map{ "$code:$_" } @url;
+
+    for my $url ( @url )
+    {
+        for my $src ( @src )
+        {
+            push @data, +{
+                targets => [ $src ],
+                labels => +{
+                    code => $code,
+                     __param_target => $url,
+                     src => $src
+                 }
+            };  
+            push @cmd5, map{ "$code:$url:$src" } @url;
+#            last if $code eq '0' || $code =~ /^5/;
+        }
+    }
 }
+
+#- labels:
+#    code: '200'
+#    __param_target: 'https://ads.unikcredit.com'
+#    src: 'openc3-blackbox_exporter:9115'
+#  targets:
+#  - openc3-blackbox_exporter:9115
 
 YAML::XS::DumpFile "/data/Software/mydan/prometheus/config/targets/blackbox-exporter-http.yml", \@data;
 

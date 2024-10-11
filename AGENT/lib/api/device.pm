@@ -512,7 +512,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
                 }
                 else
                 {
-                    $url =~ s/\$\{$_->[0]\}/$_->[1]/;
+                    $url =~ s/\$\{$_->[0]\}/$_->[1]/g;
                 }
             }@$r;
         }
