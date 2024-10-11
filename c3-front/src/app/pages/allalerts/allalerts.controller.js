@@ -110,6 +110,7 @@
                     vm.checkDataList = unCheckedData
                     vm.dataTable = new ngTableParams({count:25}, {counts:[],data:unCheckedData});
                     vm.loadAover = true;
+                    vm.handleSaveStatusChange()
                 }else {
                     swal({ title:'获取列表失败', text: data.info, type:'error' });
                 }
