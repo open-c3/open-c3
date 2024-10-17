@@ -49,31 +49,16 @@ class Aliyun:
             regions = ["cn-beijing"]
         elif self.resource_type == "redis":
             regions = LibAliyunRedis(self.access_id, self.access_key, "cn-hangzhou").describe_regions()
-            regions.remove("ap-northeast-2")
-            regions.remove("cn-guangzhou")
-            regions.remove("me-central-1")
-            regions.remove("ap-southeast-7")
-            regions.remove("eu-central-1")
+            regions = list(filter(lambda x: x not in ["ap-northeast-2","cn-guangzhou","me-central-1","ap-southeast-7","eu-central-1"], regions))
         elif self.resource_type == "rds":
             regions = LibAliyunRds(self.access_id, self.access_key, "cn-hangzhou").describe_regions()
         elif self.resource_type == "fs":
             regions = LibAliyunFS(self.access_id, self.access_key, "cn-hangzhou").describe_region_list()
-            regions.remove("ap-northeast-2")
-            regions.remove("ap-southeast-7")
-            regions.remove("cn-heyuan")
+            regions = list(filter(lambda x: x not in ["ap-northeast-2","ap-southeast-7","cn-heyuan"], regions))
         else:
             regions = self.list_ecs_regions()
             if self.resource_type == "vpc":
-                regions.remove("ap-northeast-2")
-                regions.remove("ap-southeast-3")
-                regions.remove("ap-southeast-5")
-                regions.remove("ap-southeast-6")
-                regions.remove("cn-fuzhou")
-                regions.remove("cn-guangzhou")
-                regions.remove("cn-heyuan")
-                regions.remove("cn-nanjing")
-                regions.remove("cn-wulanchabu")
-                regions.remove("eu-central-1")
+                regions = list(filter(lambda x: x not in ["ap-northeast-2","ap-southeast-3","ap-southeast-5","ap-southeast-6","cn-fuzhou","cn-guangzhou","cn-heyuan","cn-nanjing","cn-wulanchabu","eu-central-1"], regions))
 
         for region in regions:
             if "test" in region:
