@@ -86,7 +86,7 @@ class CheckUserIps:
             "st-auth-token": self.token,
         }
 
-        response = requests.get(url, headers=headers, params=params)
+        response = requests.get(url, headers=headers, params=params, timeout=1800)
         return response.json()
     
     def display(self, email):

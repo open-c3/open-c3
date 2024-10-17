@@ -22,8 +22,16 @@ def check_ip_list_in_cmdb(ip_list):
 
     missing_ips = [ip for ip in ip_list if ip not in ip_list_set]
     if missing_ips:
-        print(f"无法从cmdb找到ip: {' '.join(missing_ips)}")
-        exit(0)
+        # 缓存中找不到的ip从cmdb中重新找一遍
+        all_output = safe_run_command(["c3mc-device-api-jumpserver", "--json", "--ips", ",".join(missing_ips)])
+        all_data_list = json.loads(all_output)
+        all_ip_list_set = {item["inIP"] for item in all_data_list} | {
+            item["exIP"] for item in all_data_list
+        }
+        error_ips = [ip for ip in missing_ips if ip not in all_ip_list_set]
+        if error_ips: 
+            print(f"无法从cmdb找到ip: {' '.join(error_ips)}")
+            exit(0)
 
 
 def check_email(email):
