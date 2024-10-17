@@ -60,6 +60,9 @@ class Aliyun:
             if self.resource_type == "vpc":
                 regions = list(filter(lambda x: x not in ["ap-northeast-2","ap-southeast-3","ap-southeast-5","ap-southeast-6","cn-fuzhou","cn-guangzhou","cn-heyuan","cn-nanjing","cn-wulanchabu","eu-central-1"], regions))
 
+        # 澳洲区域关闭，过滤
+        regions = [region for region in regions if region not in ["ap-northeast-2"]]
+        
         for region in regions:
             if "test" in region:
                 continue
