@@ -86,7 +86,7 @@ def main(add_type, username, email, ip, sudo_hours, is_audit):
         
         api_addr = urljoin(proxy_addr.strip(), "/run")
         res = requests.request(
-            "POST", api_addr, headers=headers, data=json.dumps(request_data))
+            "POST", api_addr, headers=headers, data=json.dumps(request_data), timeout=1800)
         
         print(f"请求代理地址 {proxy_addr}")
         print(f"请求代理时, 调用的参数为: {json.dumps(request_data)}")
