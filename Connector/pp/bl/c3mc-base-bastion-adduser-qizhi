@@ -33,7 +33,7 @@ def main(username, email):
     if app_key != "":
         headers["app_key"] = app_key
 
-    response = requests.request("POST", api_addr, headers=headers, data=json.dumps(request_data))
+    response = requests.request("POST", api_addr, headers=headers, data=json.dumps(request_data), timeout=1800)
     print(json.dumps(response.json()))
 
 

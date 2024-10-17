@@ -32,7 +32,7 @@ class CheckUserIps:
         url = self._get_url("/shterm/api/authenticate")
 
         data = {"username": account, "password": password}
-        response = requests.post(url, json=data)
+        response = requests.post(url, json=data, timeout=1800)
         if response.status_code != 200:
             raise RuntimeError(response)
         return response.json()["ST_AUTH_TOKEN"]
@@ -65,7 +65,7 @@ class CheckUserIps:
             "st-auth-token": self.token,
         }
 
-        response = requests.get(url, headers=headers, params=params)
+        response = requests.get(url, headers=headers, params=params, timeout=1800)
         data = response.json()
         if len(data["content"]) == 0:
             raise RuntimeError(f"无法从堡垒机查到用户 {email}")
@@ -86,7 +86,7 @@ class CheckUserIps:
             "st-auth-token": self.token,
         }
 
-        response = requests.get(url, headers=headers, params=params)
+        response = requests.get(url, headers=headers, params=params, timeout=1800)
         return response.json()
     
     def display(self, email):
