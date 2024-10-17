@@ -1,0 +1,39 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my @x = `c3mc-device-data-get curr database huawei-rds uuid alias`;
+die "get data fail" if $?;
+chomp @x;
+
+my %alias;
+for( @x )
+{
+    my ( $uuid, $alias ) = split /\t/, $_;
+    next unless $alias;
+    $alias{$uuid} = $alias;
+}
+
+my @remarks = `c3mc-base-db-get  uuid data  -t openc3_device_extcol -f "name='remarks' and type='database' and subtype='huawei-rds'"`;
+chomp @remarks;
+
+my %remarks;
+for( @remarks )
+{
+    my ( $uuid, $remarks ) = split /;/, $_, 2;
+    $remarks{$uuid} = $remarks;
+}
+
+for my $uuid ( keys %alias )
+{
+    my $alias = $alias{$uuid};
+    next if $remarks{$uuid} && $alias eq $remarks{$uuid};
+    print "c3mc-base-db-ins -t openc3_device_extcol name remarks type database subtype huawei-rds uuid '$uuid' data '$alias'\n";
+    system "c3mc-base-db-ins -t openc3_device_extcol name remarks type database subtype huawei-rds uuid '$uuid' data '$alias'";
+}

@@ -8,6 +8,9 @@ compute:
     url: '/api/job/cmd/${treeid}?node=${内网IP}&bash=1&sudo=root&siteaddr=${siteaddr}'
   aws-ec2:
   - type: blank
+    name: 控制台
+    url: 'https://${区域}.console.aws.amazon.com/ec2/home?region=${区域}#InstanceDetails:instanceId=${实例ID}'
+  - type: blank
     name: 查看监控
     url: '/third-party/monitor/grafana/d/rYdddlPWk/node-exporter-full?orgId=1&refresh=1m&var-DS_PROMETHEUS=Prometheus-openc3&var-job=openc3&var-node=${内网IP}&from=now-24h&to=now'
   - type: blank

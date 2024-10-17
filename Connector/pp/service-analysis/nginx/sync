@@ -12,9 +12,71 @@ use POSIX;
 
 =cut
 
+my $file = "/data/Software/mydan/Connector/pp/service-analysis/nginx/nginx.node";
+my $privfile = "/data/open-c3-data/service-analysis/nginx.node";
+$file = $privfile if -f $privfile;
 
-my @node = `cat /data/open-c3-data/service-analysis/nginx.node`;
-chomp @node;
+my @tree = `cat '$file'`;
+chomp @tree;
+
+my %treeip;
+sub getnginxip
+{
+    return @{$treeip{nginx}} if defined $treeip{nginx};
+    my %ip;
+    my @x = `c3mc-base-treemap`;
+    chomp @x;
+    for (@x)
+    {
+        my ( $id, $name ) = split /;/, $_;
+        next unless $name =~ /\.nginx$/;
+        my @ip = `c3mc-base-fullnodeinfo '$id' --col inip`;
+        chomp @ip;
+        map{ $ip{$_} ++ }@ip;
+    }
+
+     my @ip = keys %ip;
+     $treeip{nginx} = \@ip;
+     return @ip;
+}
+
+sub gettreeip
+{
+    my $treeid = shift @_;
+    return @{$treeip{$treeid}} if defined $treeip{$treeid};
+    my @ip = `c3mc-base-fullnodeinfo '$treeid' --col inip`;
+    chomp @ip;
+    $treeip{$treeid} = \@ip;
+    return @ip;
+}
+
+my %node;
+for ( @tree )
+{
+    my ( $target, $cont ) = split /\s+/, $_, 2;
+    next unless $cont;
+
+    my @ip;
+    if( $target =~ /^\d+\.\d+\.\d+\.\d+$/ )
+    {
+        @ip = ( $target );
+    }
+    elsif( $target =~ /^\d+$/ )
+    {
+        @ip = gettreeip( $target );
+    }
+    elsif( $target =~ /^nginx$/ )
+    {
+        @ip = getnginxip( );
+    }
+    else
+    {
+        next;
+    }
+    map{ $node{"$_ $cont"} ++ }@ip;
+}
+
+my @node = keys %node;
 
 my $uuid =  POSIX::strftime( "%Y-%m-%d-%H-%M-%S", localtime );
 my $base = "/data/open-c3-data/service-analysis/nginx.machine/$uuid";
@@ -22,20 +84,33 @@ my $base = "/data/open-c3-data/service-analysis/nginx.machine/$uuid";
 sub syncdata
 {
     my ( $node, $path, $name ) = split /\s+/, shift @_;
-    ( $name ) = reverse split /\//, $path unless $name; 
+    unless( $name )
+    {
+        $name = $path;
+        $name =~ s/\//_/g;
+    }
 
     return unless $node =~ /^\d+\.\d+\.\d+\.\d+$/;
     return unless $path =~ /^\/[a-zA-Z0-9][a-zA-Z0-9\/\._]+$/;
     return unless $name =~ /^[a-zA-Z0-9\._]+$/;
 
-    print "node $node ; path: $path\n";
+    print "node $node ; path: $path ; name $name\n";
 
-    my $x = `/data/Software/mydan/dan/tools/rcall --verbose -r '$node' exec 'cd '$path' && tar -zcvf /tmp/open-c3-service-analysis.temp.tar.gz * >/dev/null && echo OK'`;
+    my $x = `/data/Software/mydan/dan/tools/rcall --verbose -r '$node' exec 'cd '$path' && tar -zcvf /tmp/open-c3-service-analysis.temp.tar.gz * >/dev/null && echo OK' 2>&1`;
     chomp $x;
-    unless( $x =~ /:OK/ )
+    if( $x =~ /:OK/ )
     {
-        warn "$node: tar fail";
-        next;
+        print "[INFO] $node $path ok.\n";
+    }
+    elsif( $x =~ /tcp_connect/ )
+    {
+        warn "[ERROR] $node $path timeout.\n";
+        return;
+    }
+    else
+    {
+        warn "[WARN] $node $path, may not exist, skip.\n";
+        return;
     }
 
     my ( $datapath, $temppath )= ( "$base/data/$node/$name", "$base/temp" );

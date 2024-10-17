@@ -11,3 +11,8 @@ if [ "X$srv" == "X" ];then
 
 fi
 ../docker-compose  up -d --build $srv
+
+if [ "X$srv" == "Xopenc3-grafana" ]; then
+    docker cp /data/open-c3/grafana/config/grafana.ini openc3-grafana:/etc/grafana/grafana.ini
+    docker restart openc3-grafana
+fi

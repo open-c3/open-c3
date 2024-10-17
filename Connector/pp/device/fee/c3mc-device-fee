@@ -86,6 +86,22 @@ for my $file ( glob "/data/open-c3-data/c3mc-device-fee/$o{date}/*.csv" )
     for my $data ( @data )
     {
          my @d = split /,/, $data;
+         my @newd;
+         while( @d )
+         {
+             my $d = shift @d;
+             if( $d =~ /^"/ && $d !~ /"$/  )
+             {
+                 while(@d)
+                 {
+                     $d .= "," . shift @d;
+                     last if $d =~ /"$/;
+                 }
+             }
+             push @newd, $d;
+       
+         }
+         @d = @newd;
          map{ $_ =~ s/^"*// and $_ =~ s/"*$// }@d;
          my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
 

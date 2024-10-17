@@ -46,6 +46,34 @@ die "get ci config fail:" . $res->content unless $data && $data->{stat};
 
 my %data = %{$data->{data}};
 
+
+if( $ENV{NODE} =~ /^f(\d+)$/ )
+{
+    $flowid = $1;
+    my $x = `c3mc-base-db-get groupid --table openc3_ci_project --filter "id=$flowid"`;
+    chomp $x;
+    die "get treeid fail" unless $x && $x =~ /^\d+$/;
+
+    print "inherit-limit-check ...\n";
+    die "limit." if system "c3mc-base-tree-inherit-limit-check -p '$treeid' -c '$x'";
+    print "inherit-limit-check done ...\n";
+
+    $treeid = $x;
+
+    my $res = $ua->get( "http://api.ci.open-c3.org/project/$treeid/$flowid" );
+
+    die "get ci config fail:" . $res->content unless $res->is_success;
+
+    my $data = eval{ JSON::from_json $res->content };
+    die "get ci config fail: $@" if $@;
+    die "get ci config fail:" . $res->content unless $data && $data->{stat};
+
+    map{ die "$_ of fx and f$flowid do not match:\n => $data{$_}\n => $data->{data}{$_}\n" if $data{$_} ne $data->{data}{$_} }qw( ci_type_repository addr );
+    %data = %{$data->{data}};
+}
+
+print "treeid: $treeid flowid: $flowid\n";
+
 if( $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH} )
 {
     my $config = eval{ YAML::XS::LoadFile $ENV{CONFIGPATH} };

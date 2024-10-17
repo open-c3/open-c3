@@ -23,6 +23,40 @@
 
         vm.isInterval = false;
 
+        $scope.getDuration = function(startsAt) {
+          var startTime = new Date(startsAt);
+          var currentTime = new Date();
+          var duration = currentTime - startTime;
+  
+          // 将持续时间格式化为可读格式
+          var seconds = Math.floor(duration / 1000);
+          var minutes = Math.floor(seconds / 60);
+          var hours = Math.floor(minutes / 60);
+          var days = Math.floor(hours / 24);
+  
+          hours = hours % 24;
+          minutes = minutes % 60;
+          seconds = seconds % 60;
+  
+          var durationString = "";
+  
+          if (days > 0) {
+            durationString += days + "d ";
+          }
+  
+          if (hours > 0 || days > 0) {
+            durationString += hours + "h ";
+          }
+  
+          if (minutes > 0 || hours > 0 || days > 0) {
+            durationString += minutes + "m";
+          } else {
+            durationString += seconds + "s";
+          }
+  
+           return durationString.trim();
+        }
+
         vm.downloadTitleMap = {
           startsAt: '开始时间',
           labelsAlertname: '名称',
@@ -76,6 +110,7 @@
                     vm.checkDataList = unCheckedData
                     vm.dataTable = new ngTableParams({count:25}, {counts:[],data:unCheckedData});
                     vm.loadAover = true;
+                    vm.handleSaveStatusChange()
                 }else {
                     swal({ title:'获取列表失败', text: data.info, type:'error' });
                 }

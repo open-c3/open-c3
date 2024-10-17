@@ -43,7 +43,7 @@
             };
 
             vm.loadover = false;
-            vm.sync = $http.get(`/api/ci/v2/c3mc/serviceanalysis/tree?timemachine=${vm.selectedtimemachine}&search=${vm.search}&search2=${vm.search2}&limit=${vm.limit}`).success(function(nodes) {
+            vm.sync = $http.get(`/api/ci/v2/c3mc/serviceanalysis/tree?timemachine=${vm.selectedtimemachine}&search=${vm.search}&search2=${vm.search2}&limit=0`).success(function(nodes) {
 		vm.loadover = true;
                 var treedata = nodes.data; // [ { id: 0, name: 'ROOT', children: nodes.data } ]
                 //var treedata = [ { id: 0, name: 'ROOT', children: nodes.data } ]

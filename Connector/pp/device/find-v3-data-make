@@ -1,0 +1,26 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$| ++;
+
+my $file = "/data/open-c3-data/jumpserver-snapshot.txt";
+sub getdata
+{
+    my $file = shift @_;
+    my @old = `cat $file`;
+    chomp @old;
+    my %res;
+    map{ my @x = split /;/, $_; $res{$x[3]} = $_ } @old;
+    return %res;
+}
+
+
+my %curr = getdata( '/data/Software/mydan/Connector/local/jumpserver.txt' );
+my %snap = getdata( $file );
+
+for my $x ( keys %curr )
+{
+    next if $curr{$x} && $snap{$x} && $curr{$x} eq $snap{$x};
+    system "echo '$curr{$x}' >> $file";
+}

@@ -1,0 +1,115 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use YAML::XS;
+use Digest::MD5;
+
+$|++;
+
+chdir "/data/Software/mydan/Connector/pp/mmon/http-monitor" or die "chdir fail: $!";
+my    @x = `cat /data/open-c3-data/device/curr/serviceanalysis.tree.data|grep NG`;
+chomp @x;
+
+my %url;
+for my $x ( @x )
+{
+    my $domain = ( split /\s+/, $x )[0];
+    my $path = $x =~ /path:([\S]+) port:80/ ? $1 : '';
+    $path = '' if $path eq '/';
+    $url{$domain}{$path} ++;
+    $url{$domain}{''   } ++;
+}
+
+my %res;
+for my $domain ( %url )
+{
+    map{ $res{200}{ "https://$domain$_" } ++ }keys %{$url{$domain}};
+}
+
+my    @mark  = `cat mark.txt`;
+chomp @mark;
+
+my %m;
+
+for my $x ( @mark )
+{
+    my ( $url, $code ) = split /\s+/, $x;
+    next unless defined $code;
+    $res{$code}{ $url } ++;
+    $m{$url} ++;
+}
+
+my    @snapshot  = `cat snapshot.txt`;
+chomp @snapshot;
+
+for my $x ( @snapshot )
+{
+    my ( $url, $code ) = split /\s+/, $x;
+    $res{$code}{ $url } ++ if defined $code && ! $m{$url};
+}
+
+for my $code ( grep{ $_ ne '200' }keys %res )
+{
+    map{ delete $res{200}{$_}} keys %{$res{$code}};
+}
+
+my    @ignore  = `cat ignore.txt`;
+chomp @ignore;
+my %ignore = map{ $_ => 1 }map{ $_ =~ s/\s*.*//; $_ =~ s/#.*//; $_ }@ignore;
+
+#delete $res{0};
+#map{ delete $res{$_} if $_ =~ /^5/ }keys %res;
+
+my @data;
+
+my @cmd5;
+my @src = `cat src.txt`;
+chomp @src;
+@src = map{ "$_:9115" }grep{ $_ =~ /^[a-zA-Z0-9][a-zA-Z0-9\-_\.]+$/ }@src;
+
+exit unless @src;
+
+for my $code ( sort keys %res )
+{
+    my @url = grep{ ! $ignore{$_} }keys %{$res{$code}};
+
+    printf "%s: %d\n", $code, scalar @url;
+
+    for my $url ( @url )
+    {
+        for my $src ( @src )
+        {
+            push @data, +{
+                targets => [ $src ],
+                labels => +{
+                    code => $code,
+                     __param_target => $url,
+                     src => $src
+                 }
+            };  
+            push @cmd5, map{ "$code:$url:$src" } @url;
+#            last if $code eq '0' || $code =~ /^5/;
+        }
+    }
+}
+
+#- labels:
+#    code: '200'
+#    __param_target: 'https://ads.unikcredit.com'
+#    src: 'openc3-blackbox_exporter:9115'
+#  targets:
+#  - openc3-blackbox_exporter:9115
+
+YAML::XS::DumpFile "/data/Software/mydan/prometheus/config/targets/blackbox-exporter-http.yml", \@data;
+
+my $md5 = Digest::MD5->new->add( join ";", sort @cmd5 )->hexdigest;
+
+my $file = "/tmp/http-monitor-md5.mark";
+my    $oldmd5 = `cat $file`;
+chomp $oldmd5;
+
+exit if $oldmd5 && $oldmd5 eq $md5;
+
+system "echo '$md5' > $file";
+print "reload: $md5\n";
+system "/data/Software/mydan/prometheus/bin/reload.sh";

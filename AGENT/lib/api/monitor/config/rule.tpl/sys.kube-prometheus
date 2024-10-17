@@ -1,0 +1,86 @@
+---
+alert: 线上集群deployment POD数量异常
+bindtreesql: node_alive==0
+description: '集群名称 {{$labels.cluster}}  NS:{{$labels.namespace}} deployment: {{$labels.deployment}}  container:
+  {{$labels.container}}'
+edit_time: 2024-09-03 10:43:12
+edit_user: open-c3
+expr: label_join(kube_deployment_status_replicas_unavailable{cluster!~"test.*"}, "instance",
+  "/", "instance", "cluster", "namespace", "deployment", "container") != 0
+for: 5m
+job: openc3
+method: ==
+metrics: up
+model: custom
+severity: level1
+summary: 容器POD数量异常
+threshold: '0'
+value: '{{$value}}'
+---
+alert: 线上集群statefulset POD数量异常
+bindtreesql: node_alive==0
+description: '集群名称 {{$labels.cluster}}  NS:{{$labels.namespace}} statefulset: {{$labels.statefulset}}'
+edit_time: 2024-09-03 10:43:27
+edit_user: open-c3
+expr: label_join(kube_statefulset_status_replicas_ready{cluster!~"test.*"} != kube_statefulset_status_replicas_current{cluster!~"test.*"},
+  "instance", "/", "instance", "cluster", "namespace", "statefulset")
+for: 5m
+job: openc3
+method: ==
+metrics: up
+model: custom
+severity: level1
+summary: 容器POD数量异常
+threshold: '0'
+value: '{{$value}}'
+---
+alert: 线上集群POD十分钟内重启了1次
+bindtreesql: node_alive==0
+description: '集群名称 {{$labels.cluster}}  NS:{{$labels.namespace}} POD: {{$labels.pod}}'
+edit_time: 2024-09-03 10:43:43
+edit_user: open-c3
+expr: label_join(changes(kube_pod_container_status_restarts_total{cluster!~"test.*"}[10m]),
+  "instance", "/", "instance", "cluster", "namespace", "pod", "uid")  >= 1
+for: 1s
+job: openc3
+method: ==
+metrics: up
+model: custom
+severity: level2
+summary: 容器POD频繁重启
+threshold: '0'
+value: '{{$value}}'
+---
+alert: 线上集群POD半小时内重启了3次
+bindtreesql: node_alive==0
+description: '集群名称 {{$labels.cluster}}  NS:{{$labels.namespace}} POD: {{$labels.pod}}'
+edit_time: 2024-09-03 10:43:54
+edit_user: open-c3
+expr: label_join(changes(kube_pod_container_status_restarts_total{cluster!~"test.*"}[30m]),
+  "instance", "/", "instance", "cluster", "namespace", "pod", "uid")  >= 3
+for: 1s
+job: openc3
+method: ==
+metrics: up
+model: custom
+severity: level1
+summary: 容器POD频繁重启
+threshold: '0'
+value: '{{ $value }}'
+---
+alert: 线上集群POD十分钟内重启了2次
+bindtreesql: node_alive==0
+description: '集群名称 {{$labels.cluster}}  NS:{{$labels.namespace}} POD: {{$labels.pod}}'
+edit_time: 2024-09-03 10:44:11
+edit_user: open-c3
+expr: label_join(changes(kube_pod_container_status_restarts_total{cluster!~"test.*"}[10m]),
+  "instance", "/", "instance", "cluster", "namespace", "pod", "uid")  >= 2
+for: 1s
+job: openc3
+method: ==
+metrics: up
+model: custom
+severity: level1
+summary: 容器POD频繁重启
+threshold: '0'
+value: '{{$value}}'

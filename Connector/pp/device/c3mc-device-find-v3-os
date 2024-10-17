@@ -1,0 +1,30 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use YAML::XS;
+use Encode;
+use utf8;
+
+$| ++;
+
+my @node = split /,/, join ',', @ARGV;
+@node = <STDIN> unless @node;
+chomp @node;
+
+my    @data = `cat /data/open-c3-data/jumpserver-snapshot.txt`;
+chomp @data;
+
+my %res;
+my @col = qw( uuid instanceId hostName ip inIP exIP os site vpc_id vpc_name product_owner ops_owner department );
+for( @data )
+{
+    my @x = split /;/, $_;
+    my $x = +{ map{ $col[$_] => $x[$_]}0.. @col -1 };
+    map{ $res{$x->{$_}} = $x->{os} }qw( uuid inIP exIP ip );
+}
+
+for my $x ( @node )
+{
+    printf "$x: %s\n", $res{$x} || 'unknown';
+}
