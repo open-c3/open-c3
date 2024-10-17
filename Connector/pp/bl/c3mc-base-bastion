@@ -4,6 +4,9 @@
 import argparse
 import sys
 import subprocess
+import time
+import traceback
+
 
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
@@ -31,35 +34,55 @@ def main():
 
     bl_mode = subprocess.getoutput("c3mc-sys-ctl sys.bl.mode").strip()
 
-    if args.operate_type == "getlist":
-        output = safe_run_command([
-            f"c3mc-base-bastion-getlist-{bl_mode}",
-            args.email
-        ])
-        print(output)
+    # 增加重试5次，解决代理超时问题
+    for i in range(6):
+        try:
+            if args.operate_type == "getlist":
+                code, output, err = safe_run_command_v2(
+                    [
+                        f"c3mc-base-bastion-getlist-{bl_mode}",
+                        args.email,
+                    ]
+                )
+                if code != 0:
+                    raise RuntimeError(err)
+                print(output)
 
-    elif args.operate_type == "addauth":
-        code, output, err = safe_run_command_v2([
-            f"c3mc-base-bastion-addauth-{bl_mode}",
-            args.auth_add_type,
-            args.username,
-            args.email,
-            args.ip,
-            str(args.sudo_hours),
-            args.is_audit
-        ])
-        print(output)
-        if code != 0:
-            exit(1)
-    
-    elif args.operate_type == "adduser":
-        output = safe_run_command([
-            f"c3mc-base-bastion-adduser-{bl_mode}",
-            args.username,
-            args.email,
-        ])
-        print(output)
+            elif args.operate_type == "addauth":
+                code, output, err = safe_run_command_v2(
+                    [
+                        f"c3mc-base-bastion-addauth-{bl_mode}",
+                        args.auth_add_type,
+                        args.username,
+                        args.email,
+                        args.ip,
+                        str(args.sudo_hours),
+                        args.is_audit,
+                    ]
+                )
+                if code != 0:
+                    raise RuntimeError(err)
+                print(output)
+
+            elif args.operate_type == "adduser":
+                code, output, err = safe_run_command_v2(
+                    [
+                        f"c3mc-base-bastion-adduser-{bl_mode}",
+                        args.username,
+                        args.email,
+                    ]
+                )
+                if code != 0:
+                    raise RuntimeError(err)
+                print(output)
+
+            break
+        except Exception:
+            if i == 5:
+                raise Exception(str(traceback.format_exc()))
+
+            time.sleep(5)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
