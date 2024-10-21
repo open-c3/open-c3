@@ -208,7 +208,8 @@ class Huawei:
         global_resources = ["obs"]
         
         if self.resource_type in global_resources:
-            regions = [list(self.regions.keys())[0]] if self.regions.keys() else [] 
+            sorted_regions = sorted(self.regions.keys(), key=lambda x: ("ap-southeast-1" not in x, x))
+            regions = [sorted_regions[0]] if sorted_regions else []
         elif self.resource_type == "ecs":
             regions = self.get_ecs_availability_zones()
         elif self.resource_type == "elb":
