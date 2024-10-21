@@ -1,0 +1,35 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+
+my @keep = ('告警名称', '指标名称','当前值','资源名称');
+for my $file ( glob "/data/open-c3-data/monitor-exmesg/uuid/*" )
+{
+    my ( $md5 ) = reverse split /\//, $file;
+    my @cont = `cat '$file'`;
+    chomp @cont;
+
+    my @c;
+    for my $k ( @keep )
+    {
+        for my $c ( @cont )
+        {
+            push( @c, $c ) if 0 == index( $c, $k );
+        }
+    }
+    my $c = join ';', @c;
+
+    print "exmesg{uuid=\"${md5}\",desc=\"${c}\"} 1\n";
+}

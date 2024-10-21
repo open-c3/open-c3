@@ -1,0 +1,80 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use YAML::XS;
+use Encode;
+use Digest::MD5;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+local $/ = undef;
+my @data = YAML::XS::Load( Encode::encode('utf8', <STDIN> ) );
+local $/ = "\n";
+
+exit unless my $data = $data[0];
+exit unless my $mesg = $data->{mesg};
+
+my @mesg = split /\n/, $mesg;
+
+my @exclude = map{ Encode::decode('utf8', $_ ) }( '当前值: ', '告警时间: ', '告警状态:', '阈值:' );
+my @alarm   = map{ Encode::decode('utf8', $_ ) }( '告警状态: 告警发生中' );
+
+my @newmesg;
+my $alarm = 0;
+
+for my $m ( @mesg )
+{
+    my $match = 0;
+    for my $e ( @exclude )
+    {
+         $match = 1 if 0 == index( $m, $e )
+    }
+    push @newmesg, $m unless $match;
+
+    for my $a ( @alarm )
+    {
+         $alarm = 1 if 0 == index( $m, $a )
+    }
+ 
+}
+
+my $md5 = Digest::MD5->new->add( Encode::encode('utf8', join "x", @newmesg) )->hexdigest;
+
+my $dir = "/data/open-c3-data/monitor-exmesg/uuid";
+system( "mkdir -p '$dir'" ) unless -d $dir;
+my $file = "$dir/$md5.exmesg";
+if( $alarm )
+{
+    open my $H, ">", $file or die "open $file fail: $!";
+    print $H Encode::encode('utf8', $mesg);
+
+    print $H "----\n";
+    map{print $H Encode::encode('utf8', "$_\n") }@newmesg;;
+    close $H;
+}
+else
+{
+    if( -f $file )
+    {
+        unlink $file;
+    }
+    else
+    {
+        open my $H, ">", "$file.del" or die "open $file fail: $!";
+        print $H Encode::encode('utf8', $mesg);
+        print $H "----\n";
+        map{print $H Encode::encode('utf8', "$_\n") }@newmesg;;
+        close $H;
+    }
+}
