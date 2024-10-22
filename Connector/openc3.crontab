@@ -46,6 +46,7 @@ TZ=Asia/Shanghai
 */5 * * * * root flock -n /tmp/resources-fee-change-notify.lock /data/Software/mydan/Connector/pp/device/crontab/resources-fee-change-notify/notifyd  > /tmp/resources-fee-change-notify.log 2>&1
 
 * * * * * root flock -n /tmp/c3mc-mon-exmesg-cron.lock  /usr/bin/c3mc-mon-exmesg-cron   > /tmp/c3mc-mon-exmesg-cron.log      2>&1
+* * * * * root flock -n /tmp/c3mc-mon-exmesg-maker-cron.lock  /usr/bin/c3mc-mon-exmesg-maker-cron   > /tmp/c3mc-mon-exmesg-maker-cron.log      2>&1
 
 1 */2 * * * root flock -n /tmp/service-analysis-make.lock /data/Software/mydan/Connector/pp/service-analysis/make.sh > /tmp/service-analysis-make.log 2>&1
 15 */2 * * * root flock -n /tmp/service-analysis-nginx-make.lock /data/Software/mydan/Connector/pp/service-analysis/nginx/sync > /tmp/service-analysis-nginx-make.log 2>&1

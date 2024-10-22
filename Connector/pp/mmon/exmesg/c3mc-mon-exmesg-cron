@@ -120,6 +120,7 @@ for my $file ( glob "$datapath/queue/*" )
         my $tmp = "/tmp/c3mc-mon-exmesg.$$.temp";
         YAML::XS::DumpFile $tmp, $res;
         system "cat $tmp | c3mc-base-send";
+        system "cat $tmp | c3mc-mon-exmesg-save";
         system "mv '$file' '$succ'";
     }
     else
