@@ -6,6 +6,7 @@ set -ex
 /data/Software/mydan/perl/bin/cpan install Email::Sender::Transport::SMTPS
 /data/Software/mydan/perl/bin/cpan install Auth::GoogleAuth
 /data/Software/mydan/perl/bin/cpan install MIME::Words
+/data/Software/mydan/perl/bin/cpan install AnyEvent::Ping
 
 rm -rf /data/Software/mydan/perl/man
 rm -rf /root/.cpan
