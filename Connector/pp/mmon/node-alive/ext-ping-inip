@@ -21,7 +21,7 @@ for my $x ( @node )
 
 map{ printf "$_ %s\n", $res{$_} ? 1 : 0 }keys %res;
 
-my @host = grep{ ! $res{$_} }keys %res;
+exit unless my @host = grep{ ! $res{$_} }keys %res;
 
 ## Start
 
@@ -42,6 +42,8 @@ for my $host ( @host  )
     });
  
 }
+
+my $timer = AnyEvent->timer( after => 5, cb => sub { exit; } );
 
 $c->recv;
 $ping->end;
