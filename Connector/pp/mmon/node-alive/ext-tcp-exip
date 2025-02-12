@@ -42,7 +42,7 @@ for( @exip )
 
 my @pubip; map{ push @pubip, $pri2pub{$_} if $pri2pub{$_} }@host;
 
-
+exit unless @pubip;
 
 my $cv = AnyEvent->condvar;
 
@@ -61,17 +61,8 @@ foreach my $x (@pubip) {
 
         $cv->end;
     };
-
-    # 设置 5 秒超时定时器
-    my $timer; 
-    $timer = AnyEvent->timer(
-        after => 5,
-        cb    => sub {
-            undef $timer; # cancel the timer
-            $cv->end;
-        }
-    );
-
 }
+
+my $timer = AnyEvent->timer( after => 5, cb => sub { exit; } );
 
 $cv->recv;
