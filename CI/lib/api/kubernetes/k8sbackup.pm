@@ -13,7 +13,7 @@ use uuid;
 use api::kubernetes;
 
 our %handle = %api::kubernetes::handle;
-our $datapath = "/data/glusterfs/kerbunetes_backup";
+our $datapath = "/data/glusterfs/kubernetes_backup";
 
 =pod
 

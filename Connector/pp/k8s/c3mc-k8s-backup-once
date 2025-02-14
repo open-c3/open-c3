@@ -10,7 +10,7 @@ if [ "X$X" == "X0" ];then
 fi
 
 TASKUUID=$(date +%F_%H%M%S)
-TEMPPATH=/data/open-c3-data/backup/kerbunetes
+TEMPPATH=/data/open-c3-data/backup/kubernetes
 DISTPATH=$TEMPPATH/$TICKETID/$TASKUUID
 
 mkdir -p $DISTPATH
@@ -78,6 +78,6 @@ for ns in "${NS_NAME[@]}";do
 
 done
 
-archive=/data/glusterfs/kerbunetes_backup/$TICKETID
+archive=/data/glusterfs/kubernetes_backup/$TICKETID
 mkdir -p $archive
 cd $TEMPPATH && tar -zcvf $archive/$TASKUUID.tar.gz $TICKETID/$TASKUUID
