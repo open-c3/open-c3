@@ -58,6 +58,8 @@ websocket_on_open sub {
     }
 
     my $checklog = $uuid =~ /^\d+$/ ? 1 : 0;
+    my $flowid;
+
     unless( $ENV{MYDan_DEBUG} )
     {
         my $installuuid = $uuid;
@@ -82,7 +84,7 @@ websocket_on_open sub {
         }
 
         {
-             my @col = qw( groupid );
+             my @col = qw( groupid id );
              my $r = eval{ $mysql->query( sprintf( $sql, join ',', @col ), \@col )};
 
              unless( $r && @$r )
@@ -97,7 +99,13 @@ websocket_on_open sub {
                  $conn->send("$error: groupid format error");
                  return;
              }
-             $projectid = $data->{groupid};
+             unless( defined $data->{id} && $data->{id} =~ /^\d+$/ )
+             {
+                 $conn->send("$error: flowid format error");
+                 return;
+             }
+
+             ( $projectid, $flowid ) = ( $data->{groupid}, $data->{id} );
          }
 
 
@@ -116,6 +124,12 @@ websocket_on_open sub {
     }
 
     my ( $file, $h ) = sprintf "$RealBin/../logs/%s/$uuid", $checklog ? 'findtags' :'build';
+
+    if( ! $checklog )
+    {
+        my $archives = "$RealBin/../logs/build.archives/$flowid/$uuid";
+        $file = $archives if ! -f $file && -f $archives;
+    }
 
     system( "touch '$file'" )unless -f $file;
     unless( open $h, "<$file" )
