@@ -40,7 +40,7 @@ for my $file ( glob "/data/open-c3-data/logs/CI/build/*" )
     next unless my $flowid = $uuid2flowid{$uuid};
 
     my $dir = "/data/open-c3-data/logs/CI/build.archives/$flowid";
-    system "mkdir $dir" unless -d $dir;
+    system "mkdir -p $dir" unless -d $dir;
     system "mv '$file' '$dir/'";
 }
 
