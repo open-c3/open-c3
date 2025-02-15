@@ -57,4 +57,4 @@ $port->{'api.event'}{from} .. $port->{'api.event'}{to};
 map{
     die "start $_ fail: $!" if system "$supervisor --name ci_supervisor_$_ --errname 'ci.server.$_' --cmd 'c3mc-server-ci $_' --log '$base/logs/server/$_'";
 }grep{ ( ! $service ) || ( $service && $service eq $_ ) }
-qw( keepalive findtags findtagsonce build clean bury flowreport );
+qw( keepalive findtags findtagsonce build bury flowreport );

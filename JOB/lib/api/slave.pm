@@ -104,6 +104,9 @@ websocket_on_open sub {
 
     my ( $file, $h ) = "$RealBin/../logs/task/$uuid";
 
+    my $archives = "$RealBin/../logs/task.archives/$data->{projectid}/$uuid";
+    $file = $archives if ! -f $file && -f $archives;
+
     system( "touch '$file'" )unless -f $file;
     unless( open $h, "<$file" )
     {

@@ -6,6 +6,10 @@ use warnings;
 
  $0
 
+ CI 日志归档，并删除已经无效的数据
+
+ 处理了findbug日志和CI构建的日志
+
 =cut
 
 my @flowid = `c3mc-base-db-get -t openc3_ci_project id`;
@@ -40,7 +44,7 @@ for my $file ( glob "/data/open-c3-data/logs/CI/build/*" )
     next unless my $flowid = $uuid2flowid{$uuid};
 
     my $dir = "/data/open-c3-data/logs/CI/build.archives/$flowid";
-    system "mkdir $dir" unless -d $dir;
+    system "mkdir -p $dir" unless -d $dir;
     system "mv '$file' '$dir/'";
 }
 
