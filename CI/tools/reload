@@ -74,7 +74,7 @@ for my $type ( qw( api api.slave api.event ) )
 
 system "c3mc-nginx-reload --reset --reload";
 
-for my $server ( qw( keepalive findtags findtagsonce build bury clean flowreport ) )
+for my $server ( qw( keepalive findtags findtagsonce build bury flowreport ) )
 {
     my $oldpid = `ps -ef|grep "[c]i_server_$server\\b"|head -n 1|awk '{print \$2}'`;
     chomp $oldpid;
