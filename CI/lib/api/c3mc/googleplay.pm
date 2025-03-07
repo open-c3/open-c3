@@ -23,7 +23,7 @@ post '/c3mc/googleplay/review/reply' => sub {
     my $param = params();
     my $error = Format->new( 
         review_id  => qr/^.+$/, 1,
-        text       => qr/^.+$/, 1,
+        text       => qr/.+/, 1,
         callback   => qr/^.+$/, 1,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
