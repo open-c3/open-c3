@@ -137,6 +137,7 @@ my ( $TEMP, $tempfile ) = File::Temp::tempfile();
 print $TEMP $json;
 close $TEMP;
 
+$ENV{PYTHONWARNINGS} = "ignore";
 my @x = `set -o pipefail;cat '$tempfile'|$command`;
 die "run cmd fail: @x" if $?;
 chomp @x;

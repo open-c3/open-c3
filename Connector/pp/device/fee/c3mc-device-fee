@@ -111,6 +111,7 @@ for my $file ( glob "/data/open-c3-data/c3mc-device-fee/$o{date}/*.csv" )
         next if ( ( ! $o{exclude} ) && ( ! ( @name || @uuid )) ) || ( $o{exclude} && ( @name || @name ) );
         
         my $out = sprintf "%s\n", join "\t", map{ $d{$_}//''}( $coluuid, $colname, $colcost );
+        $d{$colcost} =~ s/,//g;
         $out{$out} = $d{$colcost};
         $sum += $d{$colcost};
 
