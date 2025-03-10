@@ -1,0 +1,79 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+import boto3
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aws_vpc import Vpc
+
+
+class Ec2:
+    def __init__(self, access_id, access_key, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.client = self.create_client()
+        self.vpc_info_m = {}
+        self.page_size = 500
+
+    def create_client(self):
+        client = boto3.client(
+            "ec2",
+            aws_access_key_id=self.access_id,
+            aws_secret_access_key=self.access_key,
+            region_name=self.region,
+        )
+        return client
+
+    def get_instances_from_response(self, response_data):
+        vpc_client = Vpc(self.access_id, self.access_key, self.region)
+
+        hosts = []
+        for host in response_data["Hosts"]:
+            host["RegionId"] = self.region
+
+            if "VpcId" in host:
+                vpc_info = None
+                if host["VpcId"] in self.vpc_info_m:
+                    vpc_info = self.vpc_info_m[host["VpcId"]]
+                else:
+                    vpc_info = vpc_client.show_vpc(host["VpcId"])
+                    self.vpc_info_m[host["VpcId"]] = vpc_info
+
+                if "Tags" in vpc_info:
+                    for tag in vpc_info["Tags"]:
+                        if tag["Key"].lower() == "name":
+                            host["VpcName"] = tag["Value"]
+
+            hosts.append(host)
+        return hosts
+
+    def get_response(self):
+        response = self.client.describe_hosts(MaxResults=self.page_size)
+        results = self.get_instances_from_response(response)
+        while "NextToken" in response:
+            response = self.client.describe_hosts(
+                MaxResults=self.page_size, NextToken=response["NextToken"]
+            )
+            results.extend(self.get_instances_from_response(response))
+        return results
+
+    def show(self):
+        instance_list = self.get_response()
+        for instance in instance_list:
+            print(json.dumps(instance, default=str))
+
+
+def main(access_id, access_key, region):
+    try:
+        Ec2(access_id, access_key, region).show()
+    except Exception as e:
+        print(f"同步aws ec2资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
+
+
+if __name__ == "__main__":
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
