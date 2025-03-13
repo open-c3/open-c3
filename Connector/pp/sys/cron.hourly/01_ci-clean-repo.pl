@@ -8,6 +8,15 @@ use warnings;
 
 =cut
 
+my ( $normal, $testonly ) = map{
+    my $x = `c3mc-sys-ctl ci.dist.$_.count`;
+    chomp $x;
+    die "ci.dist error" unless defined $x && $x =~ /^\d+$/;
+    $x
+}qw( normal testonly );
+
+print "normal: $normal testonly: $testonly\n";
+
 my @flowid = `c3mc-base-db-get -t openc3_ci_project id`;
 chomp @flowid;
 
@@ -22,7 +31,7 @@ sub _clean_repo_testonly
     my %file;
     map{ $file{$_} = ( stat $_ )[9] }@file;
     @file = grep{ -f }sort{ $file{$a} <=> $file{$b} }keys %file;
-    while( @file > 5 )
+    while( @file > $testonly )
     {
         my $file = shift @file;
         unlink $file;
@@ -43,7 +52,7 @@ for my $dir ( glob "/data/open-c3-data/glusterfs/ci_repo/*" )
         push @file, $file;
     }
 
-    my $keep = 10;
+    my $keep = $normal;
     $keep = 0 unless $flowid{$id};
 
     next unless @file >= $keep;
@@ -54,4 +63,5 @@ for my $dir ( glob "/data/open-c3-data/glusterfs/ci_repo/*" )
 
     splice @file, -$keep, $keep;
     unlink @file;
+    print "rm file: $file\n";
 }
