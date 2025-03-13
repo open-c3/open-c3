@@ -1,0 +1,128 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+from huaweicloudsdkcore.auth.credentials import GlobalCredentials, BasicCredentials
+from huaweicloudsdkeip.v2.region.eip_region import EipRegion
+from huaweicloudsdkeip.v2 import *
+from huaweicloudsdkiam.v3 import *
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import sleep_time_for_limiting
+
+max_times_for_get_eip = 20
+
+class Eip:
+    def __init__(self, access_id, access_key, project_id, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.project_id = project_id if project_id not in [None, "None"] else self.get_project_id()
+        self.page_number = 1
+        self.page_size = 25
+        self.client = self.create_client()
+
+    def get_project_id(self):
+        # 定义 IAM 端点映射
+        iam_endpoints = {
+            "eu-west-101": "https://iam.myhuaweicloud.eu",  # 都柏林地区
+            "default": "https://iam.myhuaweicloud.com"  # 默认端点
+        }
+
+        # 选择合适的 IAM 端点
+        iam_endpoint = iam_endpoints.get(self.region, iam_endpoints["default"])
+
+        credentials = GlobalCredentials(self.access_id, self.access_key)
+        iam_client = IamClient.new_builder() \
+            .with_credentials(credentials) \
+            .with_endpoint(iam_endpoint) \
+            .build()
+
+        try:
+            request = KeystoneListProjectsRequest()
+            response = iam_client.keystone_list_projects(request)
+            for project in response.projects:
+                if project.name == self.region:
+                    return project.id
+
+            raise Exception(f"No project found for region {self.region}")
+        except exceptions.ClientRequestException as e:
+            print(f"Failed to get project ID: {e}")
+            sys.exit(1)
+
+    def get_endpoint(self, region_id):
+        # 处理都柏林地区的特殊情况
+        if region_id == "eu-west-101":
+            return f"https://vpc.{region_id}.myhuaweicloud.eu"
+        return f"https://vpc.{region_id}.myhuaweicloud.com"
+
+    def create_client(self):
+        try:
+            credentials = BasicCredentials(self.access_id, self.access_key, self.project_id)
+            endpoint = self.get_endpoint(self.region)
+            return EipClient.new_builder() \
+                .with_credentials(credentials) \
+                .with_endpoint(endpoint) \
+                .build()
+        except exceptions.ClientRequestException as e:
+            print(f"Warning: Error creating client: {e}")
+            return None
+
+    def set_request(self):
+        return ListPublicipsRequest(limit=self.page_size)
+        #return ListPublicipsRequest(marker=(self.page_number - 1) * self.page_size, limit=self.page_size)
+    #def set_request(self):
+    #    marker = (self.page_number - 1) * self.page_size
+    #    return ListPublicipsRequest(marker=marker, limit=self.page_size)
+
+    def get_response(self):
+        request = self.set_request()
+        response = self.client.list_publicips(request)
+        return json.loads(str(response))
+
+    def get_eip_count(self):
+        response_data = self.get_response()
+        return len(response_data["publicips"])
+
+    def show(self):
+        response_data = self.get_response()
+        eips = response_data["publicips"]
+        for eip in eips:
+            print(json.dumps(eip))
+
+    def sleep(self, seconds):
+        sleep_time_for_limiting(seconds)
+
+    def page(self):
+        count = self.get_eip_count()
+        if count % self.page_size:
+            total_page_number = int(count / self.page_size) + 1
+        else:
+            total_page_number = int(count / self.page_size)
+
+        for cur_page_number in range(1, total_page_number + 1):
+            self.page_number = cur_page_number
+            self.show()
+            self.sleep(max_times_for_get_eip)
+
+    def display(self):
+        self.page()
+
+
+# project_id 可以命令行传 None
+def main(access_id, access_key, project_id, region):
+    try:
+        Eip(access_id, access_key, project_id, region).display()
+    except Exception as e:
+        # https://developer.huaweicloud.com/endpoint?all 支持的区域可能尚未包含在sdk区域配置文件中
+        # 对于这种错误直接忽略
+        if "Unexpected region_id" in str(e):
+            return
+        print(f"同步华为云 EIP 资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
+
+
+if __name__ == "__main__":
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
