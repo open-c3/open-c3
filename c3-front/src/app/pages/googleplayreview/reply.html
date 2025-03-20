@@ -32,7 +32,8 @@
  
         <div class="row">
             <div class="col-sm-5 form-group pull-right">
-                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="googleplayreviewreply.add()">{{'C3T.确认'|translate}}</button>
+                <button class="btn btn-primary" ng-if="googleplayreviewreply.showsubmit ==1" ng-disabled="myForm.$invalid" ng-click="googleplayreviewreply.add()">{{'C3T.确认'|translate}}</button>
+                <button class="btn btn-primary" ng-if="googleplayreviewreply.showsubmit ==0" ng-disabled="true" >{{'C3T.提交中'|translate}} ...</button>
                 <button class="btn btn-warning" ng-click="googleplayreviewreply.cancel()">{{'C3T.取消'|translate}}</button>
             </div>
         </div>
