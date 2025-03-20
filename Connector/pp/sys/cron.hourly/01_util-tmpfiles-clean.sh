@@ -15,3 +15,5 @@ find /data/open-c3-data/monitor-exmesg/fail -type f -mtime +30 -exec rm -f {} \;
 find /data/open-c3-data/monitor-exmesg/error -type f -mtime +30 -exec rm -f {} \;
 find /data/open-c3-data/monitor-exmesg/queue -type f -mtime +30 -exec rm -f {} \;
 
+find /data/Software/mydan/AGENT/device/conf/accountdb.temp -type f -mmin +30 -exec rm -f {} \;
+find /data/Software/mydan/AGENT/device/conf/accountdb.temp -type d -mmin +40 -exec rmdir {} \;
