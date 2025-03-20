@@ -59,7 +59,7 @@ get '/googleplay/review' => sub {
     my $where = $param->{appname} ? "where app_package_name='$param->{appname}'" : "";
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from openc3_ci_googleplay_review $where", join( ',', @col)), \@col )};
+            sprintf( "select %s from openc3_ci_googleplay_review $where order by comment_time_seconds desc", join( ',', @col)), \@col )};
 
 
     for my $x ( @$r )
