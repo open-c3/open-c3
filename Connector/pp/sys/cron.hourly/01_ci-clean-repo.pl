@@ -8,21 +8,21 @@ use warnings;
 
 =cut
 
-my ( $normal, $testonly ) = map{
+my ( $normal, $testonly, $docker ) = map{
     my $x = `c3mc-sys-ctl ci.dist.$_.count`;
     chomp $x;
     die "ci.dist error" unless defined $x && $x =~ /^\d+$/;
     $x
-}qw( normal testonly );
+}qw( normal testonly docker );
 
-print "normal: $normal testonly: $testonly\n";
+print "normal: $normal testonly: $testonly docker: $docker\n";
 
-my @flowid = `c3mc-base-db-get -t openc3_ci_project id`;
-chomp @flowid;
+my @flow = `c3mc-base-db-get -t openc3_ci_project id ci_type`;
+chomp @flow;
 
-die "maybe some error here, skip." if @flowid <= 10;
+die "maybe some error here, skip." if @flow <= 10;
 
-my %flowid = map{ $_ => 1 }@flowid;
+my %flowid = map{ split /;/, $_, 2 }@flow;
 
 sub _clean_repo_testonly
 {
@@ -52,8 +52,7 @@ for my $dir ( glob "/data/open-c3-data/glusterfs/ci_repo/*" )
         push @file, $file;
     }
 
-    my $keep = $normal;
-    $keep = 0 unless $flowid{$id};
+    my $keep =  $flowid{$id} ? $flowid{$id} eq 'kubernetes' ? $docker : $normal : 0;
 
     next unless @file >= $keep;
     my %mtime;
@@ -63,5 +62,5 @@ for my $dir ( glob "/data/open-c3-data/glusterfs/ci_repo/*" )
 
     splice @file, -$keep, $keep;
     unlink @file;
-    print "rm file: $file\n";
+    map{ print "rm file: $_\n" }@file;
 }
