@@ -225,6 +225,8 @@ class Huawei:
             regions = self.get_dcs_availability_zones()
         elif self.resource_type == "kafka":
             regions = self.get_dms_availability_zones()
+        elif self.resource_type == "eip":
+            regions = self.get_ecs_availability_zones()
         else:
             regions = list(self.regions.keys())
 
