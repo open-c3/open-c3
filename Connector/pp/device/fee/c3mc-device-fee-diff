@@ -1,0 +1,86 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --adate 2025-01 --bdate 2025-03
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( adate=s bdate=s ) )->dump();
+
+$option->assert() unless $o{adate} && $o{bdate};
+
+sub getdata
+{
+    my $date = shift @_;
+    my @x = `c3mc-device-fee --tree .. --date $date`;
+    chomp @x;
+
+    my @a = grep{$_ =~ /^item/}@x;
+    my %x;
+    for( @a )
+    {
+        my @xx = split /\t/, $_;
+        my $key = "$xx[1] $xx[2]";
+        my $val = $xx[3];
+        $x{$key} ||= 0;
+        $x{$key} += $val;
+    }
+    return %x;
+}
+
+my %a = getdata( $o{adate});
+my %b = getdata( $o{bdate});
+
+my %r;
+for my $k ( keys %b )
+{
+    next if $b{$k} < 1;
+    if( $a{$k} )
+    {
+        if( $a{$k} < $b{$k} )
+        {
+            my $more = int( $b{$k} - $a{$k} );
+            $r{more}{"$k = $b{$k}"} = $more if $more > 1;
+        }
+        elsif( $a{$k} > $b{$k} )
+        {
+            my $less = int( $a{$k} - $b{$k} );
+            $r{less}{"$k = $b{$k}"} = $less if $less > 1;
+        }
+        else
+        {
+            $r{same}{$k} = int $b{$k};
+        }
+
+        delete $a{$k};
+    }
+    else
+    {
+        $r{new}{$k} = int $b{$k};
+    }
+}
+
+for my $k ( keys %a )
+{
+    next if $a{$k} < 1;
+    $r{del}{$k} = int $a{$k};
+}
+
+for my $x ( qw( same less del new more ) )
+{
+    next unless $r{$x};
+    print "=" x 30, " $x ", "=" x 30, "\n";
+    for my $k ( sort{ $r{$x}{$a} <=> $r{$x}{$b} } keys %{$r{$x}})
+    {
+        print "$x : $k : $r{$x}{$k}\n";
+    }
+    print "\n" x 3;
+}

@@ -108,10 +108,11 @@ for my $file ( glob "/data/open-c3-data/c3mc-device-fee/$o{date}/*.csv" )
         my @uuid = grep{ 0 == index( $d{$coluuid}, $_) || $d{$coluuid} =~ /\/$_\b/ }keys %uuid;
         my @name = grep{ 0 == index( $d{$colname}, $_) || $d{$colname} =~ /\/$_\b/ }keys %name;
 
-        next if ( ( ! $o{exclude} ) && ( ! ( @name || @uuid )) ) || ( $o{exclude} && ( @name || @name ) );
-        
-        my $out = sprintf "%s\n", join "\t", map{ $d{$_}//''}( $coluuid, $colname, $colcost );
+        next unless ( $o{tree} && $o{tree} eq '..' ) || ! ( ( ( ! $o{exclude} ) && ( ! ( @name || @uuid )) ) || ( $o{exclude} && ( @name || @name ) ) );
+
+
         $d{$colcost} =~ s/,//g;
+        my $out = sprintf "item\t%s\n", join "\t", map{ $d{$_}//''}( $coluuid, $colname, $colcost );
         $out{$out} = $d{$colcost};
         $sum += $d{$colcost};
 
