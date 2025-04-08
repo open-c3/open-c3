@@ -141,9 +141,21 @@ for( reverse @olddate )
 
 map{ $ip{$_} = $oldip{$_} unless $ip{$_}; }keys %oldip;
 
+
+my @os = `c3mc-device-ingestion-jumpserver`;
+chomp @os;
+my %os;
+
+for( @os )
+{
+    my @x = split /;/, $_;
+    my ( $ip, $os ) = ( $x[3], $x[6] );
+    $os{$ip} = lc $os if $ip && $os;
+}
+
 for my $ip ( keys %ip )
 {
-    my %lables = ( instance => $ip, "__metrics_path__" => "/api/agent/v3/node/metrics/$ip", treeid => 1 );
+    my %lables = ( instance => $ip, "__metrics_path__" => "/api/agent/v3/node/metrics/$ip", treeid => 1, os => $os{$ip} ||= 'unknow' );
 
     next if $includetodo && ! grepInclude( map{ $treemap{$_} // "" }keys %{$ip{$ip}} );
     next if $excludetodo &&   grepExclude( map{ $treemap{$_} // "" }keys %{$ip{$ip}} );
