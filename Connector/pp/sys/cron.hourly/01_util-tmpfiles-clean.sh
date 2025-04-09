@@ -17,3 +17,5 @@ find /data/open-c3-data/monitor-exmesg/queue -type f -mtime +30 -exec rm -f {} \
 
 find /data/Software/mydan/AGENT/device/conf/accountdb.temp -type f -mmin +30 -exec rm -f {} \;
 find /data/Software/mydan/AGENT/device/conf/accountdb.temp -type d -mmin +40 -exec rmdir {} \;
+
+find /data/open-c3-data/resourcelow -type f -mtime +360 -name "*temp*" -exec rm -f {} \;
