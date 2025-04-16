@@ -16,6 +16,11 @@
 set -e
 
 VERSION="1.26.1"
+if [ -n "$DOCKER_COMPOSE_VERSION" ]; then
+    #VERSION="1.29.2"
+    VERSION=$DOCKER_COMPOSE_VERSION
+fi
+
 IMAGE="docker/compose:$VERSION"
 
 

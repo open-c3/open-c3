@@ -1,2 +1,2 @@
 #!/bin/bash
-/data/open-c3-data/cloudmon/docker-compose stop
+DOCKER_COMPOSE_VERSION=1.29.2 /data/open-c3/Installer/docker-compose stop

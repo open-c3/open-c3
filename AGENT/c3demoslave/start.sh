@@ -8,6 +8,6 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
-/data/open-c3-data/cloudmon/docker-compose  build
-/data/open-c3-data/cloudmon/docker-compose  up -d --scale openc3-demo-slave=10
+DOCKER_COMPOSE_VERSION=1.29.2 /data/open-c3/Installer/docker-compose build
+DOCKER_COMPOSE_VERSION=1.29.2 /data/open-c3/Installer/docker-compose up -d --scale openc3-demo-slave=10
 docker exec openc3-server /data/Software/mydan/AGENT/c3demoslave/update.sh
