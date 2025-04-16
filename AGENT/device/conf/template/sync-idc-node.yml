@@ -1,0 +1,186 @@
+download:
+  - url: "cmd:c3mc-base-db-get  -t openc3_device_resource_idcnode id asset_number serial_number resource_type sub_type brand model usage status city data_center_area rack_column rack_number rack_start_position rack_end_position warranty_start_date warranty_end_date gpu gpu_model gpu_specification cpu_model cpu_frequency cpu_physical_count cpu_cores_per_chip memory_channel_count memory_slot_count memory_specification memory_size memory_count non_raid_disk_type non_raid_disk_size non_raid_disk_count non_raid_disk_capacity raid_type raid_disk_type raid_disk_size raid_disk_count raid_disk_capacity raid_card_model raid_card_count raid_card_bandwidth network_card_details public_ip private_ip server_name operating_system_type operating_system_version operating_system_bit out_of_band_management_mac out_of_band_management_ip alarm_recipient remarks purchase_time purchaser purchase_contract_number purchase_price invoice_number capitalization_date resource_display_name edit_user edit_time --json | c3mc-base-json2tab"
+    datatype: tsv # 固定值。表示url中命令最终输出的文件格式
+    type: compute # 资源类型。cmdb页面中的分类
+    subtype: idc-node # 上面资源类型的子类型。
+    treeinfo:
+      treename: "服务树" # 指明哪一列对应服务树。这一列没有对应列，页面显示的值为空
+      treeinfo:
+        - ["asset_number", "instance"] # 和监控相关 。 指标是 treeinfo
+    check:
+      col: ["实例ID"] # 打印出的数据必须有的字段
+      min: 0 # url中明林执行后最少一行输出，否则认为出错
+    ingestion-node: # 控制资源在发布时的可见行，但是cmdb里一直可以看见
+      name: "server_name"
+      inip: "private_ip"
+      exip: "public_ip"
+      tree: "服务树"
+      type: idc-node
+      exclude:
+        "状态": ["stopped","terminated"]
+        "_ingestion_": ["NO"]
+    ingestion-jumpserver:
+      uuid: "实例ID"
+      instanceId: "实例ID"
+      hostName: "主机名"
+      ip: "内网IP"
+      inIP: "内网IP"
+      exIP: "公网IP"
+      os: "operating_system_type"
+      site: ["{IDC}", "city"]
+      vpc_id: "xx"
+      vpc_name: "xx"
+      product_owner: "业务负责人"
+      ops_owner: "运维负责人"
+      department: "部门"
+      excludeContain:
+        # "状态": ["stopped"]
+        "VpcName": ["ThirdParty", "CMTest"]
+    metrics:
+      - name: 'openc3_cmdb_resource_price{account="%s",instanceid="%s",type="compute",subtype="idc-node",unit="%s",status="%s"} %f'
+        value: ["account", "uuid", "_priceunit_", "状态", "_price_"]
+    util:
+      vuuid:
+        - 内网IP
+        - 公网IP
+        - 实例ID
+      defaulttree: defaulttree.pool # 默认的服务树，资源归还后被放到这里
+      extcol:
+        - name: audit
+          alias: 审计
+          select: ["YES", "NO"]
+        - name: remarks
+          alias: 备注
+        - name: _ingestion_
+          alias: 摄取
+          select: ["YES", "NO"]
+        - name: _monitorbyexip_
+          alias: 监控外网IP
+          select: ["default", "yes"]
+        - name: _buildintree_
+          alias: 内置服务树
+          readonly: 1
+
+      grpcol:
+        baseinfo:
+          - name: 实例ID
+          - name: 服务器名
+          - name: 类型
+          - name: 内外IP
+          - name: 公网IP
+          - name: 状态
+            success:
+              - running
+          - name: 城市
+          - name: 机房区域
+          - name: 内网IP
+        system:
+          - name: 操作系统类型
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" # 指明哪一列作为uuid列
+    alias:
+      asset_number: "实例ID"
+      #'asset_number': '资产编号'
+      'serial_number': 'SN设备序列号'
+      'resource_type': '类型'
+      'sub_type': '子类'
+      'brand': '品牌'
+      'model': '型号'
+      'usage': '用途'
+      'status': '状态'
+      'city': '城市'
+      'data_center_area': '机房区域'
+      'rack_column': '机柜列'
+      'rack_number': '机柜号'
+      'rack_start_position': '机架开始位置'
+      'rack_end_position': '机架结束位置'
+      'warranty_start_date': '质保开始时间'
+      'warranty_end_date': '质保结束时间'
+      'gpu': 'Gpu'
+      'gpu_model': 'Gpu型号'
+      'gpu_specification': 'Gpu规格'
+      'cpu_model': 'CPU型号'
+      'cpu_frequency': 'CPU主频'
+      'cpu_physical_count': 'CPU物理数(颗)'
+      'cpu_cores_per_chip': '每颗CPU核数(核)'
+      'memory_channel_count': '内存通道数(个)'
+      'memory_slot_count': '内存插槽总数(个)'
+      'memory_specification': '内存规格'
+      'memory_size': '内存大小(GB)'
+      'memory_count': '内存数量'
+      'non_raid_disk_type': '非RAID磁盘类型(例：SAS)'
+      'non_raid_disk_size': '非RAID磁盘大小(GB)'
+      'non_raid_disk_count': '非RAID磁盘数量'
+      'non_raid_disk_capacity': '非RAID后磁盘容量（GB）'
+      'raid_type': 'RAID类型'
+      'raid_disk_type': 'RAID磁盘类型'
+      'raid_disk_size': 'RAID磁盘大小（单位/GB）'
+      'raid_disk_count': 'RAID磁盘数量'
+      'raid_disk_capacity': 'RAID后磁盘容量（单位/GB）'
+      'raid_card_model': 'RAID卡型号'
+      'raid_card_count': 'RAID卡数量'
+      'raid_card_bandwidth': 'RAID卡背板带宽(Gb/s)'
+      'network_card_details': '网卡详情'
+      'public_ip': '公网IP'
+      'private_ip': '内网IP'
+      'server_name': '服务器名'
+      'operating_system_type': '操作系统类型'
+      'operating_system_version': '操作系统版本'
+      'operating_system_bit': '操作系统位数'
+      'out_of_band_management_mac': '带外管理MAC(公网管理MAC地址)'
+      'out_of_band_management_ip': '带外管理IP（公网管理IP地址）'
+      'alarm_recipient': '报警接收人'
+      'remarks': '备注'
+      'purchase_time': '采购时间'
+      'purchaser': '采购申请人'
+      'purchase_contract_number': '采购合同号'
+      'purchase_price': '采购价格'
+      'invoice_number': '发票号'
+      'capitalization_date': '资本化日期(设备正式使用日期)'
+      'resource_display_name': '资源展示名称（资源在列表中展示名称）'
+      'edit_user': '编辑人'
+      'edit_time': '最后编辑时间'
+
+      _oneDeptName_: 一级部门
+      _twoDeptName_: 二级部门
+      _sybDeptName_: 产品线
+      _product_owner_: 业务负责人
+      _ops_owner_: "运维负责人"
+      _department_: "部门"
+      _hostname_: "主机名"
+      _name_: "名称"
+    filter:
+      - name: "类型"
+        alias: 类型
+      - name: "城市"
+        alias: 城市
+      - name: "机房区域"
+        alias: 机房区域
+      - name: "状态"
+        alias: 状态
+      - name: "操作系统类型"
+        alias: 操作系统类型
+      - name: "_ingestion_"
+        alias: 摄取
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "城市"
+        - "实例ID"
+        - "服务器名"
+        - "机房区域"
+        - "机柜列"
+      system:
+        - "状态"
+        - "类型"
+        - "主机名"
+        - "名称"
+        - "内网IP"
+        - "公网IP"
+      contact:
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"
+        - "服务树"

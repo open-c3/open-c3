@@ -120,7 +120,7 @@ sub download
         my $cmd = $1;
         if ( $alias && ref $alias eq 'HASH' )
         {
-            $cmd = sprintf "$cmd %s", join ' ', map{ "$_ $alias->{$_}" }keys %$alias;
+            $cmd = sprintf "$cmd %s", join ' ', map{ "'$_' '$alias->{$_}'" }keys %$alias;
         }
         die "run cmd: $cmd fail: $!" if OPENC3::PP::Pipe::system( $onlyconfig ? "cp $distpath/data.tsv $temppath/data.tsv" : "$cmd > $temppath/data.tsv" );
     
