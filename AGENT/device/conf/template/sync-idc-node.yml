@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-base-db-get  -t openc3_device_resource_idcnode id asset_number serial_number resource_type sub_type brand model usage status city data_center_area rack_column rack_number rack_start_position rack_end_position warranty_start_date warranty_end_date gpu gpu_model gpu_specification cpu_model cpu_frequency cpu_physical_count cpu_cores_per_chip memory_channel_count memory_slot_count memory_specification memory_size memory_count non_raid_disk_type non_raid_disk_size non_raid_disk_count non_raid_disk_capacity raid_type raid_disk_type raid_disk_size raid_disk_count raid_disk_capacity raid_card_model raid_card_count raid_card_bandwidth network_card_details public_ip private_ip server_name operating_system_type operating_system_version operating_system_bit out_of_band_management_mac out_of_band_management_ip alarm_recipient remarks purchase_time purchaser purchase_contract_number purchase_price invoice_number capitalization_date resource_display_name edit_user edit_time --json | c3mc-base-json2tab"
+  - url: "cmd:c3mc-base-db-get  -t openc3_device_resource_idcnode id asset_number serial_number resource_type sub_type brand model usage status city data_center_area rack_column rack_number rack_start_position rack_end_position warranty_start_date warranty_end_date gpu gpu_model gpu_specification cpu_model cpu_frequency cpu_physical_count cpu_cores_per_chip memory_channel_count memory_slot_count memory_specification memory_size memory_count non_raid_disk_type non_raid_disk_size non_raid_disk_count non_raid_disk_capacity raid_type raid_disk_type raid_disk_size raid_disk_count raid_disk_capacity raid_card_model raid_card_count raid_card_bandwidth network_card_details public_ip private_ip server_name operating_system_type operating_system_version operating_system_bit out_of_band_management_mac out_of_band_management_ip alarm_recipient remarks purchase_time purchaser purchase_contract_number purchase_price invoice_number capitalization_date resource_display_name edit_user edit_time instance_type --json | c3mc-base-json2tab"
     datatype: tsv # 固定值。表示url中命令最终输出的文件格式
     type: compute # 资源类型。cmdb页面中的分类
     subtype: idc-node # 上面资源类型的子类型。
@@ -11,13 +11,13 @@ download:
       col: ["实例ID"] # 打印出的数据必须有的字段
       min: 0 # url中明林执行后最少一行输出，否则认为出错
     ingestion-node: # 控制资源在发布时的可见行，但是cmdb里一直可以看见
-      name: "server_name"
-      inip: "private_ip"
-      exip: "public_ip"
+      name: "服务器名"
+      inip: "公网IP"
+      exip: "内网IP"
       tree: "服务树"
       type: idc-node
       exclude:
-        "状态": ["stopped","terminated"]
+        "状态": ["Stopped","Deactivated","Retired"]
         "_ingestion_": ["NO"]
     ingestion-jumpserver:
       uuid: "实例ID"
@@ -76,6 +76,10 @@ download:
           - name: 内网IP
         system:
           - name: 操作系统类型
+          - name: 实例类型
+          - name: 每颗CPU核数(核)
+          - name: CPU物理数(颗)
+          - name: 内存大小(GB)
     colmap:
       treename: "服务树"
       uuid: "实例ID" # 指明哪一列作为uuid列
@@ -141,6 +145,7 @@ download:
       'resource_display_name': '资源展示名称（资源在列表中展示名称）'
       'edit_user': '编辑人'
       'edit_time': '最后编辑时间'
+      'instance_type': '实例类型'
 
       _oneDeptName_: 一级部门
       _twoDeptName_: 二级部门
@@ -169,14 +174,12 @@ download:
       baseinfo:
         - "城市"
         - "实例ID"
-        - "服务器名"
         - "机房区域"
         - "机柜列"
       system:
         - "状态"
-        - "类型"
-        - "主机名"
-        - "名称"
+        - "实例类型"
+        - "服务器名"
         - "内网IP"
         - "公网IP"
       contact:

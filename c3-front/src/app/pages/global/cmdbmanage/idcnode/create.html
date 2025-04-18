@@ -6,9 +6,9 @@
 
         <div class="row">
             <div class="col-sm-12 form-group">
-                <label class="col-sm-3 control-label">{{'C3T.资产编号'|translate}}<a style="color: red;">*</a></label>
+                <label class="col-sm-3 control-label">{{'C3T.资产编号'|translate}}</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" ng-model="cmdbmanageidcnodecreate.postdata.asset_number" />
+                    <input type="text" ng-disabled="cmdbmanageidcnodecreate.postdata.id" class="form-control" ng-model="cmdbmanageidcnodecreate.postdata.asset_number" placeholder="{{'C3T.如果不填写ID，系统自动会自动生成'|translate}}"/>
                 </div>
             </div>
         </div>
@@ -26,7 +26,9 @@
             <div class="col-sm-12 form-group">
                 <label class="col-sm-3 control-label">{{'C3T.类型'|translate}}<a style="color: red;">*</a></label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" ng-model="cmdbmanageidcnodecreate.postdata.resource_type" />
+                    <select id="resource_type" class="form-control"  ng-model="cmdbmanageidcnodecreate.postdata.resource_type">
+                        <option ng-repeat="x in ['Physical Serve','Virtual Server','Bare Metal Server','PC','Other']" value="{{x}}">{{x}}</option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -53,7 +55,10 @@
             <div class="col-sm-12 form-group">
                 <label class="col-sm-3 control-label">{{'C3T.操作系统类型'|translate}}<a style="color: red;">*</a></label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" ng-model="cmdbmanageidcnodecreate.postdata.operating_system_type" />
+                    <select id="operating_system_type" class="form-control"  ng-model="cmdbmanageidcnodecreate.postdata.operating_system_type">
+                        <option ng-repeat="x in ['Windows','Linux','Unix','macOS','Chrome OS','Other']" value="{{x}}">{{x}}</option>
+                    </select>
+
                 </div>
             </div>
         </div>
@@ -62,8 +67,11 @@
             <div class="col-sm-12 form-group">
                 <label class="col-sm-3 control-label">{{'C3T.状态'|translate}}<a style="color: red;">*</a></label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" ng-model="cmdbmanageidcnodecreate.postdata.status" />
+                    <select id="status" class="form-control"  ng-model="cmdbmanageidcnodecreate.postdata.status">
+                        <option ng-repeat="x in ['Running','Stopped','Maintenance','Deactivated','Retired','Other']" value="{{x}}">{{x}}</option>
+                    </select>
                 </div>
+
             </div>
         </div>
 
@@ -85,6 +93,42 @@
             </div>
         </div>
 
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.CPU物理数(颗)'|translate}}<a style="color: red;">*</a></label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-model="cmdbmanageidcnodecreate.postdata.cpu_physical_count" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.每颗CPU核数(核)'|translate}}<a style="color: red;">*</a></label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-model="cmdbmanageidcnodecreate.postdata.cpu_cores_per_chip" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.内存大小(GB)'|translate}}<a style="color: red;">*</a></label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-model="cmdbmanageidcnodecreate.postdata.memory_size" />
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <label class="col-md-2 control-label fwbold">{{'C3T.展示更多信息'|translate}}:</label>
+            <a ng-if="cmdbmanageidcnodecreate.showmore === '1'" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.隐藏高级配置'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="cmdbmanageidcnodecreate.showmore='0'"></a>
+            <a ng-if="!(cmdbmanageidcnodecreate.showmore === '1' )" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.显示高级配置'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="cmdbmanageidcnodecreate.showmore='1'"></a>
+
+        </div>
+
+<div ng-if="cmdbmanageidcnodecreate.showmore === '1'" >
         <hr>
 
         <div class="row">
@@ -233,24 +277,6 @@
 
         <div class="row">
             <div class="col-sm-12 form-group">
-                <label class="col-sm-3 control-label">{{'C3T.CPU物理数(颗)'|translate}}</label>
-                <div class="col-sm-9">
-                    <input type="text" class="form-control" ng-model="cmdbmanageidcnodecreate.postdata.cpu_physical_count" />
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-sm-12 form-group">
-                <label class="col-sm-3 control-label">{{'C3T.每颗CPU核数(核)'|translate}}</label>
-                <div class="col-sm-9">
-                    <input type="text" class="form-control" ng-model="cmdbmanageidcnodecreate.postdata.cpu_cores_per_chip" />
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-sm-12 form-group">
                 <label class="col-sm-3 control-label">{{'C3T.内存通道数(个)'|translate}}</label>
                 <div class="col-sm-9">
                     <input type="text" class="form-control" ng-model="cmdbmanageidcnodecreate.postdata.memory_channel_count" />
@@ -272,15 +298,6 @@
                 <label class="col-sm-3 control-label">{{'C3T.内存规格（例：DDR4）'|translate}}</label>
                 <div class="col-sm-9">
                     <input type="text" class="form-control" ng-model="cmdbmanageidcnodecreate.postdata.memory_specification" />
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-sm-12 form-group">
-                <label class="col-sm-3 control-label">{{'C3T.内存大小(GB)'|translate}}</label>
-                <div class="col-sm-9">
-                    <input type="text" class="form-control" ng-model="cmdbmanageidcnodecreate.postdata.memory_size" />
                 </div>
             </div>
         </div>
@@ -528,6 +545,7 @@
             </div>
         </div>
 
+</div>
         <div class="row">
             <div class="col-sm-5 form-group pull-right">
                 <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="cmdbmanageidcnodecreate.add()">{{'C3T.确认'|translate}}</button>

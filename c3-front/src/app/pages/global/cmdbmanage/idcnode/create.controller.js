@@ -12,6 +12,7 @@
 
         vm.id = id;
         vm.postdata = {};
+        vm.showmore = 0;
 
         vm.cancel = function(){ $uibModalInstance.dismiss()};
 

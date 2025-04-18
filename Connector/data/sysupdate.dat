@@ -1125,4 +1125,7 @@ create table if not exists `openc3_device_resource_idcnode`(
 UNIQUE KEY `uniq_asset_number` (`asset_number`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='ID node 资源';
 
+# v2.6.0 sql openc3_device_resource_idcnode add instance_type
+ALTER TABLE openc3_device_resource_idcnode ADD `instance_type` VARCHAR(30) comment '实例类型（例：2C8G）';
+
 
