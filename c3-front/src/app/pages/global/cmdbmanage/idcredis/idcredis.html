@@ -1,0 +1,55 @@
+<div class="row block">
+    <h2>{{'C3T.IDC Redis'|translate}}</h2>
+    <hr class="mv20 clear">
+
+    <div>
+        <div style="float: right;">
+            <form class="form-inline" name="myForm" novalidate>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="cmdbmanageidcredis.create()"><i class="fa fa-plusecircle fa-lg" aria-hidden="true"></i> {{'C3T.添加'|translate}}</button>
+            </form>
+        </div>
+        <div style="clear: both;">&nbsp;</div>
+    </div>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="cmdbmanageidcredis.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!cmdbmanageidcredis.loadover}" ></i></button>
+            </span>
+            <h5>{{'C3T.IDC节点'|translate}}</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="pt20" style="overflow: auto;">
+                <table ng-table="cmdbmanageidcredis.dataTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td data-title="'ID'"                        width="80" filter="{ id: 'text'}"           data-sortable="'id'">            {{m.id}}            </td>
+                        <td data-title="'C3T.资源编号'|translate"    width="80" filter="{ uuid: 'text'}"  data-sortable="'uuid'">   {{m.uuid}}   </td>
+                        <td data-title="'C3T.实例名称'|translate"    width="80" filter="{ instance_name: 'text'}"  data-sortable="'instance_name'">   {{m.instance_name}}   </td>
+                        <td data-title="'C3T.IP地址'|translate"    width="80" filter="{ ip_address: 'text'}"  data-sortable="'ip_address'">   {{m.ip_address}}   </td>
+                        <td data-title="'C3T.端口号'|translate"    width="80" filter="{ port: 'text'}"  data-sortable="'port'">   {{m.port}}   </td>
+                        <td data-title="'C3T.状态'|translate"    width="80" filter="{ status: 'text'}"  data-sortable="'status'">   {{m.status}}   </td>
+                        <td data-title="'C3T.版本号'|translate"    width="80" filter="{ version: 'text'}"  data-sortable="'version'">   {{m.version}}   </td>
+                        <td data-title="'C3T.集群名称'|translate"    width="80" filter="{ cluster_name: 'text'}"  data-sortable="'cluster_name'">   {{m.cluster_name}}   </td>
+                        <td data-title="'C3T.状态'|translate"    width="80" filter="{ status: 'text'}"  data-sortable="'status'">   {{m.status}}   </td>
+                        <td data-title="'C3T.编辑人'|translate"      width="80" filter="{ edit_user: 'text'}"    data-sortable="'edit_user'">     {{m.edit_user}}     </td>
+                        <td data-title="'C3T.编辑时间'|translate"    width="80" filter="{ edit_time: 'text'}"    data-sortable="'edit_time'">     {{m.edit_time}}     </td>
+                        <td style="width: 10%" data-title="'C3T.操作'|translate">
+                            <button class="btn btn-primary btn-sm" ng-click="cmdbmanageidcredis.create(m.id)">{{'C3T.编辑'|translate}}</button>
+                            <button class="btn btn-danger btn-sm"  ng-click="cmdbmanageidcredis.delete(m.id)">{{'C3T.删除'|translate}}</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+       <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-warning" ng-click="cmdbmanageidcredis.cancel()">{{'C3T.取消'|translate}}</button>
+            </div>
+        </div>
+  
+    </div>
+
+</div>
+
+<style>.modal-dialog {width: 80%;} </style>
