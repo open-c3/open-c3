@@ -120,6 +120,24 @@
             });
         };
 
+        vm.editidcmongodb = function (name) {
+            $uibModal.open({
+                templateUrl: 'app/pages/global/cmdbmanage/idcmongodb/idcmongodb.html',
+                controller: 'CmdbManageIDCMongodbController',
+                controllerAs: 'cmdbmanageidcmongodb',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () { return vm.treeid},
+                    reload: function () { return vm.reload},
+                    name: function () { return name}
+                }
+            });
+        };
+
+
         vm.edithuawei = function (name) {
             $uibModal.open({
                 templateUrl: 'app/pages/global/cmdbmanage/huawei/huawei.html',
