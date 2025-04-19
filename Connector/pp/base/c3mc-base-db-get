@@ -46,7 +46,7 @@ die "table $o{table} undef" unless $module && $table{$module};
 my $db = MYDB->new( "/data/Software/mydan/$table{$module}/conf/conn", delayedconnection => 1 );
 
 my $col = ( $o{yaml} || $o{json} ) ? \@ARGV : undef;
-my $x = eval{ $db->query( sprintf( "select %s from $o{table}%s", join( ',', map{"`$_`"}@ARGV ), $o{filter} ? " where $o{filter} " : '' ), $col ); };
+my $x = eval{ $db->query( sprintf( "select %s from $o{table}%s", join( ',', map{"`$_`"}map{split /,/, $_}@ARGV ), $o{filter} ? " where $o{filter} " : '' ), $col ); };
 die "$0 get data fail: $@" if $@;
 
 if( $o{yaml} )
