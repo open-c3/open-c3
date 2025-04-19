@@ -86,6 +86,22 @@
             });
         };
 
+        vm.editidcmysql = function (name) {
+            $uibModal.open({
+                templateUrl: 'app/pages/global/cmdbmanage/idcmysql/idcmysql.html',
+                controller: 'CmdbManageIDCMysqlController',
+                controllerAs: 'cmdbmanageidcmysql',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () { return vm.treeid},
+                    reload: function () { return vm.reload},
+                    name: function () { return name}
+                }
+            });
+        };
  
         vm.edithuawei = function (name) {
             $uibModal.open({

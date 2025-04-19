@@ -1,0 +1,148 @@
+<div class="modal-header">
+    <h4  class="modal-title">{{'C3T.IDC Mysql'|translate}}</h4>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal" name="myForm" role="form">
+
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.资源编号'|translate}}</label>
+                <div class="col-sm-9">
+                    <input type="text" ng-disabled="cmdbmanageidcmysqlcreate.postdata.id" class="form-control" ng-model="cmdbmanageidcmysqlcreate.postdata.uuid" placeholder="{{'C3T.如果不填写ID，系统自动会自动生成'|translate}}"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.实例名称'|translate}}</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-model="cmdbmanageidcmysqlcreate.postdata.instance_name" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.IP地址'|translate}}<a style="color: red;">*</a></label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-model="cmdbmanageidcmysqlcreate.postdata.ip_address" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.端口号'|translate}}<a style="color: red;">*</a></label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-model="cmdbmanageidcmysqlcreate.postdata.port" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.状态'|translate}}<a style="color: red;">*</a></label>
+                <div class="col-sm-9">
+                    <select id="status" class="form-control"  ng-model="cmdbmanageidcmysqlcreate.postdata.status">
+                        <option ng-repeat="x in ['Running','Stopped','Other']" value="{{x}}">{{x}}</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.版本号'|translate}}</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-model="cmdbmanageidcmysqlcreate.postdata.version" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.集群名称'|translate}}</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-model="cmdbmanageidcmysqlcreate.postdata.cluster_name" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <label class="col-md-2 control-label fwbold">{{'C3T.展示更多信息'|translate}}:</label>
+            <a ng-if="cmdbmanageidcmysqlcreate.showmore === '1'" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.隐藏高级配置'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="cmdbmanageidcmysqlcreate.showmore='0'"></a>
+            <a ng-if="!(cmdbmanageidcmysqlcreate.showmore === '1' )" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.显示高级配置'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="cmdbmanageidcmysqlcreate.showmore='1'"></a>
+
+        </div>
+
+<div ng-if="cmdbmanageidcmysqlcreate.showmore === '1'" >
+        <hr>
+
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.安装路径'|translate}}</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-model="cmdbmanageidcmysqlcreate.postdata.install_path" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.数据目录'|translate}}</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-model="cmdbmanageidcmysqlcreate.postdata.data_dir" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.宿主机IP'|translate}}</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-model="cmdbmanageidcmysqlcreate.postdata.host_ip" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.字符集'|translate}}</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-model="cmdbmanageidcmysqlcreate.postdata.charset" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.最大连接数'|translate}}</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-model="cmdbmanageidcmysqlcreate.postdata.max_connections" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.备份策略'|translate}}</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-model="cmdbmanageidcmysqlcreate.postdata.backup_policy" />
+                </div>
+            </div>
+        </div>
+
+
+</div>
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="cmdbmanageidcmysqlcreate.add()">{{'C3T.确认'|translate}}</button>
+                <button class="btn btn-warning" ng-click="cmdbmanageidcmysqlcreate.cancel()">{{'C3T.取消'|translate}}</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>.modal-dialog {width: 60%;} </style>

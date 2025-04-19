@@ -1,0 +1,102 @@
+download:
+  - url: "cmd:c3mc-base-db-get -t openc3_device_resource_idcmysql id uuid instance_name ip_address port status version cluster_name install_path data_dir host_ip charset max_connections backup_policy edit_user edit_time --json | c3mc-base-json2tab"
+    datatype: tsv
+    type: database
+    subtype: idc-mysql
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    ingestion-mysql:
+      addr: ["IP地址", "端口号"]
+      authpath: /data/open-c3-data/device/curr/auth/mysql
+      tree: "服务树"
+      type: idc-mysql
+      exclude:
+        "状态": ["Stopped"]
+        "_ingestion_": ["NO"]
+    util:
+      vuuid:
+        - ["ip_address", "port"]
+      defaulttree: defaulttree.pool
+      extcol:
+        - name: audit
+          alias: 审计
+          select: ["YES", "NO"]
+        - name: remarks
+          alias: 备注
+        - name: _ingestion_
+          alias: 摄取
+          select: ["YES", "NO"]
+        - name: _buildintree_
+          alias: 内置服务树
+          readonly: 1
+
+      grpcol:
+        baseinfo:
+          - name: 实例ID
+          - name: IP地址
+          - name: 端口号
+          - name: 运行状态
+            success:
+              - Running
+          - name: 实例名称
+          - name: 版本号
+          - name: 集群名称
+        system:
+          - name: 宿主机IP
+          - name: 最大连接数
+
+    check:
+      col: ["实例ID"]
+      min: 0
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    alias:
+      uuid: "实例ID"
+      instance_name: 实例名称
+      ip_address: IP地址
+      port: 端口号
+      status: 运行状态
+      version: 版本号
+      cluster_name: 集群名称
+      install_path: 安装路径
+      data_dir: 数据目录
+      host_ip: 宿主机IP
+      charset: 字符集
+      max_connections: 最大连接数
+      backup_policy: 备份策略
+      _oneDeptName_: 一级部门
+      _twoDeptName_: 二级部门
+      _sybDeptName_: 产品线
+      _product_owner_: 业务负责人
+      _ops_owner_: "运维负责人"
+      _department_: "部门"
+    filter:
+      - name: "版本号"
+        alias: 版本号
+      - name: "运行状态"
+        alias: 运行状态
+      - name: "_ingestion_"
+        alias: 摄取
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "account"
+        - "实例ID"
+        - "区域"
+        - "所在可用区"
+        - "版本号"
+      system:
+        - "运行状态"
+        - "实例类型xxx"
+        - "实例名称"
+        - "IP地址"
+        - "端口号"
+      contact:
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"
+        - "服务树"

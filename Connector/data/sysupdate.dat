@@ -1123,9 +1123,28 @@ create table if not exists `openc3_device_resource_idcnode`(
 `edit_user`   VARCHAR(200) comment '编辑人',
 `edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '最后编辑时间',
 UNIQUE KEY `uniq_asset_number` (`asset_number`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='ID node 资源';
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='IDC node 资源';
 
 # v2.6.0 sql openc3_device_resource_idcnode add instance_type
 ALTER TABLE openc3_device_resource_idcnode ADD `instance_type` VARCHAR(30) comment '实例类型（例：2C8G）';
 
-
+# v2.6.0 sql openc3_device_resource_idcmysql create
+create table if not exists `openc3_device_resource_idcmysql`(
+`id`          int(16) unsigned not null primary key auto_increment comment 'id',
+`uuid` VARCHAR(100) comment '资源编号',
+`instance_name` VARCHAR(200) comment '实例名称',
+`ip_address` VARCHAR(100) comment 'IP地址',
+`port` VARCHAR(10) comment '端口号',
+`status` VARCHAR(50) comment '运行状态',
+`version` VARCHAR(50) comment '版本号',
+`cluster_name` VARCHAR(50) comment '集群名称',
+`install_path` VARCHAR(200) comment '安装路径',
+`data_dir` VARCHAR(200) comment '数据目录',
+`host_ip` VARCHAR(50) comment '宿主机IP',
+`charset` VARCHAR(50) comment '字符集',
+`max_connections` VARCHAR(20) comment '最大连接数',
+`backup_policy` VARCHAR(200) comment '备份策略',
+`edit_user`   VARCHAR(200) comment '编辑人',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '最后编辑时间',
+UNIQUE KEY `uniq_uuid` (`uuid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='IDC mysql 资源';
