@@ -6,6 +6,10 @@
   <p><b>OPEN-C3</b>为解决CI/CD/CO而生。</p>	
 </div>
 
+# 演示环境
+
+[http://175.178.250.136/demo.html](http://175.178.250.136/demo.html)
+
 # 文档
 
 [点击查看详细文档](https://open-c3.github.io)
