@@ -14,10 +14,25 @@ CMDB/管理/获取账号类型列表
 
 =cut
 
+sub getconfig
+{
+    my $conf = eval{ YAML::XS::LoadFile "/data/Software/mydan/AGENT/device/conf/cmdbmanage.yml" };
+    push @$conf, map{ +{ name => $_, type => "extend-sync" } }
+        map{ File::Basename::basename $_ }grep{ -d $_ }glob "/data/Software/mydan/Connector/pp/cloud/extend-sync/*";
+    return $conf;
+}
+
+sub gettypebyname
+{
+    my $name = shift @_;
+    my $conf = getconfig();
+    map{ return $_->{type} if $name eq $_->{name} }@$conf;
+    return 'unknown'
+}
+
 get '/cmdbmanage' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
-    my $conf = eval{ YAML::XS::LoadFile "/data/Software/mydan/AGENT/device/conf/cmdbmanage.yml" };
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $conf };
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => getconfig() };
 };
 
 =pod
@@ -38,6 +53,9 @@ get '/cmdbmanage/:name' => sub {
     my $dpath = "/data/Software/mydan/AGENT/device/conf/account/$param->{name} /data/Software/mydan/AGENT/device/conf/accountx/$param->{name}x";
     $dpath = "/data/open-c3-data/device/curr/compute/idc-node/data.tsv" if $param->{name} eq 'idc-node';
     $dpath = "/data/open-c3-data/device/curr/database/$param->{name}/data.tsv" if grep{ $param->{name} eq "idc-$_" }qw( mysql redis mongodb );
+
+    $dpath = "/data/Software/mydan/Connector/pp/cloud/extend-sync/$param->{name}/account"
+        if gettypebyname( $param->{name} ) eq 'extend-sync';
 
     my $x = `cat $dpath`;
     utf8::decode($x);
@@ -69,6 +87,9 @@ post '/cmdbmanage' => sub {
     my $dpath = "/data/Software/mydan/AGENT/device/conf/account/$param->{name} /data/Software/mydan/AGENT/device/conf/accountx/$param->{name}x";
     $dpath = "/data/open-c3-data/device/curr/compute/idc-node/data.tsv" if $param->{name} eq 'idc-node';
     $dpath = "/data/open-c3-data/device/curr/database/$param->{name}/data.tsv" if grep{ $param->{name} eq "idc-$_" }qw( mysql redis mongodb );
+
+    $dpath = "/data/Software/mydan/Connector/pp/cloud/extend-sync/$param->{name}/account"
+        if gettypebyname( $param->{name} ) eq 'extend-sync';
 
     eval{
         if( $param->{config} )
