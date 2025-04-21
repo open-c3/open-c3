@@ -28,7 +28,7 @@ get '/navigation/menu' => sub {
 
     map{$_->{url} = decode_base64( $_->{url} ); $_->{icon} = 'navigation'; $_->{type} = 'website' }@$r;
 
-    my @x = `c3mc-base-db-get --table openc3_job_bpm_menu name alias '\`describe\`' --filter '\`show\`=1'`;
+    my @x = `c3mc-base-db-get --table openc3_job_bpm_menu name alias describe --filter '\`show\`=1'`;
     chomp @x;
     for ( @x )
     {
