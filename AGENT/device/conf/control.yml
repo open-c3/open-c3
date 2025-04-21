@@ -72,6 +72,14 @@ compute:
   - type: blank
     name: 终端
     url: '/api/job/cmd/${treeid}?node=${内网IP}&bash=1&sudo=root&siteaddr=${siteaddr}'
+  idc-node:
+  - type: blank
+    name: 查看监控
+    url: '/third-party/monitor/grafana/d/rYdddlPWk/node-exporter-full?orgId=1&refresh=1m&var-DS_PROMETHEUS=Prometheus-openc3&var-job=openc3&var-node=${内网IP}&from=now-24h&to=now'
+  - type: blank
+    name: 终端
+    url: '/api/job/cmd/${treeid}?node=${内网IP}&bash=1&sudo=root&siteaddr=${siteaddr}'
+
 
 networking:
   aws-alb:
@@ -150,6 +158,14 @@ database:
   - type: blank
     name: 终端
     url: '/api/job/cmd/ext/mysql/${treeid}?mysqladdr=${_mysqladdr_}&mysqlauth=${_mysqlauth_}&siteaddr=${siteaddr}'
+  idc-mysql:
+  - type: blank
+    name: 查看监控
+    url: '/third-party/monitor/grafana/d/MQWgroiiz/mysql-overview?orgId=1&refresh=1m&var-interval=$__auto_interval_interval&var-host=${_mysqladdr_}'
+  - type: blank
+    name: 终端
+    url: '/api/job/cmd/ext/mysql/${treeid}?mysqladdr=${_mysqladdr_}&mysqlauth=${_mysqlauth_}&siteaddr=${siteaddr}'
+
   aws-redis:
   - type: blank
     name: 查看监控
@@ -212,3 +228,12 @@ database:
   - type: blank
     name: 终端
     url: '/api/job/cmd/ext/mysql/${treeid}?mysqladdr=${_mysqladdr_}&mysqlauth=${_mysqlauth_}&siteaddr=${siteaddr}'
+  idc-redis:
+  - type: blank
+    name: 查看监控
+    url: '/third-party/monitor/grafana/d/xDLNRKUWz/redis-dashboard-for-prometheus-redis-exporter-helm-stable-redis-ha?orgId=1&refresh=30s&var-DS_PROMETHEUS=prometheus&var-namespace=&var-pod_name=&var-instance=${_redisaddr_}'
+  - type: blank
+    name: 终端
+    url: '/api/job/cmd/ext/redis/${treeid}?redisaddr=${_redisaddr_}&redisauth=${_redisauth_}&siteaddr=${siteaddr}'
+ 
+
