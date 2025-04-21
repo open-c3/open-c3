@@ -44,7 +44,7 @@ CMDB/管理/获取某个公有云的配置
 get '/cmdbmanage/:name' => sub {
     my $param = params();
     my $error = Format->new( 
-        name => qr/^[a-zA-Z0-9][a-zA-Z0-9\-]+$/, 1,
+        name => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -70,7 +70,7 @@ CMDB/管理/编辑某个公有云的配置
 post '/cmdbmanage' => sub {
     my $param = params();
     my $error = Format->new( 
-        name => qr/^[a-zA-Z0-9][a-zA-Z0-9\-]+$/, 1,
+        name => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
