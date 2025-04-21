@@ -51,8 +51,6 @@ get '/cmdbmanage/:name' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
 
     my $dpath = "/data/Software/mydan/AGENT/device/conf/account/$param->{name} /data/Software/mydan/AGENT/device/conf/accountx/$param->{name}x";
-    $dpath = "/data/open-c3-data/device/curr/compute/idc-node/data.tsv" if $param->{name} eq 'idc-node';
-    $dpath = "/data/open-c3-data/device/curr/database/$param->{name}/data.tsv" if grep{ $param->{name} eq "idc-$_" }qw( mysql redis mongodb );
 
     $dpath = "/data/Software/mydan/Connector/pp/cloud/extend-sync/$param->{name}/account"
         if gettypebyname( $param->{name} ) eq 'extend-sync';
@@ -85,9 +83,6 @@ post '/cmdbmanage' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $dpath = "/data/Software/mydan/AGENT/device/conf/account/$param->{name} /data/Software/mydan/AGENT/device/conf/accountx/$param->{name}x";
-    $dpath = "/data/open-c3-data/device/curr/compute/idc-node/data.tsv" if $param->{name} eq 'idc-node';
-    $dpath = "/data/open-c3-data/device/curr/database/$param->{name}/data.tsv" if grep{ $param->{name} eq "idc-$_" }qw( mysql redis mongodb );
-
     $dpath = "/data/Software/mydan/Connector/pp/cloud/extend-sync/$param->{name}/account"
         if gettypebyname( $param->{name} ) eq 'extend-sync';
 
