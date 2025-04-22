@@ -122,6 +122,28 @@ sub download
         {
             $cmd = sprintf "$cmd %s", join ' ', map{ "'$_' '$alias->{$_}'" }keys %$alias;
         }
+
+        my $teepath = "/data/open-c3-data/device/tee";
+        system "mkdir -p $teepath" unless -d $teepath;
+        my $teefile = "$teepath/tee.$type.$subtype.data";
+
+        if( $cmd =~ /\|\s*tee\s*\|/ )
+        {
+            if( -f "$teepath/load" && -f $teefile )
+            {
+                $cmd =~ s/^.*\|\s*tee\s*\|/cat $teefile \|/;
+            }
+            elsif( -f "$teepath/dump" )
+            {
+                unlink $teefile;
+                $cmd =~ s/\|\s*tee\s*\|/\|tee $teefile \|/;
+            }
+            else
+            {
+                $cmd =~ s/\|\s*tee\s*\|/\|/;
+            }
+        }
+
         die "run cmd: $cmd fail: $!" if OPENC3::PP::Pipe::system( $onlyconfig ? "cp $distpath/data.tsv $temppath/data.tsv" : "$cmd > $temppath/data.tsv" );
     
     }
