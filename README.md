@@ -8,7 +8,7 @@
 
 # 演示环境
 
-[http://175.178.250.136/demo.html](http://175.178.250.136/demo.html)
+[http://www.open-c3.online/demo.html](http://www.open-c3.online/demo.html)
 
 # 文档
 
