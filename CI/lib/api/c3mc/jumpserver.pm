@@ -70,7 +70,7 @@ $handle{jumpserver} = sub
     my ( $x, $status, $filter ) = @_;
     return +{ stat => $JSON::false, info => $x } if $status;
     my @res;
-    my @col = qw( uuid instanceId hostName ip inIP exIP os site vpc_id vpc_name product_owner ops_owner department );
+    my @col = qw( uuid instanceId hostName ip inIP exIP os site vpc_id vpc_name product_owner ops_owner department tree );
     for( split /\n/, $x )
     {
         my @x = split /;/, $_;

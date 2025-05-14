@@ -26,6 +26,7 @@ $|++;
 #Site: [ '{huawei}', 'security_groups.0.name' ]
 #VpcId:   'security_groups.0.id'
 #VpcName: 'security_groups.0.name'
+#tree: '服务树'
 
 my $uuidaliasfile = '/data/open-c3-data/device/ingestion-jumpserver-uuid-alias.yml';
 my $uuidalias = +{};
@@ -45,7 +46,7 @@ if( -f $namealiasfile )
     die "namealias err" unless ref $namealias eq 'HASH';
 }
 
-my @col = qw( uuid instanceId hostName ip inIP exIP os site vpc_id vpc_name product_owner ops_owner department );
+my @col = qw( uuid instanceId hostName ip inIP exIP os site vpc_id vpc_name product_owner ops_owner department tree );
 my $dir = '/data/open-c3-data/device/curr/jumpserver/exipsite';
 
 my @out;
