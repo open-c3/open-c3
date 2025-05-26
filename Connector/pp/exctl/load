@@ -1,0 +1,92 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+use FindBin qw( $RealBin );
+
+=head1 SYNOPSIS
+
+ $0 --flowid id
+ $0 --ALL
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( flowid=i ALL ) )->dump();
+$option->assert() unless $o{flowid} || $o{ALL};
+
+chdir $RealBin or die "chdir fail";
+
+my $fopt = $o{flowid} ? "-name $o{flowid}" : "";
+my @x = `find ROOT -type f $fopt`;
+chomp @x;
+
+sub get_treeid
+{
+    my $treename = shift @_;
+    my $treeid = `c3mc-base-db-get -t openc3_connector_tree id -f 'name="$treename"'`;
+    chomp $treeid;
+    return $treeid;
+}
+
+my ( $configfile, $config ) = ( "load.config.yaml" );
+if( -f $configfile )
+{
+    $config = eval{ YAML::XS::LoadFile $configfile };
+    die "load config error: $@" if $@;
+}
+
+for my $file ( @x )
+{
+    next unless $file =~ /ROOT\/(.+)\/(\d+)/;
+    my ( $treename, $flowid ) = ( $1, $2 );
+    $treename =~ s/\//./g;
+
+    my $treeid = get_treeid( $treename );
+    unless( $treeid )
+    {
+        system "c3mc-base-savetree '$treename'";
+        $treeid = get_treeid( $treename );
+    }
+
+    die "treeid format error" unless $treeid && $treeid =~ /^\d+$/;
+
+    #需要更换的信息:
+    #cat ROOT/CICD/bigdata/foo/1391 |grep ticket
+    #ci_type_ticketid: '11'  #K8S集群编号
+    #follow_up_ticketid: '4' #上传镜像的凭据
+    #ticketid: '2'           #GIT的凭据
+    #buildimage: '11'        #构建的镜像ID
+    #
+    #镜像地址, GIT地址
+
+    my @sed;
+
+    if( $config )
+    {
+        my $cont = `cat '$file'`;
+    
+        for my $type ( qw( ci_type_ticketid follow_up_ticketid ticketid buildimage ) )
+        {
+            if( $cont =~ /\n$type: '(\d+)'/ )
+            {
+                my $oldid = $1;
+                my $newid = $config->{$type}{$oldid};
+                die "$type newid undef, current oldid is $oldid\n" unless $newid;
+                push @sed, "sed \"s/^$type: '$oldid'/$type: '$newid'/\"";
+            }
+        }
+    
+        if( my $general = $config->{general} )
+        {
+            map{ push @sed, "sed 's/$_/$general->{$_}/'"; }keys %$general;
+        }
+    
+    }
+
+    my $sed = @sed ? sprintf( " %s |", join "|", @sed ) : "";
+    print "cat '$RealBin/$file'| $sed c3mc-flow-exctl-load --treeid $treeid\n";
+}

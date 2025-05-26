@@ -1,0 +1,46 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use FindBin qw( $RealBin );
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+chdir $RealBin or die "chdir fail: $!";
+
+my @x = `c3mc-base-db-get id groupid --table openc3_ci_project`;
+chomp @x;
+
+my %flow;
+for( @x )
+{
+    my ( $flowid, $treeid ) = split /;/, $_;
+    $flow{$treeid}{$flowid} ++;
+}
+
+my @tree = `c3mc-base-treemap`;
+chomp @tree;
+
+for( @tree )
+{
+    my ( $treeid, $treename ) = split /;/, $_;
+
+    my $dir = "ROOT.$treename";
+    $dir =~ s/\./\//g;
+    system "mkdir -p '$dir'";
+    next unless $flow{$treeid};
+    print "=" x 75, "\n";
+    print "treename: $treename\n";
+    for my $flowid ( keys %{$flow{$treeid}} )
+    {
+        my $x = "c3mc-flow-exctl-dump --treeid $treeid --flowid $flowid > $dir/$flowid";
+        print "$x\n";
+        system $x;
+    }
+}
