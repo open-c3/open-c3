@@ -114,12 +114,12 @@ class Ecs:
             server.pop("metadata", None)
             server.pop("OS-EXT-SRV-ATTR:user_data", None)
 
-            server["quota_min_rate"] = self.flavors_dict[server["flaver_id"]][
-                "os_extra_specs"
-            ]["quota:min_rate"]
-            server["quota_max_rate"] = self.flavors_dict[server["flaver_id"]][
-                "os_extra_specs"
-            ]["quota:max_rate"]
+            try:
+                server["quota_min_rate"] = self.flavors_dict[server["flaver_id"]][ "os_extra_specs" ]["quota:min_rate"]
+                server["quota_max_rate"] = self.flavors_dict[server["flaver_id"]][ "os_extra_specs" ]["quota:max_rate"]
+            except KeyError:
+                server["quota_min_rate"] = "unknown"
+                server["quota_max_rate"] = "unknown"
 
             # 默认内网ip
             server["_default_ip_kind_"] = "inip"
