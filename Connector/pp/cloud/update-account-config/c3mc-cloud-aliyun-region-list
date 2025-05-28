@@ -49,12 +49,13 @@ class Aliyun:
             regions = ["cn-beijing"]
         elif self.resource_type == "redis":
             regions = LibAliyunRedis(self.access_id, self.access_key, "cn-hangzhou").describe_regions()
-            regions = list(filter(lambda x: x not in ["ap-northeast-2","cn-guangzhou","me-central-1","ap-southeast-7","eu-central-1"], regions))
+            #regions = list(filter(lambda x: x not in ["ap-southeast-2","ap-south-1","ap-northeast-2","cn-guangzhou","me-central-1","ap-southeast-7","eu-central-1"], regions))
+            regions = list(filter(lambda x: x not in ["ap-southeast-2","ap-south-1","ap-northeast-2","cn-guangzhou","me-central-1","ap-southeast-7"], regions))
         elif self.resource_type == "rds":
             regions = LibAliyunRds(self.access_id, self.access_key, "cn-hangzhou").describe_regions()
         elif self.resource_type == "fs":
             regions = LibAliyunFS(self.access_id, self.access_key, "cn-hangzhou").describe_region_list()
-            regions = list(filter(lambda x: x not in ["ap-northeast-2","ap-southeast-7","cn-heyuan"], regions))
+            regions = list(filter(lambda x: x not in ["ap-southeast-2","ap-northeast-2","ap-southeast-7","cn-heyuan"], regions))
         else:
             regions = self.list_ecs_regions()
             if self.resource_type == "vpc":
