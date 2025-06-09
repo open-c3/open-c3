@@ -1,0 +1,102 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import ssl
+from pyVim.connect import SmartConnect, Disconnect
+from pyVmomi import vim
+import atexit
+
+def get_vmware_hosts(host, username, password, port=443):
+
+    context = ssl.create_default_context()
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+    
+    try:
+        service_instance = SmartConnect(host=host, user=username, pwd=password, port=int(port), sslContext=context)
+        atexit.register(Disconnect, service_instance)
+        content = service_instance.RetrieveContent()
+        container = content.viewManager.CreateContainerView(content.rootFolder, [vim.VirtualMachine], True)
+        
+        for vm in container.view:
+
+            num_cpu = vm.config.hardware.numCPU if vm.config and hasattr(vm.config.hardware, 'numCPU') else 0
+            memory_mb = vm.config.hardware.memoryMB if vm.config and hasattr(vm.config.hardware, 'memoryMB') else 0
+            memory_gb = round(memory_mb / 1024, 0) if memory_mb else 0
+            
+            specs = f"{num_cpu}C{int(memory_gb)}G" if num_cpu and memory_gb else "未知规格"
+
+            vm_info = {
+                "name": vm.name,
+                "uuid": vm.config.instanceUuid if vm.config else None, 
+                "moref_id": vm._moId,
+                "path": vm.summary.config.vmPathName if hasattr(vm.summary, 'config') else None,
+                "guest_full_name": vm.summary.config.guestFullName if hasattr(vm.summary, 'config') else None,
+                "guest_id": vm.summary.config.guestId if hasattr(vm.summary, 'config') else None,
+                "annotation": vm.config.annotation if vm.config and hasattr(vm.config, 'annotation') else None,
+                "power_state": str(vm.runtime.powerState) if hasattr(vm.runtime, 'powerState') else None,
+                "connection_state": str(vm.runtime.connectionState) if hasattr(vm.runtime, 'connectionState') else None,
+                "boot_time": str(vm.runtime.bootTime) if hasattr(vm.runtime, 'bootTime') and vm.runtime.bootTime else None,
+                "specs": specs,
+                "num_cpu": num_cpu, 
+                "num_cores_per_socket": vm.config.hardware.numCoresPerSocket if vm.config and hasattr(vm.config.hardware, 'numCoresPerSocket') else None,
+                "memory_mb": memory_mb, 
+                "host": vm.runtime.host.name if vm.runtime and vm.runtime.host else None,
+                "resource_pool": vm.resourcePool.name if vm.resourcePool else None,
+                "ip_address": vm.guest.ipAddress if vm.guest and hasattr(vm.guest, 'ipAddress') else None,
+                "hostname": vm.guest.hostName if vm.guest and hasattr(vm.guest, 'hostName') else None,
+                "guest_state": vm.guest.guestState if vm.guest else None,
+                "tools_running_status": str(vm.guest.toolsRunningStatus) if vm.guest and hasattr(vm.guest, 'toolsRunningStatus') else None,
+                "networks": [],
+                "disks": [],
+                "has_snapshots": vm.snapshot is not None,
+                "snapshots_count": len(vm.rootSnapshot) if vm.snapshot and hasattr(vm.snapshot, 'rootSnapshot') else 0,
+                "overall_status": str(vm.overallStatus) if hasattr(vm, 'overallStatus') else None,
+                "uptime_seconds": vm.summary.quickStats.uptimeSeconds if hasattr(vm.summary, 'quickStats') and hasattr(vm.summary.quickStats, 'uptimeSeconds') else None,
+                "guest_memory_usage_mb": vm.summary.quickStats.guestMemoryUsage if hasattr(vm.summary, 'quickStats') and hasattr(vm.summary.quickStats, 'guestMemoryUsage') else None,
+                "host_memory_usage_mb": vm.summary.quickStats.hostMemoryUsage if hasattr(vm.summary, 'quickStats') and hasattr(vm.summary.quickStats, 'hostMemoryUsage') else None,
+            }
+            
+            if vm.guest and hasattr(vm.guest, 'net'):
+                for nic in vm.guest.net:
+                    network = {
+                        "network": nic.network if hasattr(nic, 'network') else None,
+                        "mac_address": nic.macAddress if hasattr(nic, 'macAddress') else None,
+                        "connected": nic.connected if hasattr(nic, 'connected') else None,
+                        "ip_addresses": nic.ipAddress if hasattr(nic, 'ipAddress') else []
+                    }
+                    vm_info["networks"].append(network)
+            
+            if vm.config and vm.config.hardware and hasattr(vm.config.hardware, 'device'):
+                for device in vm.config.hardware.device:
+                    if isinstance(device, vim.vm.device.VirtualDisk):
+                        disk = {
+                            "label": device.deviceInfo.label if device.deviceInfo and hasattr(device.deviceInfo, 'label') else None,
+                            "summary": device.deviceInfo.summary if device.deviceInfo and hasattr(device.deviceInfo, 'summary') else None,
+                            "capacity_gb": round(device.capacityInKB / 1024 / 1024, 2),
+                            "thin_provisioned": device.backing.thinProvisioned if hasattr(device.backing, 'thinProvisioned') else None,
+                            "disk_mode": device.backing.diskMode if hasattr(device.backing, 'diskMode') else None,
+                            "backing_filename": device.backing.fileName if hasattr(device.backing, 'fileName') else None
+                        }
+                        vm_info["disks"].append(disk)
+            
+            print(json.dumps(vm_info, ensure_ascii=False, default=str))
+        
+        container.Destroy()
+        
+    except Exception as e:
+        sys.stderr.write(f"Error: {str(e)}\n")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    if len(sys.argv) < 4:
+        print("Usage: python script.py <host> <username> <password> [port]")
+        sys.exit(1)
+    
+    args = sys.argv[1:]
+    if len(args) == 3:
+        args.append('443') 
+    
+    get_vmware_hosts(*args)
