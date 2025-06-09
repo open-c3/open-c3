@@ -31,9 +31,9 @@ echo "检查磁盘空间利用率..."
 disk_usage=$(get_disk_usage)
 echo "当前磁盘利用率: ${disk_usage}%"
 
-# 如果磁盘利用率超过 95%，开始删除容器
-while [ "$disk_usage" -gt 95 ]; do
-    echo "磁盘利用率超过 95%，开始删除最旧的容器..."
+# 如果磁盘利用率超过 90%，开始删除容器
+while [ "$disk_usage" -gt 90 ]; do
+    echo "磁盘利用率超过 90%，开始删除最旧的容器..."
     delete_oldest_container
 
     # 重新获取磁盘利用率
@@ -41,5 +41,5 @@ while [ "$disk_usage" -gt 95 ]; do
     echo "删除后磁盘利用率: ${disk_usage}%"
 done
 
-echo "磁盘利用率已降至 95% 以下，操作完成。"
+echo "磁盘利用率已降至 90% 以下，操作完成。"
 
