@@ -11,5 +11,6 @@ use warnings;
 for ( glob "/data/open-c3-data/device/curr/*/*/treeinfo.yml" )
 {
     my ( undef, $subtype, $type ) = reverse split /\//, $_;
+    next if $type eq 'others';
     system "c3mc-device-treeinfo $type $subtype";
 }
