@@ -1,0 +1,56 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use POSIX;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 cceid
+ $0 aws-ec2
+ $0 huawei-ecs
+
+=cut
+
+my $clusterid = shift @ARGV;
+die "clusterid error: $clusterid" unless $clusterid =~ /^[a-z0-9][a-z0-9\-]+$/;
+
+my @ip;
+if( $clusterid eq 'aws-ec2' || $clusterid eq 'huawei-ecs' )
+{
+    @ip = `c3mc-device-data-get curr compute $clusterid 内网IP|awk '{print \$1}' |sort -R`;
+}
+else
+{
+    @ip = `c3mc-device-data-get curr compute huawei-ecs tag.CCE-Cluster-ID 内网IP|grep $clusterid|awk '{print \$2}'`;
+}
+
+chomp @ip;
+
+my $idx = 0;
+for my $ip ( sort @ip )
+{
+    next unless $ip =~ /^\d+\.\d+\.\d+\.\d+$/;
+    my @x = `/data/Software/mydan/dan/tools/rcall --verbose -r $ip scripts z-net.sh`;
+    chomp @x;
+
+    my $path = "data/$clusterid";
+    system "mkdir -p '$path'" unless -d $path;
+    my $file = sprintf "$path/%s", POSIX::strftime( "%Y-%m-%d", localtime );
+
+    my @cont = `cat '$file' 2>/dev/null`;
+    chomp @cont;
+    my %cont = map{ $_ => 1 }@cont;
+    for my $c ( @x )
+    {
+        next if $cont{$c};
+        print "$c\n";
+        system "echo '$c' >> $file";
+    }
+    sleep 15;
+    print "idx: $idx\n";
+    exit if ++ $idx >= 6;
+}
+
