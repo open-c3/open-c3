@@ -1,0 +1,3 @@
+#!/bin/bash
+
+curl -H 'appname: jobx' -H "appkey: $OPEN_C3_RANDOM" http://127.0.0.1/api/ci/to3part/errnode 2>/dev/null |grep "\"[0-9]"|awk -F'"' '{print $2}' | grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}$'

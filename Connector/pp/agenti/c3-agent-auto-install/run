@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd "$(dirname "$(readlink -f "$0")")" || exit 1
+
+./node |xargs -i{} bash -c "nc -z -w 2 {} 22 && ( nc -z -w 2 {} 65110 || Install_C3_Agent=1 ./login.sh {} )"
