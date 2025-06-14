@@ -40,6 +40,31 @@ server {
         #数字签名，此处使用MD5
         ssl_ciphers  HIGH:!aNULL:!MD5;
 
+        location = /api/agent-install.sh {
+            default_type text/plain;
+            return 200 "#!/bin/bash
+
+# Detect OS and install dependencies
+if grep -qi 'ubuntu' /etc/os-release; then
+    # Ubuntu detected, using apt-get...
+    rsync -help 1>/dev/null || apt-get install rsync -y
+    make -help 1>/dev/null || apt-get install make -y
+elif grep -qiE 'centos|rhel|rocky|alma' /etc/os-release; then
+    # CentOS/RHEL-based system detected, using yum...
+    rsync --help >/dev/null 2>&1 || sudo yum install -y rsync
+    make --help  >/dev/null 2>&1 || sudo yum install -y make
+else
+    # Unknown OS, defaulting to yum...
+    rsync --help >/dev/null 2>&1 || sudo yum install -y rsync
+    make --help  >/dev/null 2>&1 || sudo yum install -y make
+fi
+
+curl -L $scheme://$http_host/api/scripts/installAgent.sh    | OPEN_C3_ADDR=$scheme://$http_host bash
+curl -L $scheme://$http_host/api/scripts/installAgentMon.sh | OPEN_C3_ADDR=$scheme://$http_host bash
+";
+        }
+
+
         location /third-party/keycloak/ {
                include /etc/nginx/allow.d/ip.conf;
 
