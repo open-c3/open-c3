@@ -411,6 +411,11 @@ function install() {
     $C3BASEPATH/open-c3/open-c3.sh sup
     $C3BASEPATH/open-c3/open-c3.sh dup
     $C3BASEPATH/open-c3/open-c3.sh start
+
+    echo =================================================================
+    echo "[INFO]Update the system to the latest version ..."
+
+    $C3BASEPATH/open-c3/upgrade.sh
 }
 
 function start() {
