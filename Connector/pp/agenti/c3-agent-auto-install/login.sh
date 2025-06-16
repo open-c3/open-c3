@@ -73,7 +73,7 @@ for key_file in "${key_files[@]}"; do
             password=$( cat $key_file )
 
             if [ "X$Install_C3_Agent" == "X1"  ]; then
-                if sshpass -p "$password" ssh -q -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$username@$server_ip" "curl -L $c3addr/api/scripts/installC3Agent.sh | sudo OPEN_C3_ADDR=$c3addr bash" ;  then
+                if sshpass -p "$password" ssh -q -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$username@$server_ip" "curl -L $c3addr/api/agent-install.sh | sudo bash" ;  then
                   echo -e "\r成功: 服务器 $server_ip 可以使用密钥 $(basename "$key_file") 和用户名 $username 登录。"
                   exit 0
                 fi
@@ -87,7 +87,7 @@ for key_file in "${key_files[@]}"; do
 
         else
             if [ "X$Install_C3_Agent" == "X1"  ]; then
-                if ssh -q -o ConnectTimeout=10 -o BatchMode=yes -o StrictHostKeyChecking=no -i "$key_file" "$username@$server_ip" "curl -L $c3addr/api/scripts/installC3Agent.sh | sudo OPEN_C3_ADDR=$c3addr bash" ;  then
+                if ssh -q -o ConnectTimeout=10 -o BatchMode=yes -o StrictHostKeyChecking=no -i "$key_file" "$username@$server_ip" "curl -L $c3addr/api/agent-install.sh | sudo bash" ;  then
                   echo -e "\r成功: 服务器 $server_ip 可以使用密钥 $(basename "$key_file") 和用户名 $username 登录。"
                   exit 0
                 fi
