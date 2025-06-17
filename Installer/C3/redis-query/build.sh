@@ -13,7 +13,7 @@ docker build . -t openc3/redis-query:$VERSION --no-cache
 docker ps|grep 0.0.0.0:65114|awk '{print $1}'| xargs -i{} docker kill {}
 
 docker run -d -p 65114:65114 \
-  -v /bin/docker:/bin/docker \
+  -v /bin/docker:/bin/docker_v1.0.0 \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v $C3BASEPATH/open-c3-data/redis-exporter-v3:/data/open-c3-data/redis-exporter-v3 \
   -e C3_RedisQuery_Container=1 \
