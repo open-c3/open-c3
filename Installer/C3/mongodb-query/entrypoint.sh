@@ -3,6 +3,9 @@ set -e
 
 /data/Software/mydan/Connector/pp/c3mc-install
 
+cat /data/Software/mydan/Connector/pp/c3mc-sys-sup | grep ^cp | grep /usr/bin/$ | bash
+/data/Software/mydan/Connector/pp/sys/upgrade.action-run.sh
+
 /data/Software/mydan/AGENT/tools/../../JOB/bin/supervisor \
   --errname agent.server.extend-exporter \
   --name    agent_supervisor \
