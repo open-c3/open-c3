@@ -2,7 +2,7 @@
 
 curl -L $OPEN_C3_ADDR/api/scripts/installQueryInit.sh | bash
 
-IMAGE=openc3/mysql-query:m2307271
+IMAGE=openc3/mysql-query:m2506171
 VPATH=mysqld-exporter-v3
 NAME=openc3-mysql-query
 
@@ -18,7 +18,7 @@ docker stop $NAME 2>/dev/null
 docker rm   $NAME 2>/dev/null
 
 docker run -d \
-  -v /bin/docker:/bin/docker \
+  -v /bin/docker:/bin/docker_v1.0.0 \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /data/open-c3-data/$VPATH:/data/open-c3-data/$VPATH \
   -p 65113:65113 \
