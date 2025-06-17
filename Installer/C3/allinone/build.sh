@@ -30,6 +30,9 @@ cp -r /data/open-c3/CI temp/
 cp -r /data/open-c3/c3-front/dist temp/c3-front/dist
 rm -rf temp/c3-front/dist/book*
 cp -r /data/open-c3/c3-front/nginxconf temp/c3-front/nginxconf
+#cp -r open-c3.org.conf temp/c3-front/nginxconf/
+cat /data/open-c3/c3-front/nginxconf/open-c3.org.conf | sed "s|.*#Deed_To_Motify_When_in_AllInOne.*|        proxy_set_header Host 'OPENC3_LUA_IP';|g" > temp/c3-front/nginxconf/open-c3.org.conf
+
 cp /data/open-c3/c3-front/nginx.conf temp/c3-front/nginx.conf
 cp -r /data/open-c3/web-shell temp/
 rm temp/web-shell/node_modules/zeparser/benchmark.html
@@ -62,4 +65,4 @@ docker build . -t openc3/allinone:$VERSION --no-cache
 rm -rf temp
 
 docker ps|grep 0.0.0.0:8080|awk '{print $1}'|xargs -i{} docker stop {}
-docker run -p 8080:88 -d openc3/allinone:$VERSION
+docker run -p 8080:88 -v /bin/docker:/bin/docker_v1.0.0 -v /var/run/docker.sock:/var/run/docker.sock -d openc3/allinone:$VERSION

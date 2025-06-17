@@ -112,6 +112,18 @@ nohup /usr/prometheus/prometheus --config.file=/data/Software/mydan/prometheus/c
 nohup /usr/alertmanager/alertmanager --config.file=/data/Software/mydan//alertmanager/config/alertmanager.yml --storage.path=/alertmanager &
 
 rm -f /var/run/grafana-server.pid
-/etc/rc.d/init.d/grafana-server start
+
+nohup /usr/share/grafana/bin/grafana-server \
+  --homepath=/usr/share/grafana \
+  --pidfile=/var/run/grafana-server.pid \
+  --config=/etc/grafana/grafana.ini \
+  --packaging=rpm \
+  cfg:default.paths.provisioning=/etc/grafana/provisioning \
+  cfg:default.paths.data=/var/lib/grafana \
+  cfg:default.paths.logs=/var/log/grafana \
+  cfg:default.paths.plugins=/var/lib/grafana/plugins &
+
+
+nginx -s reload
 
 /data/Software/mydan/Connector/restart-open-c3-auto-config-change.pl
