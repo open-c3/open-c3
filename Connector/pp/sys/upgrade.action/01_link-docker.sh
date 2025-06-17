@@ -33,6 +33,10 @@ done | sort -rV | while read -r VERSION BIN; do
     fi
 done
 
-echo "No working docker binary found."
-exit 1
-
+if command -v docker >/dev/null 2>&1 && docker version >/dev/null 2>&1; then
+    echo "Docker command is available."
+    exit 0
+else
+    echo "No working docker binary found."
+    exit 1
+fi
