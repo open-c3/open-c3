@@ -1,5 +1,72 @@
-#!/bin/bash
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
 
-cd "$(dirname "$(readlink -f "$0")")" || exit 1
+$|++;
 
-./node |xargs -i{} bash -c "nc -z -w 2 {} 22 && ( nc -z -w 2 {} 65110 || Install_C3_Agent=1 ./login.sh {} )"
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+chdir $RealBin || die "chdir fail:$!";
+
+die "undef addr" unless -f 'addr';
+
+system "mkdir -p var/temp" unless -d 'var/temp';
+
+my $interval = 15 * 60; # 这个脚本多久执行一次, 这里设定15分钟执行一次
+
+my @node = `./node`;
+chomp @node;
+
+my %status;
+map{
+    $status{$_} = +{ count => 0, status => 0, time => 0 };
+}@node;
+
+for my $x ( `cat var/status` )
+{
+    chomp $x;
+    my ( $ip, $count, $status, $time ) = split /\s+/, $x;
+    next unless $ip =~ /^\d+\.\d+\.\d+\.\d+$/ && $count =~ /\d+/ && $status =~ /^\d+$/ && $time =~ /^\d+$/;
+    $status{$ip} = +{ count => $count, status => $status, time => $time };
+}
+
+sub install
+{
+    my $node = shift @_;
+
+    my $temp = "var/temp/$node";
+    system "Install_C3_Agent=1 ./login.sh '$node' 2>&1 | tee $temp";
+
+    my $x = `cat $temp`;
+    my $status = 1;
+    $status = int( 3600  / $interval ) if $x =~ /start install/; # 成功ssh登陆
+    $status = int( 86400 / $interval ) if $x =~ /INSTALL OPEN-C3 AGENT/; # 成功调用了脚本
+    $status = int( 86400 / $interval ) if $x =~ /INSTALL OPEN-C3 MONITOR AGENT: Done/; # 安装成功
+
+    ( my $escaped_node = $node ) =~ s/\./\\./g;
+    system "sed -i '/^$escaped_node/d' var/status";
+
+    my $count = $status{$node}{count} + 1;
+    my $time = time;
+    system "echo '$node $count $status $time' >> var/status";
+}
+
+my ( $cnt, $i ) = ( 10, 0 );
+for my $node ( sort{ $status{$a}{status} * $status{$a}{count} <=> $status{$b}{status} * $status{$b}{count}}@node )
+{
+    next unless $node =~ /^\d+\.\d+\.\d+\.\d+$/;
+
+    print "$node run ...\n";
+    next if $status{$node}{status} * $interval > time - $status{$node}{time};
+    print "go ...\n";
+
+    install( $node );
+   
+    last if ++ $i >= $cnt;
+}
+

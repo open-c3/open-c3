@@ -58,3 +58,5 @@ TZ=Asia/Shanghai
 
 0 * * * * root flock -n /tmp/c3.sys.cron.hourly.lock /data/Software/mydan/Connector/pp/sys/cron.hourly-run.sh > /tmp/c3.sys.cron.hourly.log 2>&1
 30 3 * * * root flock -n /tmp/c3.sys.cron.daily.lock /data/Software/mydan/Connector/pp/sys/cron.daily-run.sh > /tmp/c3.sys.cron.daily.log 2>&1
+
+*/15 * * * * root flock -n /tmp/c3-agent-auto-install.lock /data/Software/mydan/Connector/pp/agenti/c3-agent-auto-install/run > /tmp/c3-agent-auto-install.log 2>&1

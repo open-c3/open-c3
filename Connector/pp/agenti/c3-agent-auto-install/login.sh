@@ -19,6 +19,11 @@ if [ -z "$server_ip" ]; then
   exit 1
 fi
 
+proxy_ip=$(c3mc-base-get-proxy-ip --node "$server_ip" 2>/dev/null | grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}' | head -n 1)
+
+echo proxy_ip : $proxy_ip
+
+
 frames=('/' '-' '\' '|')
 
 key_prefix=""
@@ -73,7 +78,7 @@ for key_file in "${key_files[@]}"; do
             password=$( cat $key_file )
 
             if [ "X$Install_C3_Agent" == "X1"  ]; then
-                if sshpass -p "$password" ssh -q -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$username@$server_ip" "curl -L $c3addr/api/agent-install.sh | sudo bash" ;  then
+                if sshpass -p "$password" ssh -q -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$username@$server_ip" "echo 'start install' && curl -L $c3addr/api/agent-install.sh | sudo bash" ;  then
                   echo -e "\r成功: 服务器 $server_ip 可以使用密钥 $(basename "$key_file") 和用户名 $username 登录。"
                   exit 0
                 fi
@@ -86,14 +91,20 @@ for key_file in "${key_files[@]}"; do
            fi
 
         else
+            if [ -n "$proxy_ip" ]; then
+                proxy_opt=( -o "ProxyCommand=ssh -i $key_file -o StrictHostKeyChecking=no -o PreferredAuthentications=publickey -W %h:%p $username@$proxy_ip" )
+            else
+                proxy_opt=()
+            fi
+
             if [ "X$Install_C3_Agent" == "X1"  ]; then
-                if ssh -q -o ConnectTimeout=10 -o BatchMode=yes -o StrictHostKeyChecking=no -i "$key_file" "$username@$server_ip" "curl -L $c3addr/api/agent-install.sh | sudo bash" ;  then
+                if ssh -q -o ConnectTimeout=10 "${proxy_opt[@]}" -o BatchMode=yes -o StrictHostKeyChecking=no -i "$key_file" "$username@$server_ip" "echo 'start install' && curl -L $c3addr/api/agent-install.sh | sudo bash" ;  then
                   echo -e "\r成功: 服务器 $server_ip 可以使用密钥 $(basename "$key_file") 和用户名 $username 登录。"
                   exit 0
                 fi
             else
 
-                if ssh -q -o ConnectTimeout=10 -o BatchMode=yes -o StrictHostKeyChecking=no -i "$key_file" "$username@$server_ip";  then
+                if ssh -q -o ConnectTimeout=10 "${proxy_opt[@]}" -o PreferredAuthentications=publickey -o BatchMode=yes -o StrictHostKeyChecking=no -i "$key_file" "$username@$server_ip";  then
                   echo -e "\r成功: 服务器 $server_ip 可以使用密钥 $(basename "$key_file") 和用户名 $username 登录。"
                   exit 0
                 fi

@@ -1,0 +1,31 @@
+#!/data/Software/mydan/perl/bin/perl
+
+use strict;
+use warnings;
+
+use MYDan::Util::OptConf;
+use MYDan::Agent::Proxy;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+ $0 --node x.x.x.x
+ $0 --treeid 0 --node x.x.x.x
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( treeid => 0 )->get( qw( treeid=i node=s ) )->dump();
+
+$option->assert() unless $o{node} && $o{node} =~ /^\d+\.\d+\.\d+\.\d+$/;
+
+$ENV{MYDan_Agent_Proxy_Addr}="http://api.agent.open-c3.org/proxy/0";
+$ENV{MYDan_Agent_Proxy_Header}="appname:job,appkey:$ENV{OPEN_C3_RANDOM}";
+
+my $proxy = MYDan::Agent::Proxy->new( );
+my %r = $proxy->search( $o{node} );
+
+my $p = $r{$o{node}};
+
+print "$p\n" if $p && $p =~ /^\d+\.\d+\.\d+\.\d+$/;
