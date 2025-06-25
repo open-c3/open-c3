@@ -82,7 +82,7 @@ for my $file ( @x )
     
         if( my $general = $config->{general} )
         {
-            map{ push @sed, "sed 's/$_/$general->{$_}/'"; }keys %$general;
+            map{ push @sed, "sed 's/$_/$general->{$_}/g'"; }keys %$general;
         }
     
     }
