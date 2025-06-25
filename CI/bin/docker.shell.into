@@ -49,9 +49,7 @@ if( $x->[0][0] )
 my $user = `id -un`;chop $user;
 my $sudo = $user eq 'root' ? '' : 'sudo ';
 
-my $xx = `cat /proc/1/cgroup 2>/dev/null`;
-my $indocker = $xx =~ /\b1:.+(docker|lxc|kubepods)/ ? 1 : 0;
-my $logpath = $indocker ? "/data/open-c3-data/logs/CI" : "$RealBin/../logs";
+my $logpath = "/data/open-c3-data/logs/CI";
 
 $logpath = "$RealBin/../logs" if $ENV{C3_WEB_SHELL_CLUSTER_WEB_TYPE};
 
