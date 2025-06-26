@@ -67,6 +67,8 @@ rsync /data/Software/mydan/c3-front/nginxconf/app.open-c3.org.conf  /etc/nginx/c
 # action run
 /data/Software/mydan/Connector/pp/sys/upgrade.action-run.sh
 
+env|grep ^OPEN_C3_ > /etc/openc3.env
+
 # 安装mydan需要cd /tmp，否则上面的步骤如果cd到另一个本地mydan路径，会安装失败
 cd /tmp
 curl -L http://openc3-srv-docker/api/scripts/installAgent.sh |OPEN_C3_ADDR=http://openc3-srv-docker bash
