@@ -57,7 +57,7 @@ fi
 ###
 
 if [ "X$OPENC3VERSION" == "X" ]; then
-    OPENC3VERSION=v2.2.0
+    OPENC3VERSION=v2.6.1
 fi
 
 MASTERVERSION=$(echo $OPENC3VERSION | awk -F- '{print $1}')
