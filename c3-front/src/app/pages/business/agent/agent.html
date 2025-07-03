@@ -23,6 +23,23 @@
 
 
         <div class="panel-body" ng-if="agent.checkstatusloadover" >
+
+            <div style="padding: 10px">
+                <span style="font-size: 14px;font-weight: bold; color: #626262">{{'C3T.安装C3Agent'|translate}}:</span>
+                <span style="color: red">curl -L {{agent.siteaddr}}/api/agent-install.sh |sudo bash</span>
+            </div>
+
+
+            <div style="padding-left: 93%">
+                <a style="font-size: 14px;font-weight: bold" class="btn btn-primary" href="{{agent.siteaddr}}/api/agent/proxy/{{agent.treeid}}" target="_blank">{{'C3T.代理接口'|translate}}</a>
+            </div>
+
+            {{'C3T.高级用法'|translate}}<a ng-if="agent.advancedconfig" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.隐藏高级用法'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="agent.advancedconfig=0"></a>
+<a ng-if="!agent.advancedconfig" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.显示高级用法'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="agent.advancedconfig=1"></a>
+
+            <div ng-if="agent.advancedconfig" >
+            <hr>
+
             <div style="padding: 10px">
                 <span style="font-size: 14px;font-weight: bold; color: #626262">{{'C3T.安装代理'|translate}}:</span>
                 <span style="color: red">curl -L {{agent.siteaddr}}/api/scripts/installProxy.sh |sudo OPEN_C3_ADDR={{agent.siteaddr}} bash</span>
@@ -43,9 +60,6 @@
             <div style="padding: 10px">
                 <span style="font-size: 14px;font-weight: bold; color: #626262">{{'C3T.卸载命令【目录删除后AGENT会自动退出】'|translate}}:</span>
                 <span>rm -rf /opt/mydan /data/mydan /etc/cron.d/mydan_bootstrap_cron_7d29f42</span>
-            </div>
-            <div style="padding-left: 93%">
-                <a style="font-size: 14px;font-weight: bold" class="btn btn-primary" href="{{agent.siteaddr}}/api/agent/proxy/{{agent.treeid}}" target="_blank">{{'C3T.代理接口'|translate}}</a>
             </div>
 
             <hr>
@@ -73,6 +87,7 @@ http://localhost:65110/metrics {{'C3T.浏览器访问测试一下'|translate}}<b
 </span>
             </div>
  
+	    </div>
             <hr>
 
             <div style="padding: 10px">
