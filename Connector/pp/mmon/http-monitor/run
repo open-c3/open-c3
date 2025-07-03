@@ -10,8 +10,9 @@ chdir "/data/Software/mydan/Connector/pp/mmon/http-monitor" or die "chdir fail: 
 my    @x = `cat /data/open-c3-data/device/curr/serviceanalysis.tree.data|grep NG`;
 chomp @x;
 
-my @skipdomain = `cat skip.domain.txt`;
+my @skipdomain = `cat skip.domain.txt 2>/dev/null`;
 chomp @skipdomain;
+push @skipdomain, 'localhost';
 
 my %skipdomain = map{ $_ => 1 }@skipdomain;
 my %url;
@@ -25,13 +26,28 @@ for my $x ( @x )
     $url{$domain}{''   } ++;
 }
 
+@x = `c3mc-device-data-get curr others nginx-location port server_name path`;
+chomp @x;
+
+for my $x ( @x )
+{
+    my ( $port, $server_name, $path ) = split /\t+/, $x;
+    next unless $path;
+    $port =~ s/^\[::\]://;
+    $path =~ s/^[^\/]*//;
+    $path =~ s/s*$//;
+
+    $url{$server_name}{$path}++;
+    $url{$server_name}{''}++;
+}
+
 my %res;
 for my $domain ( %url )
 {
     map{ $res{200}{ "https://$domain$_" } ++ }keys %{$url{$domain}};
 }
 
-my    @mark  = `cat mark.txt`;
+my    @mark  = `cat mark.txt 2>/dev/null`;
 chomp @mark;
 
 my %m;
@@ -44,7 +60,7 @@ for my $x ( @mark )
     $m{$url} ++;
 }
 
-my    @snapshot  = `cat snapshot.txt`;
+my    @snapshot  = `cat snapshot.txt 2>/dev/null`;
 chomp @snapshot;
 
 for my $x ( @snapshot )
@@ -58,7 +74,7 @@ for my $code ( grep{ $_ ne '200' }keys %res )
     map{ delete $res{200}{$_}} keys %{$res{$code}};
 }
 
-my    @ignore  = `cat ignore.txt`;
+my    @ignore  = `cat ignore.txt 2>/dev/null`;
 chomp @ignore;
 my %ignore = map{ $_ => 1 }map{ $_ =~ s/#.*//; $_ }@ignore;
 
