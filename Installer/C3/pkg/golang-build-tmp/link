@@ -1,0 +1,7 @@
+#!/bin/bash
+
+C3BASEPATH=$( [[ "$(uname -s)" == Darwin ]] && echo "$HOME/open-c3-workspace" || echo "/data" )
+
+cd $C3BASEPATH/open-c3 || exit
+
+find Connector/pp -name golang-build.sh |sed 's/golang-build.sh$//'|xargs -i{} find {} -name "*.go"
