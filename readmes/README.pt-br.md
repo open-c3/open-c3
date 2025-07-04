@@ -16,7 +16,7 @@ O Open-C3 é uma plataforma de operações automatizadas de código aberto que i
 Prepare um servidor Linux limpo (64 bits, >= 4c8g)
 
 ```sh
-curl -sSL https://raw.githubusercontent.com/open-c3/open-c3/v2.6.1/Installer/scripts/single.sh | OPENC3VERSION=v2.6.1 bash -s install 10.10.10.10
+curl -sSL https://github.com/open-c3/open-c3/releases/download/v2.6.1-latest/quick_start.sh | bash
 ```
 
 Acesse o Open-C3 em seu navegador em `http://your-openc3-ip/`

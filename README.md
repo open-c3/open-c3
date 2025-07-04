@@ -25,7 +25,7 @@ Open-C3 is an open-source platform for IT automation and operations. It provides
 Prepare a clean Linux Server ( 64 bit, >= 4c8g )
 
 ```sh
-curl -sSL https://raw.githubusercontent.com/open-c3/open-c3/v2.6.1/Installer/scripts/single.sh | OPENC3VERSION=v2.6.1 bash -s install 10.10.10.10
+curl -sSL https://github.com/open-c3/open-c3/releases/download/v2.6.1-latest/quick_start.sh | bash
 ```
 
 Access Open-C3 in your browser at `http://your-openc3-ip/`

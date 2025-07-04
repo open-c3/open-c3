@@ -17,7 +17,7 @@ Open-C3是一個開源的自動化運維平臺，功能包括CMDB、監控系統
 準備一台乾淨的 Linux 伺服器 (64 位，>= 4c8g)
 
 ```sh
-curl -sSL https://raw.githubusercontent.com/open-c3/open-c3/v2.6.1/Installer/scripts/single.sh | OPENC3VERSION=v2.6.1 bash -s install 10.10.10.10
+curl -sSL https://github.com/open-c3/open-c3/releases/download/v2.6.1-latest/quick_start.sh | bash
 ```
 
 在您的瀏覽器中訪問 Open-C3：`http://your-openc3-ip/`

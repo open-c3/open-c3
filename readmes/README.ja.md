@@ -16,7 +16,7 @@ Open-C3はオープンソースの自動化運用プラットフォームです�
 クリーンな Linux サーバーを準備します (64 ビット, >= 4c8g)
 
 ```sh
-curl -sSL https://raw.githubusercontent.com/open-c3/open-c3/v2.6.1/Installer/scripts/single.sh | OPENC3VERSION=v2.6.1 bash -s install 10.10.10.10
+curl -sSL https://github.com/open-c3/open-c3/releases/download/v2.6.1-latest/quick_start.sh | bash
 ```
 
 ブラウザで Open-C3 にアクセスします `http://your-openc3-ip/`
