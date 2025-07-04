@@ -2,37 +2,29 @@
   <a name="readme-top"></a>
   <a href="https://www.open-c3.online/demo.html" target="_blank"><img src="/c3-front/src/assets/images/open-c3-logo.jpeg" alt="Open-C3" width="100" /></a>
   
-## An open-source platform for IT automation and operations (DevOps)
-
-[![][license-shield]][license-link]
-[![][docs-shield]][docs-link]
-[![][guide-shield]][guide-link]
-[![][docker-shield]][docker-link]
-[![][github-release-shield]][github-release-link]
-[![][github-stars-shield]][github-stars-link]
-
-[English](/README.md) · [中文(简体)](/readmes/README.zh-hans.md) · [中文(繁體)](/readmes/README.zh-hant.md) · [日本語](/readmes/README.ja.md) · [Português (Brasil)](/readmes/README.pt-br.md) · [Español](/readmes/README.es.md) · [Русский](/readmes/README.ru.md) · [한국어](/readmes/README.ko.md)
+## Автоматизированная open-source платформа для DevOps
 
 </div>
 <br/>
 
-## What is Open-C3?
+## Что такое Open-C3?
 
-Open-C3 is an open-source platform for IT automation and operations. It provides integrated features such as CMDB, monitoring, deployment (CI/CD), ticketing, and workflow systems, with automatic linkage across subsystems. It is designed to be a unified and fully automated operations platform.
+Open-C3 — это автоматизированная платформа с открытым исходным кодом, которая включает такие функции, как CMDB, системы мониторинга, системы деплоймента, системы обработки заявок, системы процессов и другие. При этом обеспечивается автоматическая взаимосвязь между подсистемами. Это интегрированная платформа для автоматизации эксплуатации и обслуживания.
 
-## Quickstart
 
-Prepare a clean Linux Server ( 64 bit, >= 4c8g )
+## Быстрый старт
+
+Подготовьте чистый сервер Linux ( 64 бита, >= 4c8g )
 
 ```sh
 curl -sSL https://raw.githubusercontent.com/open-c3/open-c3/v2.6.1/Installer/scripts/single.sh | OPENC3VERSION=v2.6.1 bash -s install 10.10.10.10
 ```
 
-Access Open-C3 in your browser at `http://your-openc3-ip/`
-- Username: `open-c3`
-- Password: `changeme`
+Получите доступ к Open-C3 в вашем браузере по адресу `http://your-openc3-ip/`
+- Имя пользователя: `open-c3`
+- Пароль: `changeme`
 
-## Screenshots
+## Скриншоты
 <table style="border-collapse: collapse; border: 1px solid black;">
   <tr>
     <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/user-attachments/assets/c3070a34-f1e4-42a9-b240-79056909e00b" alt="Open-C3 CMDB 首页"   /></td>
@@ -56,12 +48,13 @@ Access Open-C3 in your browser at `http://your-openc3-ip/`
   </tr>
 </table>
 
+## Участие
 
-## Contributing
-
-Welcome to submit PR to contribute. Please refer to [CONTRIBUTING.md][contributing-link] for guidelines.
+Добро пожаловать, чтобы отправить PR для участия. Пожалуйста, обратитесь к [CONTRIBUTING.md][contributing-link] за рекомендациями.
 
 ## License
+
+
 Copyright (c) 2020-2025 Open-C3, All rights reserved.
 
 Licensed under The GNU General Public License version 2 (GPLv2) (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
@@ -70,23 +63,5 @@ https://www.gnu.org/licenses/gpl-2.0.html
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an " AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-
 <!-- Open-C3 official link -->
-[docs-link]: https://open-c3.github.io
-[guide-link]: https://open-c3-guide.github.io
 [contributing-link]: /CONTRIBUTING.md
-
-<!-- Open-C3 Other link-->
-[license-link]: https://www.gnu.org/licenses/gpl-2.0.html
-[docker-link]: https://hub.docker.com/u/openc3
-[github-release-link]: https://github.com/open-c3/open-c3/releases/latest
-[github-stars-link]: https://github.com/open-c3/open-c3
-[github-issues-link]: https://github.com/open-c3/open-c3/issues
-
-<!-- Shield link-->
-[docs-shield]: https://www.open-c3.online/readme/svg/documentation.svg
-[github-release-shield]: https://www.open-c3.online/readme/svg/release.svg
-[github-stars-shield]: https://img.shields.io/github/stars/open-c3/open-c3?color=%231890FF&style=flat-square   
-[docker-shield]: https://www.open-c3.online/readme/svg/openc3_docker_all.svg
-[license-shield]: https://www.open-c3.online/readme/svg/GPL-2.0.svg
-[guide-shield]: https://img.shields.io/badge/guide-x?color=blue

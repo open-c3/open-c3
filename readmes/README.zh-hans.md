@@ -2,37 +2,28 @@
   <a name="readme-top"></a>
   <a href="https://www.open-c3.online/demo.html" target="_blank"><img src="/c3-front/src/assets/images/open-c3-logo.jpeg" alt="Open-C3" width="100" /></a>
   
-## An open-source platform for IT automation and operations (DevOps)
-
-[![][license-shield]][license-link]
-[![][docs-shield]][docs-link]
-[![][guide-shield]][guide-link]
-[![][docker-shield]][docker-link]
-[![][github-release-shield]][github-release-link]
-[![][github-stars-shield]][github-stars-link]
-
-[English](/README.md) · [中文(简体)](/readmes/README.zh-hans.md) · [中文(繁體)](/readmes/README.zh-hant.md) · [日本語](/readmes/README.ja.md) · [Português (Brasil)](/readmes/README.pt-br.md) · [Español](/readmes/README.es.md) · [Русский](/readmes/README.ru.md) · [한국어](/readmes/README.ko.md)
+## 一个开源的 自动化运维 平台 (DevOps)
 
 </div>
 <br/>
 
-## What is Open-C3?
+## 什么是 Open-C3？
 
-Open-C3 is an open-source platform for IT automation and operations. It provides integrated features such as CMDB, monitoring, deployment (CI/CD), ticketing, and workflow systems, with automatic linkage across subsystems. It is designed to be a unified and fully automated operations platform.
+Open-C3 是一个开源的自动化运维平台，功能包括 CMDB、监控系统、发布系统、工单系统、流程系统 等，同时各子系统之间自动联动。是一个一体化的自动化运维平台。
 
-## Quickstart
+## 快速启动
 
-Prepare a clean Linux Server ( 64 bit, >= 4c8g )
+准备一个干净的 Linux Server (64 位，>= 4c8g)
 
 ```sh
 curl -sSL https://raw.githubusercontent.com/open-c3/open-c3/v2.6.1/Installer/scripts/single.sh | OPENC3VERSION=v2.6.1 bash -s install 10.10.10.10
 ```
 
-Access Open-C3 in your browser at `http://your-openc3-ip/`
-- Username: `open-c3`
-- Password: `changeme`
+通过您的浏览器访问 Open-C3，地址为 `http://your-openc3-ip/`
+- 用户名: `open-c3`
+- 密码: `changeme`
 
-## Screenshots
+## 截图
 <table style="border-collapse: collapse; border: 1px solid black;">
   <tr>
     <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/user-attachments/assets/c3070a34-f1e4-42a9-b240-79056909e00b" alt="Open-C3 CMDB 首页"   /></td>
@@ -56,12 +47,12 @@ Access Open-C3 in your browser at `http://your-openc3-ip/`
   </tr>
 </table>
 
+## 贡献
 
-## Contributing
-
-Welcome to submit PR to contribute. Please refer to [CONTRIBUTING.md][contributing-link] for guidelines.
+欢迎提交 PR 以作贡献。请参考 [CONTRIBUTING.md][contributing-link] 以获取指导。
 
 ## License
+
 Copyright (c) 2020-2025 Open-C3, All rights reserved.
 
 Licensed under The GNU General Public License version 2 (GPLv2) (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
@@ -70,23 +61,5 @@ https://www.gnu.org/licenses/gpl-2.0.html
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an " AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-
 <!-- Open-C3 official link -->
-[docs-link]: https://open-c3.github.io
-[guide-link]: https://open-c3-guide.github.io
 [contributing-link]: /CONTRIBUTING.md
-
-<!-- Open-C3 Other link-->
-[license-link]: https://www.gnu.org/licenses/gpl-2.0.html
-[docker-link]: https://hub.docker.com/u/openc3
-[github-release-link]: https://github.com/open-c3/open-c3/releases/latest
-[github-stars-link]: https://github.com/open-c3/open-c3
-[github-issues-link]: https://github.com/open-c3/open-c3/issues
-
-<!-- Shield link-->
-[docs-shield]: https://www.open-c3.online/readme/svg/documentation.svg
-[github-release-shield]: https://www.open-c3.online/readme/svg/release.svg
-[github-stars-shield]: https://img.shields.io/github/stars/open-c3/open-c3?color=%231890FF&style=flat-square   
-[docker-shield]: https://www.open-c3.online/readme/svg/openc3_docker_all.svg
-[license-shield]: https://www.open-c3.online/readme/svg/GPL-2.0.svg
-[guide-shield]: https://img.shields.io/badge/guide-x?color=blue
