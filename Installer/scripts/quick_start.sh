@@ -101,17 +101,42 @@ if [[ "$OS" == "linux" ]]; then
     fi
 
     # 拉取 Docker 镜像测试
-    echo "🔍 正在测试是否可以拉取 Docker 镜像 openc3/pkg-book:latest ..."
-    if docker pull openc3/pkg-book:latest &>/dev/null; then
+    echo "🔍 正在测试是否可以拉取 Docker 镜像 openc3/gulp:latest ..."
+    if docker pull openc3/gulp:latest &>/dev/null; then
         green "✅ Docker 镜像拉取成功，网络正常。"
     else
-        red "❌ 无法拉取 Docker 镜像 openc3/pkg-book:latest。"
+        red "❌ 无法拉取 Docker 镜像 openc3/gulp:latest。"
         red "请检查你的网络是否可以访问 Docker Hub，或配置国内镜像源。"
         exit 1
     fi
 else
     green "💡 当前系统为 macOS，请确保已安装 Docker Desktop。"
 fi
+
+# 拉取 Open-C3 镜像列表并逐个下载
+if [[ "$NETWORK" == "china" ]]; then
+    IMAGE_LIST_URL="https://gitee.com/open-c3/open-c3/raw/v2.6.1/Installer/scripts/quick_start-image.list"
+else
+    IMAGE_LIST_URL="https://raw.githubusercontent.com/open-c3/open-c3/refs/heads/v2.6.1/Installer/scripts/quick_start-image.list"
+fi
+
+green "📥 正在获取 Open-C3 镜像列表：$IMAGE_LIST_URL"
+
+TMP_IMAGE_LIST=$(mktemp)
+
+if curl -fsSL "$IMAGE_LIST_URL" -o "$TMP_IMAGE_LIST"; then
+    green "✅ 镜像列表获取成功，开始拉取镜像..."
+    while IFS= read -r image; do
+        [[ -z "$image" || "$image" == \#* ]] && continue
+        echo "🚀 正在拉取镜像：$image"
+        docker pull "$image" || red "❌ 镜像 $image 拉取失败"
+    done < "$TMP_IMAGE_LIST"
+    green "✅ 所有镜像处理完成。"
+else
+    red "❌ 无法获取镜像列表：$IMAGE_LIST_URL"
+fi
+
+rm -f "$TMP_IMAGE_LIST"
 
 # 安装 Open-C3
 if [[ "$NETWORK" == "china" ]]; then
