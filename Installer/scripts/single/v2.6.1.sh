@@ -28,8 +28,8 @@
 cp /data/open-c3/web-shell/private/tty.js/static/tty.js /data/open-c3/web-shell/node_modules/tty.js/static/tty.js
 
 #localbash clean
-docker stop openc3-localbash
-docker rm   openc3-localbash
+docker stop openc3-localbash >/dev/null 2>&1
+docker rm   openc3-localbash >/dev/null 2>&1
 
 #mkdir -p /data/open-c3-data/logs/CI/webhooks_data
 #mkdir -p /data/open-c3-data/logs/CI/webhooks_logs
