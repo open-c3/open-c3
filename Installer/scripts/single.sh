@@ -172,13 +172,8 @@ function install() {
     
     # 如果 open-c3 尚未存在，则尝试本地复制或远程 clone
     if [[ ! -d "$BASE_PATH" ]]; then
-        if [[ -d "$C3BASEPATH/open-c3-installer/open-c3" ]]; then
-            yellow "Copying local cached open-c3 ..."
-            cp -r "$C3BASEPATH/open-c3-installer/open-c3" .
-        else
-            yellow "Cloning open-c3 from $GITADDR ..."
-            git clone -b "$OPENC3VERSION" "$GITADDR/open-c3/open-c3"
-        fi
+        yellow "Cloning open-c3 from $GITADDR ..."
+        git clone -b "$OPENC3VERSION" "$GITADDR/open-c3/open-c3"
     fi
     
     # 检查最终是否成功获取 open-c3
@@ -463,21 +458,6 @@ function install() {
     else
         red "source node_exporter not found at $NODE_EXPORTER_SRC"
         exit 1
-    fi
-
-    echo "================================================================="
-    yellow "Copy dev-cache if exists ..."
-    
-    if [ -d "$C3BASEPATH/open-c3-installer/dev-cache" ]; then
-        cp -r "$C3BASEPATH/open-c3-installer/dev-cache" "$C3BASEPATH/open-c3/Installer/"
-        if [ $? -eq 0 ]; then
-            green "dev-cache copied successfully."
-        else
-            red "[FAIL] failed to copy dev-cache."
-            exit 1
-        fi
-    else
-        echo "dev-cache directory not found. Skipping copy."
     fi
 
     echo "================================================================="
