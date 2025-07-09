@@ -27,7 +27,7 @@ get '/c3mc/citags/:projectid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
  
-    my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
+    my $pmscheck = api::pmscheck( 'openc3_ci_read' ); return $pmscheck if $pmscheck;
 
     my $filter = +{};
 
@@ -59,7 +59,7 @@ any '/c3mc/citags/:projectid/:tags' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
  
-    my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
+    my $pmscheck = api::pmscheck( 'openc3_ci_control', $param->{projectid} ); return $pmscheck if $pmscheck;
 
     my $filter = +{};
 
