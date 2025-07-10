@@ -9,7 +9,7 @@ die "nofind module" unless my $module = shift @ARGV;
 exit unless -x "$module/commitid.sh";
 system "cd $module && ./commitid.sh|grep commit > commitid.txt";
 
-my @x = `git -C /data/open-c3 status|grep Installer/C3/pkg/install-cache/commitid.txt`;
+my @x = `git -C /data/open-c3 status|grep Installer/C3/pkg/$module/commitid.txt`;
 chomp @x;
 
 exit unless @x;
