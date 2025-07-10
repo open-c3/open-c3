@@ -1,0 +1,22 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+$| ++;
+
+die "nofind module" unless my $module = shift @ARGV;
+
+exit unless -x "$module/commitid.sh";
+system "cd $module && ./commitid.sh|grep commit > commitid.txt";
+
+my @x = `git -C /data/open-c3 status|grep Installer/C3/pkg/install-cache/commitid.txt`;
+chomp @x;
+
+exit unless @x;
+
+system "git add $module/commitid.txt";
+
+my $commitinfo = `cat $module/commitid.txt`;
+chomp $commitinfo;
+system "git commit -m 'auto pkg $module link to $commitinfo'";
+system "git push";
