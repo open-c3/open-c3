@@ -21,6 +21,10 @@ cd $C3BASEPATH/open-c3/Installer/C3/pkg || exit 1
 
 docker push openc3/pkg-$MODULE:$VERSION
 
+LIST_FILE="../../scripts/quick_start-image.list"
+sed -i "s|openc3/pkg-$MODULE:[0-9]\+|openc3/pkg-$MODULE:$VERSION|g" "$LIST_FILE"
+git add "$LIST_FILE"
+
 git add $MODULE/version
 
 echo "c3bot:autopkg($MODULE:$VERSION)" >> upload.txt
