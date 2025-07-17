@@ -102,7 +102,7 @@ services:
     container_name: openc3-prometheus
     environment:
       TZ: 'Asia/Shanghai'
-    image: "prom/prometheus"
+    image: "prom/prometheus:v2.53.4"
     restart: always
     ports:
       - "9090:9090"
@@ -124,7 +124,7 @@ services:
     container_name: openc3-alertmanager
     environment:
       TZ: 'Asia/Shanghai'
-    image: "prom/alertmanager:latest"
+    image: "prom/alertmanager:v0.28.0"
     restart: always
 #    ports:
 #      - "9093:9093"
