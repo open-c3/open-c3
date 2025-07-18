@@ -41,8 +41,17 @@ while( 1 )
     system "$RealBin/restart-open-c3.sh restart";
 }
 
+sub crond
+{
+    system "/data/Software/mydan/Connector/pp/sys/check_crond.sh";
+}
+
+my $cnt = 0;
 while(1)
 {
     check();
     sleep 3;
+    $cnt ++;
+
+    crond() unless $cnt % 20;
 }
