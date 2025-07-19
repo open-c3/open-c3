@@ -361,50 +361,47 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     }
 
 
-    my $showmysqlauth = 0;
     my @showmysqladdr;
     my $mysqladdrtail = '';
     my $ingestionmysqlfile = "$datapathx/$param->{type}/$param->{subtype}/ingestion-mysql.yml";
     my $ismysql = -f $ingestionmysqlfile ? 1 : 0;
-    if( $ismysql && -f "$datapathx/auth/mysql.auth/$user" )
+    if( $ismysql )
     {
         my $ingestionmysql = eval{ YAML::XS::LoadFile $ingestionmysqlfile };
         return  +{ stat => $JSON::false, info => "load ingestion-mysql.yml fail: $@" } if $@;
 
         @showmysqladdr = ref $ingestionmysql->{addr} ? @{$ingestionmysql->{addr}} : ( $ingestionmysql->{addr} );
         $mysqladdrtail = ':3306' if ref $ingestionmysql->{addr} && @{$ingestionmysql->{addr}} <= 1;
-        $showmysqlauth = 1;
     }
+    my $showmysqlauth = $ismysql && -f "$datapathx/auth/mysql.auth/$user" ? 1 : 0;
 
-    my $showredisauth = 0;
     my @showredisaddr;
     my $redisaddrtail = '';
     my $ingestionredisfile = "$datapathx/$param->{type}/$param->{subtype}/ingestion-redis.yml";
     my $isredis = -f $ingestionredisfile ? 1 : 0;
-    if( $isredis && -f "$datapathx/auth/redis.auth/$user" )
+    if( $isredis )
     {
         my $ingestionredis = eval{ YAML::XS::LoadFile $ingestionredisfile };
         return  +{ stat => $JSON::false, info => "load ingestion-redis.yml fail: $@" } if $@;
 
         @showredisaddr = ref $ingestionredis->{addr} ? @{$ingestionredis->{addr}} : ( $ingestionredis->{addr} );
         $redisaddrtail = ":6379" if ref $ingestionredis->{addr} && @{$ingestionredis->{addr}} <= 1;
-        $showredisauth = 1;
     }
+    my $showredisauth = $isredis && -f "$datapathx/auth/redis.auth/$user" ? 1 : 0;
  
-    my $showmongodbauth = 0;
     my @showmongodbaddr;
     my $mongodbaddrtail = '';
     my $ingestionmongodbfile = "$datapathx/$param->{type}/$param->{subtype}/ingestion-mongodb.yml";
     my $ismongodb = -f $ingestionmongodbfile ? 1 : 0;
-    if( $ismongodb && -f "$datapathx/auth/mongodb.auth/$user" )
+    if( $ismongodb )
     {
         my $ingestionmongodb = eval{ YAML::XS::LoadFile $ingestionmongodbfile };
         return  +{ stat => $JSON::false, info => "load ingestion-mongodb.yml fail: $@" } if $@;
 
         @showmongodbaddr = ref $ingestionmongodb->{addr} ? @{$ingestionmongodb->{addr}} : ( $ingestionmongodb->{addr} );
         $mongodbaddrtail = ':27017' if ref $ingestionmongodb->{addr} && @{$ingestionmongodb->{addr}} <= 1;
-        $showmongodbauth = 1;
     }
+    my $showmongodbauth = $ismongodb && -f "$datapathx/auth/mongodb.auth/$user" ? 1 : 0;
  
     my @re2;
     for my $r ( @re )
