@@ -365,7 +365,8 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     my @showmysqladdr;
     my $mysqladdrtail = '';
     my $ingestionmysqlfile = "$datapathx/$param->{type}/$param->{subtype}/ingestion-mysql.yml";
-    if( -f $ingestionmysqlfile && -f "$datapathx/auth/mysql.auth/$user" )
+    my $ismysql = -f $ingestionmysqlfile ? 1 : 0;
+    if( $ismysql && -f "$datapathx/auth/mysql.auth/$user" )
     {
         my $ingestionmysql = eval{ YAML::XS::LoadFile $ingestionmysqlfile };
         return  +{ stat => $JSON::false, info => "load ingestion-mysql.yml fail: $@" } if $@;
@@ -379,7 +380,8 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     my @showredisaddr;
     my $redisaddrtail = '';
     my $ingestionredisfile = "$datapathx/$param->{type}/$param->{subtype}/ingestion-redis.yml";
-    if( -f $ingestionredisfile && -f "$datapathx/auth/redis.auth/$user" )
+    my $isredis = -f $ingestionredisfile ? 1 : 0;
+    if( $isredis && -f "$datapathx/auth/redis.auth/$user" )
     {
         my $ingestionredis = eval{ YAML::XS::LoadFile $ingestionredisfile };
         return  +{ stat => $JSON::false, info => "load ingestion-redis.yml fail: $@" } if $@;
@@ -393,7 +395,8 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     my @showmongodbaddr;
     my $mongodbaddrtail = '';
     my $ingestionmongodbfile = "$datapathx/$param->{type}/$param->{subtype}/ingestion-mongodb.yml";
-    if( -f $ingestionmongodbfile && -f "$datapathx/auth/mongodb.auth/$user" )
+    my $ismongodb = -f $ingestionmongodbfile ? 1 : 0;
+    if( $ismongodb && -f "$datapathx/auth/mongodb.auth/$user" )
     {
         my $ingestionmongodb = eval{ YAML::XS::LoadFile $ingestionmongodbfile };
         return  +{ stat => $JSON::false, info => "load ingestion-mongodb.yml fail: $@" } if $@;
@@ -422,6 +425,14 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
                 return  +{ stat => $JSON::false, info => "get auth fail: $@" } if $@;
             }
             push @x, [ _auth_ => $passcont ];
+        }
+
+        if( $ismysql && ! $showmysqlauth )
+        {
+            my $mysqladdr = join ':',map{ $r->{$_}} @showmysqladdr;
+            $mysqladdr .= $mysqladdrtail;
+            push @x, [ _mysqladdr_ => $mysqladdr ];
+
         }
 
         if( $showmysqlauth )
@@ -454,6 +465,14 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
 
         }
 
+        if( $isredis && ! $showredisauth )
+        {
+            my $redisaddr = join ':',map{ $r->{$_}} @showredisaddr;
+            $redisaddr .= $redisaddrtail;
+            push @x, [ _redisaddr_ => $redisaddr ];
+
+        }
+
         if( $showredisauth )
         {
             my $redisaddr = join ':',map{ $r->{$_}} @showredisaddr;
@@ -482,7 +501,15 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
                 push @x, [ _cmd_ => "redis-cli -h '$host' -p '$port' $passx" ];
             }
         }
- 
+
+        if( $ismongodb && ! $showmongodbauth )
+        {
+            my $mongodbaddr = join ':',map{ $r->{$_}} @showmongodbaddr;
+            $mongodbaddr .= $mongodbaddrtail;
+            push @x, [ _mongodbaddr_ => $mongodbaddr ];
+
+        }
+
         if( $showmongodbauth )
         {
             my $mongodbaddr = join ':',map{ $r->{$_}} @showmongodbaddr;
