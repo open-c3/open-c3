@@ -37,13 +37,37 @@ return sub
     return undef unless @$node;
 
     my %node;
-    map{ 
-        $node{$_->{name}} = 1;
-        map{$node{$_}=1;}split /,/, $_->{ip} if defined $_->{ip};
-        map{$node{$_}=1;}split /,/, $_->{exip} if defined $_->{exip};
-        map{$node{$_}=1;}split /,/, $_->{inip} if defined $_->{inip};
-    } $code->run( id => $id, db => $db );
 
+    my @id = ( $id );
+
+    my @x = `c3mc-base-treemap`;
+    chomp @x;
+
+    my ( %id2name, %name2id );
+    for ( @x )
+    {
+        my ( $id, $treename ) = split /;/, $_, 2;
+        $id2name{$id} = $treename;
+        $name2id{$treename} = $id;
+    }
+
+    if( my $mytreename = $id2name{$id} )
+    {
+        my @subname = split /\./, $mytreename;
+        $subname[-1] = 'test';
+        my $tmpname = join '.', @subname;
+        push @id, $name2id{$tmpname} if $name2id{$tmpname} && $name2id{$tmpname} =~ /^\d+$/;
+    }
+
+    for my $id ( @id )
+    {
+        map{
+            $node{$_->{name}} = 1;
+            map{$node{$_}=1;}split /,/, $_->{ip} if defined $_->{ip};
+            map{$node{$_}=1;}split /,/, $_->{exip} if defined $_->{exip};
+            map{$node{$_}=1;}split /,/, $_->{inip} if defined $_->{inip};
+        } $code->run( id => $id, db => $db );
+    }
     my @fail;
     map{ push( @fail, $_ ) unless $node{$_} }@$node;
     return @fail ? join( ',', @fail ) : undef;
