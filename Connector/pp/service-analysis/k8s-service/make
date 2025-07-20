@@ -23,3 +23,29 @@ for( @x )
             map{ my @x = split /:/, $_; $x[0] }split /,/, $pods;
     }
 }
+
+@x = `c3mc-device-data-get curr others k8s-service spec.type spec.loadBalancerIP spec.ports.0.nodePort 集群名称 命名空间 名称 spec.ports.0.targetPort _pods_`;
+chomp @x;
+
+my @xx = `c3mc-device-data-get curr others k8s-pod 集群名称 NodeIP`;
+chomp @xx;
+
+my %xx;
+for( @xx )
+{
+    my ( $name, $nodeip ) = split /\t/, $_;
+    $xx{$name}{$nodeip}++;
+}
+
+for( @x )
+{
+    my ( $type, $ip, $lport, $clustername, $namespace, $name, $port, $pods ) = split /\t/, $_;
+    if( $pods && $type eq 'NodePort' )
+    {
+	for my $ip ( $xx{$clustername} ? keys %{$xx{$clustername}} : () )
+	{
+            map{ printf "%s\n", join ' ', "$ip\{Port:$lport\}", $clustername,$namespace, $name,':::', $port, $pods, $_ }
+            map{ my @x = split /:/, $_; $x[0] }split /,/, $pods;
+        }
+    }
+}
