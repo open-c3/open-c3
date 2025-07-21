@@ -12,6 +12,7 @@ docker stop $NAME 2>/dev/null
 docker rm   $NAME 2>/dev/null
 
 docker run -d \
+  --restart unless-stopped \
   -v /bin/docker:/bin/docker_v1.0.0 \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /data/open-c3-data/$VPATH:/data/open-c3-data/$VPATH \
