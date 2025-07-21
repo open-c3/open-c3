@@ -154,7 +154,7 @@ post '/monitor/config/rule/:projectid' => sub {
         $api::auditlog->run( user => $user, title => "$title MONITOR CONFIG RULE", content => "TREEID:$projectid ALERT:$alert EXPR:$expr FOR:$for SEVERITY:$severity SUMMARY:$summary DESCRIPTION:$description VALUE:$value JOB:$job" );
         if( $param->{id} )
         {
-            $api::mysql->execute( "update openc3_monitor_config_rule set `alert`='$alert',`expr`='$expr',`for`='$for',`severity`='$severity',summary='$summary',description='$description',`value`='$value',edit_user='$user',model='$model',metrics='$metrics',method='$method',threshold='$threshold',bindtreesql='$bindtreesql',job='$job',subgroup='$subgroup',nocall='$nocall',nomesg='$nomesg',nomail='$nomail',serialcall='$serialcall',vtreeid='$vtreeid' where projectid='$projectid' and id='$id'" );
+            $api::mysql->execute( "update openc3_monitor_config_rule set `alert`='$alert',`expr`='$expr',`for`='$for',`severity`='$severity',summary='$summary',description='$description',`value`='$value',edit_user='$user',model='$model',metrics='$metrics',method='$method',threshold='$threshold',bindtreesql='$bindtreesql',job='$job',subgroup='$subgroup',nocall='$nocall',nomesg='$nomesg',nomail='$nomail',serialcall='$serialcall',vtreeid='$vtreeid' where ( projectid='$projectid' or 0=$projectid ) and id='$id'" );
         }
         else
         {
