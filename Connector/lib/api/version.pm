@@ -20,7 +20,7 @@ get '/version/log' => sub {
         unless tie my @cont, 'Tie::File', "$RealBin/../.versionlog", mode => O_RDONLY, discipline => ':encoding(utf8)';
 
     my @temp = @cont[0.. ( $#cont >= 99 ? 99 : $#cont ) ];
-    return +{ stat => $JSON::true, data => [ map{ my @x = split / \+0800 - /, $_; +{ time => $x[0], mesg => $x[1] } }@temp ] };
+    return +{ stat => $JSON::true, data => [ map{ my @x = split / - /, $_, 2; +{ time => $x[0], mesg => $x[1] } }@temp ] };
 };
 
 =pod
