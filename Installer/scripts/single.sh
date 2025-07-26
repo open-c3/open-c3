@@ -619,6 +619,8 @@ function start() {
     cp $C3BASEPATH/open-c3/lua/config/lua/sso.temp.lua $C3BASEPATH/open-c3/lua/config/lua/sso.lua
 
     docker restart  openc3-lua
+
+    docker exec -t openc3-server bash -c "test -f /etc/c3mc-sys-sup.txt || /data/Software/mydan/Connector/pp/c3mc-sys-sup"
 #
     green "started."
 }
