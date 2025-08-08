@@ -12,6 +12,9 @@ use POSIX;
 
 =cut
 
+$ENV{MYDan_Agent_Proxy_Addr} = "http://api.agent.open-c3.org/proxy/0";
+$ENV{MYDan_Agent_Proxy_Header} = "appname:job,appkey:$ENV{OPEN_C3_RANDOM}";
+
 my $file = "/data/Software/mydan/Connector/pp/service-analysis/nginx/nginx.node";
 my $privfile = "/data/open-c3-data/service-analysis/nginx.node";
 $file = $privfile if -f $privfile;
