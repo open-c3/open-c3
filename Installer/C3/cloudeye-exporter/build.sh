@@ -1,7 +1,12 @@
 #!/bin/bash
-set -ex
+set -e
 
 C3BASEPATH=$( [[ "$(uname -s)" == Darwin ]] && echo "$HOME/open-c3-workspace" || echo "/data" )
+
+cd "$(dirname "$0")"
+
+./init.sh
+cp temp/clouds.yml .
 
 VERSION=$1
 if [ "X$VERSION" == "X" ];then
