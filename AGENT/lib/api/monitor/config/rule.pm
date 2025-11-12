@@ -103,6 +103,7 @@ post '/monitor/config/rule/:projectid' => sub {
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    return  +{ stat => $JSON::false, info => "Monitor Rule not allow setting in ROOT's tree" } unless $param->{projectid};
 
     my $vprojectid = $param->{vtreeid} && $param->{vtreeid} =~ /^\d+$/ ? $param->{vtreeid} : $param->{projectid};
 
