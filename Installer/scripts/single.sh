@@ -70,7 +70,7 @@ case "$DISTRO" in
 esac
 
 if docker compose version >/dev/null 2>&1; then
-    c3-docker-compose="docker compose"
+    alias c3-docker-compose="docker compose"
 fi
 
 if [ "X$OPENC3VERSION" == "X" ]; then
