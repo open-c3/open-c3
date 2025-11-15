@@ -69,6 +69,10 @@ case "$DISTRO" in
         ;;
 esac
 
+if docker compose version >/dev/null 2>&1; then
+    c3-docker-compose="docker compose"
+fi
+
 if [ "X$OPENC3VERSION" == "X" ]; then
     OPENC3VERSION=v2.6.1
 fi
