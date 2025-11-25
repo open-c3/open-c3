@@ -227,6 +227,7 @@ return sub
 
     $everyone = ( $everyone && $everyone eq 'on' ) ? 1 : 0;
 
+    my $get_leader = ( $relaxed && $relaxed eq 'off' ) ? 1 : 0;
     if( $relaxed && $relaxed eq 'nervous' )
     {
         $relaxed = 'off';
@@ -252,6 +253,13 @@ return sub
 
     for my $user ( @approver )
     {
+        if( $get_leader )
+        {
+            my @x = `c3mc-base-userleader --user '$user'`;
+            chomp @x;
+            $user = $x[0] if @x;
+        }
+
         my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
         my $muuid = uuid->new()->create_str;
         print "Send mesg to $user, wait for his confirmation\n";
