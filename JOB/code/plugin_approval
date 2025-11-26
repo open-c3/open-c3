@@ -253,7 +253,7 @@ return sub
 
     for my $user ( @approver )
     {
-        if( $get_leader )
+        if( $get_leader && $user eq $submitter )
         {
             my @x = `c3mc-base-userleader --user '$user'`;
             chomp @x;
