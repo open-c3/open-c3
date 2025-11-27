@@ -1190,3 +1190,6 @@ create table if not exists `openc3_device_resource_idcmongodb`(
 `edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '最后编辑时间',
 UNIQUE KEY `uniq_uuid` (`uuid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='IDC mongodb 资源';
+
+# v2.6.0 sql openc3_monitor_config_rule add unique uniq_projectid_alert
+ALTER TABLE openc3_monitor_config_rule ADD UNIQUE KEY `uniq_projectid_alert` (`projectid`,`alert`);
