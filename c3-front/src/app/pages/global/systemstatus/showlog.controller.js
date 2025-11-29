@@ -17,13 +17,16 @@
         function nl2br(str) {
             return str.replace(/\n/g, '<br>');
         }
+
+        vm.detail = '';
         vm.loadover = false;
         vm.reload = function(){
             vm.loadover = false;
             $http.post('/api/connector/systemstatus/log', vm.postdata ).success(function(data){
                     vm.loadover = true;
                     if(data.stat == true) {
-                        document.getElementById('systemstatuslog').innerHTML = nl2br(data.data);
+                        vm.detail = data.data.detail;
+                        document.getElementById('systemstatuslog').innerHTML = nl2br(data.data.log);
                     } else { swal({ title: "加载失败!", text: data.info, type:'error' }); }
 
             });

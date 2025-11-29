@@ -17,10 +17,27 @@ get '/systemstatus' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_root' ); return $pmscheck if $pmscheck;
 
-    my @col = qw( id system module group name status  edit_time );
-    my $department = eval{ $api::mysql->query( sprintf( "select %s from `openc3_connector_systemstatus`", join( ',',map{"`$_`"} @col ) ), \@col ) };
+    my @col = qw( id system module group name status timeout edit_time );
+    my $res = eval{ $api::mysql->query( sprintf( "select %s from `openc3_connector_systemstatus`", join( ',',map{"`$_`"} @col ) ), \@col ) };
 
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $department };
+    my $config = eval{ YAML::XS::LoadFile "/data/Software/mydan/Connector/lib/api/systemstatus.yaml" };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my $total = @$res;
+    my $success = 0;
+
+    for my $r ( @$res )
+    {
+        my $key = join '_', map{ $r->{$_} }qw( system module group name );
+        $r->{key} = $key;
+
+        $r->{info} = $config && $config->{$key} ? $config->{$key}[1] : '';
+
+        $r->{status} = "$r->{status}.and.timeout" if $r->{timeout} && $r->{timeout} < time;
+        $success ++ if $r->{status} eq 'success';
+    }
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $res, total => $total, success => $success };
 };
 
 =pod
@@ -44,14 +61,18 @@ any '/systemstatus/log' => sub {
 
     my $key = join '_', map{ $param->{$_} }qw( system module group name );
 
-    my $log = "log $key undef";
+    my $res = +{ log => "log $key undef", detail => "" };
 
     my $config = eval{ YAML::XS::LoadFile "/data/Software/mydan/Connector/lib/api/systemstatus.yaml" };
-    $log = "open-c3 system load config error: $@" if $@;
+    $res->{log} = "open-c3 system load config error: $@" if $@;
 
-    $log = `tail -n 200 '$config->{$key}'` if $config && $config->{$key};
+    if( $config && $config->{$key} )
+    {
+        $res->{log} = `tail -n 200 '$config->{$key}[0]'`;
+        $res->{detail} = $config->{$key}[2];
+    }
 
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $log };
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $res };
 };
 
 true;

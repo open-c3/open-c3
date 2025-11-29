@@ -11,12 +11,16 @@
         var vm = this;
         vm.treeid = $state.params.treeid;
 
+        vm.total = 0;
+        vm.success = 0;
         vm.reload = function () {
             vm.loadover = false
             $http.get('/api/connector/systemstatus').then(
                 function successCallback(response) {
                     if (response.data.stat){
                         vm.dataTable = new ngTableParams({count:100}, {counts:[],data:response.data.data});
+                        vm.total = response.data.total;
+                        vm.success = response.data.success;
                         vm.loadover = true
                     }else {
                         swal('获取信息失败', response.data.info, 'error' );
