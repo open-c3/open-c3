@@ -315,6 +315,12 @@
                 controller: 'UserdepartmentController',
                 controllerAs: 'userdepartment'
             })
+            .state('home.global.systemstatus', {
+                url: 'systemstatus/:treeid',
+                templateUrl: 'app/pages/global/systemstatus/systemstatus.html',
+                controller: 'SystemstatusController',
+                controllerAs: 'systemstatus'
+            })
             .state('home.global.private', {
                 url: 'private/:treeid',
                 templateUrl: 'app/pages/global/private/private.html',

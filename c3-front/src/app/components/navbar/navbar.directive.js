@@ -279,6 +279,7 @@
                           { title: 'C3T.通知管理', label: '', icon: 'fa fa-envelope-o', params: {}, router: 'home.global.notify' },
                           { title: 'C3T.模板管理', label: '', icon: 'fa fa-file-code-o', params: {}, router: 'home.global.template' },
                           { title: 'C3T.系统参数', label: '', icon: 'fa fa-gears', params: {}, router: 'home.global.sysctl' },
+                          { title: 'C3T.系统状态', label: '', icon: 'fa fa-podcast', params: {}, router: 'home.global.systemstatus' },
                           { title: 'C3T.监控信息', label: '', icon: 'fa fa-line-chart', params: {}, router: 'home.global.monitor' },
                           { title: 'C3T.审计日志', label: '', icon: 'fa fa-calendar-minus-o', params: {}, router: 'home.global.auditlog' },
                           { title: 'C3T.登录审计', label: '', icon: 'fa fa-sign-in', params: {}, router: 'home.global.loginaudit' },

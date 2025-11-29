@@ -1,0 +1,31 @@
+<div class="row block">
+    <h2>{{'C3T.系统状态'|translate}}</h2>
+    <hr class="mv20 clear">
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="systemstatus.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!systemstatus.loadover}" ></i></button>
+            </span>
+            <h5>{{'C3T.系统状态'|translate}}</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="pt20" style="overflow: auto;">
+                <table ng-table="systemstatus.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td data-title="'C3T.系统'|translate" width="80" filter="{ system: 'text'}" data-sortable="'system'">{{m.system}}</td>
+                        <td data-title="'C3T.模块'|translate" width="80" filter="{ module: 'text'}" data-sortable="'module'">{{m.module}}</td>
+                        <td data-title="'C3T.分组'|translate" width="80" filter="{ group: 'text'}" data-sortable="'group'">{{m.group}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ name: 'text'}" data-sortable="'name'">{{m.name}}</td>
+                        <td data-title="'C3T.状态'|translate" width="80" filter="{ status: 'text'}" data-sortable="'status'">{{m.status}}</td>
+                        <td data-title="'C3T.更新时间'|translate" width="80" filter="{ edit_time: 'text'}" data-sortable="'edit_time'">{{m.edit_time}}</td>
+                        <td data-title="'C3T.操作'|translate" width="80" >
+                            <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="systemstatus.showlog(m)" uib-tooltip="{{'C3T.查看日志'|translate}}" style="cursor:pointer;color: red;" ></i>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

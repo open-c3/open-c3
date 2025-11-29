@@ -1193,3 +1193,15 @@ UNIQUE KEY `uniq_uuid` (`uuid`)
 
 # v2.6.0 sql openc3_monitor_config_rule add unique uniq_projectid_alert
 ALTER TABLE openc3_monitor_config_rule ADD UNIQUE KEY `uniq_projectid_alert` (`projectid`,`alert`);
+
+# v2.6.0 sql openc3_connector_systemstatus create
+create table if not exists `openc3_connector_systemstatus`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`system` VARCHAR(100) comment 'system',
+`module` VARCHAR(100) comment 'module',
+`group` VARCHAR(100) comment 'group',
+`name` VARCHAR(300) comment 'name',
+`status` VARCHAR(100) comment 'status',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'time',
+UNIQUE KEY `uniq_system_module_group_name` (`system`,`module`,`group`,`name`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='systemstatus';

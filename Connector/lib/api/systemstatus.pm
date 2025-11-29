@@ -1,0 +1,57 @@
+package api::systemstatus;
+use Dancer ':syntax';
+use Dancer qw(cookie);
+use JSON qw();
+use POSIX;
+use api;
+use uuid;
+use Format;
+
+=pod
+
+管理/系统状态/获取所有状态列表详情
+
+=cut
+
+get '/systemstatus' => sub {
+    my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
+    my $pmscheck = api::pmscheck( 'openc3_connector_root' ); return $pmscheck if $pmscheck;
+
+    my @col = qw( id system module group name status  edit_time );
+    my $department = eval{ $api::mysql->query( sprintf( "select %s from `openc3_connector_systemstatus`", join( ',',map{"`$_`"} @col ) ), \@col ) };
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $department };
+};
+
+=pod
+
+管理/系统状态/获取某个服务日志内容
+
+=cut
+
+any '/systemstatus/log' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        system => qr/^[a-zA-Z\d_\-\.]+$/, 1,
+        module => qr/^[a-zA-Z\d_\-\.]+$/, 1,
+        group  => qr/^[a-zA-Z\d_\-\.]+$/, 1,
+        name   => qr/^[a-zA-Z\d_\-\.]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
+    my $pmscheck = api::pmscheck( 'openc3_connector_root' ); return $pmscheck if $pmscheck;
+
+    my $key = join '_', map{ $param->{$_} }qw( system module group name );
+
+    my $log = "log $key undef";
+
+    my $config = eval{ YAML::XS::LoadFile "/data/Software/mydan/Connector/lib/api/systemstatus.yaml" };
+    $log = "open-c3 system load config error: $@" if $@;
+
+    $log = `tail -n 200 '$config->{$key}'` if $config && $config->{$key};
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $log };
+};
+
+true;
