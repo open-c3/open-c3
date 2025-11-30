@@ -16,9 +16,10 @@ TZ=Asia/Shanghai
 */5 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 600 cmdb default default c3mc-device-nodeinfo-allnode-cache.set /usr/bin/c3mc-device-nodeinfo-allnode-cache set > /tmp/c3mc-device-nodeinfo-allnode-cache.log 2>&1
 1 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 7200 cmdb default default depttree /data/Software/mydan/AGENT/device/bin/depttree > /tmp/depttree.log 2>&1
 
-* * * * * root flock -n /tmp/c3mc-mon-proxy-metricsd.lock /usr/bin/c3mc-sys-systemstatus-cmd 120 monitor default default c3mc-mon-proxy-metricsd /usr/bin/c3mc-mon-proxy-metricsd > /tmp/c3mc-mon-proxy-metricsd.log 2>&1
+* * * * * root flock -n /tmp/c3mc-mon-proxy-metricsd.lock /usr/bin/c3mc-sys-systemstatus-cmd 3700 monitor default default c3mc-mon-proxy-metricsd /usr/bin/c3mc-mon-proxy-metricsd > /tmp/c3mc-mon-proxy-metricsd.log 2>&1
 
-*/5 * * * * root /usr/bin/c3mc-mon-make-uexip > /data/Software/mydan/AGENT/conf/openc3_uexip.yml.temp.$$ && mv /data/Software/mydan/AGENT/conf/openc3_uexip.yml.temp.$$ /data/Software/mydan/AGENT/conf/openc3_uexip.yml
+*/5 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 600 monitor default default c3mc-mon-make-uexip-cron /usr/bin/c3mc-mon-make-uexip-cron > /tmp/c3mc-mon-make-uexip-cron.log 2>&1
+
 
 */5 * * * * root flock -n /tmp/c3mc-device-account-proxyd.lock /usr/bin/c3mc-sys-systemstatus-cmd 600 monitor default default c3mc-device-account-proxyd /usr/bin/c3mc-device-account-proxyd > /tmp/c3mc-device-account-proxyd.log 2>&1
 
