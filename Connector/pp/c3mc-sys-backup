@@ -23,11 +23,15 @@ file="$path/c3-$name-$c3version-$uuid.tar.gz"
 cd /data/open-c3-data/glusterfs && tar -zcvf $file maintain-$uuid
 rm -rf maintain-$uuid
 
-url=$(  c3mc-sys-ctl sys.backup.url   | grep -E "^http[s]*://[a-zA-Z0-9\.\/\-]+$")
-token=$(c3mc-sys-ctl sys.backup.token | grep -E "^[a-zA-Z0-9]{32}$"              )
+url=$(  c3mc-sys-ctl sys.backup.url   )
+token=$(c3mc-sys-ctl sys.backup.token )
 
 if [[ -z "$url" || -z "$token" ]]; then
     exit
 fi
+
+#如果url和token格式不对，这里会直接保存退出。逻辑正常。
+url=$(  echo $url    | grep -E "^http[s]*://[a-zA-Z0-9\.\/\-]+$")
+token=$( echo $token | grep -E "^[a-zA-Z0-9]{32}$"              )
 
 curl -X POST $url?checkmd5=$(md5sum $file|awk '{print $1}') -F "file=@$file" -H "token: $token"
