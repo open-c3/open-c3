@@ -13,7 +13,11 @@ $|++;
 
 chdir $RealBin || die "chdir fail:$!";
 
-die "undef addr" unless -f 'addr';
+unless( -f 'addr' )
+{
+    warn "undef addr, skip.\n";
+    exit;
+}
 
 system "mkdir -p var/temp" unless -d 'var/temp';
 
