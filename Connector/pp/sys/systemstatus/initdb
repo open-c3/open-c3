@@ -1,0 +1,78 @@
+#!/data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import subprocess
+import yaml
+
+def run_command(cmd):
+    """执行外部命令并处理返回值"""
+    print(f"Executing command: {' '.join(cmd)}")
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        print(result.stderr, file=sys.stderr)
+        return None
+    return result.stdout.splitlines()
+
+def insert(item):
+    """插入新条目到数据库"""
+    print(f"Insert: {item}")
+    x = item.split('_', 3)
+    cmd = ['c3mc-base-db-ins', '-t', 'openc3_connector_systemstatus', 'system', x[0], 'module', x[1], 'group', x[2], 'name', x[3],'status','init']
+    if run_command(cmd) is None:
+        print(f"Failed to insert {item}")
+        exit(1)
+
+def delete(item):
+    """删除条目从数据库"""
+    print(f"Delete: {item}")
+    x = item.split('_', 3)
+    cmd = ['c3mc-base-db-exe', '-t', 'openc3_connector_systemstatus', f"delete from openc3_connector_systemstatus where system='{x[0]}' and module='{x[1]}' and `group`='{x[2]}' and name='{x[3]}'"]
+    print(f"Executing delete command: {' '.join(cmd)}")
+    if run_command(cmd) is None:
+        print(f"Failed to delete {item}")
+        exit(1)
+
+def get_keys_from_db():
+    """从数据库获取现有的键值"""
+    cmd_parts = ['c3mc-base-db-get', '-t', 'openc3_connector_systemstatus', 'system', 'module', 'group', 'name']
+    output = run_command(cmd_parts)
+    if output is None:
+        print("Failed to fetch keys from database.")
+        exit(1)
+    # 处理数据库返回的输出，将每一行转换为键值
+    key_from_db = ['_'.join(i.split(';', 3)) for i in output]
+    return key_from_db
+
+def get_keys_from_config():
+    """从 YAML 配置文件中获取键值"""
+    with open('/data/Software/mydan/Connector/lib/api/systemstatus.yaml', 'r') as file:
+        data = yaml.load(file, Loader=yaml.SafeLoader)
+        key_from_config = list(data.keys())
+        return key_from_config
+
+def sync_keys():
+    """同步配置和数据库中的键值"""
+    key_from_config = get_keys_from_config()
+    print(f"Keys from config: {key_from_config}")
+
+    key_from_db = get_keys_from_db()
+    print(f"Keys from DB: {key_from_db}")
+
+    # 找出新增和删除的条目
+    keys_to_insert = set(key_from_config) - set(key_from_db)
+    keys_to_delete = set(key_from_db) - set(key_from_config)
+
+    # 插入和删除
+    for item in keys_to_insert:
+        insert(item)
+    for item in keys_to_delete:
+        delete(item)
+
+if __name__ == '__main__':
+    try:
+        sync_keys()
+    except Exception as e:
+        print(f"An error occurred: {e}", file=sys.stderr)
+        exit(1)
+
