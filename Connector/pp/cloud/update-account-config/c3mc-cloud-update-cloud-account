@@ -9,7 +9,7 @@ import threading
 from datetime import datetime
 
 # 支持云账号处理的云厂商列表
-SUPPORTED_CLOUD_LIST = ["aliyun", "aws", "google", "huawei", "ksyun", "qcloud"]
+SUPPORTED_CLOUD_LIST = ["aliyun", "aws", "google", "huawei", "ksyun", "qcloud", "ibm"]
 # 旧的accountx这种方式很块会被停掉
 OLD_EXT_DIR_PATH = "/data/Software/mydan/AGENT/device/conf/accountx"
 NEW_EXT_DIR_PATH = "/data/Software/mydan/AGENT/device/conf/accountdb"
@@ -79,6 +79,8 @@ def is_file_empty(file_path):
 
 def append_to_account_file(file_path, strings_list):
     if not strings_list:
+        with open(file_path, "w") as file:
+            file.truncate(0)  # 清空文件内容
         return
 
     if not os.path.exists(file_path):
