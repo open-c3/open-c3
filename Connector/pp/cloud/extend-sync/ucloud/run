@@ -8,6 +8,6 @@ fi
 set -o pipefail
 
 accountfile=/data/Software/mydan/Connector/pp/cloud/extend-sync/ucloud/account
-test -f $accountfile || exit
+test -f $accountfile || exit 0
 
 cat $accountfile |xargs -i{} bash -c "c3mc-cloud-ucloud-$TASK {}"
