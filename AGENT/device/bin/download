@@ -237,6 +237,16 @@ sub download
 
 }
 
+my $timeout = `c3mc-sys-ctl sys.device.sync.interval`;
+$timeout = $timeout * 2 + time;
+sub set_systemstatus
+{
+    my ( $type, $name, $status ) = @_;
+
+    system "c3mc-base-db-ins -t openc3_connector_systemstatus system cmdb module sync group '$type' name '$name' status '$status' timeout '$timeout'";
+
+}
+
 for my $c ( @{ $conf->{download} } )
 {
     next if %sync && ! grep{ $c->{template} =~ /$_/ } keys %sync;
@@ -257,6 +267,23 @@ for my $c ( @{ $conf->{download} } )
 
     map{ $c->{util}{$_} = $c->{$_} if $c->{$_} }qw( defaulttree copytreecol extcol );
     my $time = time;
+
+    my $log_file = "/tmp/cmdb.sync.$c->{type}.$c->{subtype}.log";
+    my $log_temp = "$log_file.temp";
+
+    # 打开文件来保存标准输出和标准错误输出
+    open my $stdout_fh, '>>', $log_temp or die "Cannot open log file for STDOUT: $!\n";
+    open my $stderr_fh, '>>', $log_temp or die "Cannot open log file for STDERR: $!\n";
+
+    # 保存原始的 STDOUT 和 STDERR
+    open my $old_stdout, '>&', STDOUT or die "Failed to save original STDOUT: $!";
+    open my $old_stderr, '>&', STDERR or die "Failed to save original STDERR: $!";
+
+    # 重定向 STDOUT 和 STDERR 到新文件
+    open STDOUT, '>&', $stdout_fh or die "Failed to redirect STDOUT: $!";
+    open STDERR, '>&', $stderr_fh or die "Failed to redirect STDERR: $!";
+
+    my $status = 'success';
     eval{
         download( map{ $c->{$_} }qw(type subtype url outline filter colmap util ingestion-node check datatype treeinfo alias ));
     };
@@ -265,7 +292,25 @@ for my $c ( @{ $conf->{download} } )
     {
         warn "sync type:$c->{type} subtype:$c->{subtype} fail: $@";
         $usetime = -1;
+        $status = 'fail';
     }
+    set_systemstatus( $c->{type}, $c->{subtype}, $status );
+
+    # 恢复原始的 STDOUT 和 STDERR
+    open STDOUT, '>&', $old_stdout or die "Failed to restore original STDOUT: $!";
+    open STDERR, '>&', $old_stderr or die "Failed to restore original STDERR: $!";
+
+    # 关闭文件句柄
+    close $stdout_fh;
+    close $stderr_fh;
+    close $old_stdout;
+    close $old_stderr;
+
+    if( -f $log_temp )
+    {
+        rename $log_temp, $log_file or die "rename $log_temp to $log_file fail: $!";
+    }
+
     printf "c3_cmdb_sync_usetime{type=\"%s\", subtype=\"%s\"} %s\n", $c->{type}, $c->{subtype}, $usetime;
     system "rm -rf 'sync_temp/$pid'";
 }

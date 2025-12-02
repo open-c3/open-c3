@@ -33,6 +33,8 @@ get '/systemstatus' => sub {
 
         $r->{info} = $config && $config->{$key} ? $config->{$key}[1] : '';
 
+        $r->{info} = 'CMDB.sync' if !$r->{info} && $r->{system} eq 'cmdb' && $r->{module} eq 'sync';
+
         $r->{status} = "$r->{status}.and.timeout" if $r->{timeout} && $r->{timeout} < time;
         $success ++ if $r->{status} eq 'success';
     }
@@ -70,6 +72,11 @@ any '/systemstatus/log' => sub {
     {
         $res->{log} = `tail -n 200 '$config->{$key}[0]'`;
         $res->{detail} = $config->{$key}[2];
+    }
+    elsif( $param->{system} eq 'cmdb' && $param->{module} eq 'sync' )
+    {
+        $res->{log} = `tail -n 300 '/tmp/cmdb.sync.$param->{group}.$param->{name}.log'`;
+        $res->{detail} = "cmdb sync $param->{group}.$param->{name}";
     }
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $res };

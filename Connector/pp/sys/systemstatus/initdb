@@ -51,14 +51,28 @@ def get_keys_from_config():
         key_from_config = list(data.keys())
         return key_from_config
 
+def get_keys_from_cmdb():
+    """从数CMDB中获取列表"""
+    output = run_command(['/data/Software/mydan/AGENT/device/bin/list'])
+    if output is None:
+        print("Failed to fetch keys from cmdb.")
+        exit(1)
+    # 处理数据库返回的输出，将每一行转换为键值
+    key_from_cmdb = ['_'.join(i.split(':', 1)) for i in output]
+    return [ f"cmdb_sync_{i}" for i in key_from_cmdb ]
+
 def sync_keys():
     """同步配置和数据库中的键值"""
+    key_from_cmdb = get_keys_from_cmdb()
+    print(f"Keys from cmdb: {key_from_cmdb}")
+
     key_from_config = get_keys_from_config()
     print(f"Keys from config: {key_from_config}")
 
     key_from_db = get_keys_from_db()
     print(f"Keys from DB: {key_from_db}")
 
+    key_from_config.extend(key_from_cmdb)
     # 找出新增和删除的条目
     keys_to_insert = set(key_from_config) - set(key_from_db)
     keys_to_delete = set(key_from_db) - set(key_from_config)

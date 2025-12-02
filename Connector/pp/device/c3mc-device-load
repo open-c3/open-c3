@@ -5,7 +5,20 @@ rsync -a /data/Software/mydan/AGENT/device/conf/ /data/open-c3-data/device/curr/
 
 mkdir -p mkdir /data/open-c3-data/logs/cmdb
 
-cd /data/Software/mydan/Connector/local && /data/Software/mydan/AGENT/device/bin/downloadx > devicesynctime.txt.temp 2>/data/open-c3-data/logs/cmdb/sync.error.curr.log && mv devicesynctime.txt.temp devicesynctime.txt
+cd /data/Software/mydan/Connector/local && /data/Software/mydan/AGENT/device/bin/downloadx > devicesynctime.txt.temp 2>/data/open-c3-data/logs/cmdb/sync.error.curr.log
+if [ $? -eq 0 ]; then
+    mv devicesynctime.txt.temp devicesynctime.txt
+    STATUS=success
+else
+    STATUS=fail
+fi
+
+TIMEOUT=$(c3mc-sys-ctl sys.device.sync.interval)
+TIMEOUT=$((TIMEOUT * 2))
+NOW_TS=$(date +%s)
+DB_TIMEOUT=$(( NOW_TS + TIMEOUT ))
+
+c3mc-base-db-ins -t openc3_connector_systemstatus system cmdb module default group default name downloadx status $STATUS timeout $DB_TIMEOUT
 
 cp  /data/open-c3-data/logs/cmdb/sync.error.curr.log    /data/open-c3-data/logs/cmdb/sync.error.last.log
 cat /data/open-c3-data/logs/cmdb/sync.error.curr.log >> /data/open-c3-data/logs/cmdb/sync.error.log
