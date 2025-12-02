@@ -109,6 +109,11 @@ sub download
     {
         my ( $treeid, $filename ) = ( $1, $2 );
         my $md5 = `c3mc-base-db-get -t openc3_job_fileserver md5 -f 'projectid=$treeid and name="$filename" and status="available"'`;
+        unless( $md5 )
+        {
+            warn "data nofind in the fileserver, skip.\n";
+            return;
+        }
         chomp $md5;
         die "md5 err" unless $md5 && $md5 =~ /^[a-z0-9]+$/;
         my $file = "/data/open-c3-data/glusterfs/fileserver/$treeid/$md5";
