@@ -18,7 +18,7 @@ TIMEOUT=$((TIMEOUT * 2))
 NOW_TS=$(date +%s)
 DB_TIMEOUT=$(( NOW_TS + TIMEOUT ))
 
-c3mc-base-db-ins -t openc3_connector_systemstatus system cmdb module default group default name downloadx status $STATUS timeout $DB_TIMEOUT
+c3mc-base-db-ins -t openc3_connector_systemstatus system cmdb module sync group global name downloadx status $STATUS timeout $DB_TIMEOUT
 
 cp  /data/open-c3-data/logs/cmdb/sync.error.curr.log    /data/open-c3-data/logs/cmdb/sync.error.last.log
 cat /data/open-c3-data/logs/cmdb/sync.error.curr.log >> /data/open-c3-data/logs/cmdb/sync.error.log

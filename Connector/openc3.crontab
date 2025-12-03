@@ -4,17 +4,17 @@ TZ=Asia/Shanghai
 15 2 * * * root /usr/bin/c3mc-sys-systemstatus-cmd 97200 cicd default default c3mc-ci-gitreport-cron /usr/bin/c3mc-ci-gitreport-cron  > /tmp/c3mc-ci-gitreport-cron.log  2>&1
 45 3 * * * root /usr/bin/c3mc-sys-systemstatus-cmd 97200 monitor default default c3mc-mon-monreport-cron  /usr/bin/c3mc-mon-monreport-cron > /tmp/c3mc-mon-monreport-cron.log 2>&1
 15 4 * * * root /usr/bin/c3mc-sys-systemstatus-cmd 97200 monitor default default c3mc-mon-nlow-cron /usr/bin/c3mc-mon-nlow-cron      > /tmp/c3mc-mon-nlow-cron.log      2>&1
-1  * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 7200 cmdb default default c3mc-device-timemachine /usr/bin/c3mc-device-timemachine > /tmp/c3mc-device-timemachine.log      2>&1
+1  * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 7200 cmdb feature timemachine c3mc-device-timemachine /usr/bin/c3mc-device-timemachine > /tmp/c3mc-device-timemachine.log      2>&1
 
 */3 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 360 cmdb account 01.dump-account c3mc-device-accountdb-dump /usr/bin/c3mc-device-accountdb-dump > /tmp/c3mc-device-accountdb-dump.log 2>&1
 
 */5 * * * * root flock -n /tmp/c3mc-cloud-update-cloud-account.lock /usr/bin/c3mc-sys-systemstatus-cmd 600 cmdb account 02.extract-region c3mc-cloud-update-cloud-account /usr/bin/c3mc-cloud-update-cloud-account > /tmp/c3mc-cloud-update-cloud-account.log 2>&1
 
-*/2 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 240 cmdb default default c3mc-device-bind-info-cache.set /usr/bin/c3mc-device-bind-info-cache set > /tmp/c3mc-device-bind-info-cache.log 2>&1
-*/5 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 600 cmdb default default c3mc-device-base-info-cache.set /usr/bin/c3mc-device-base-info-cache set > /tmp/c3mc-device-base-info-cache.log 2>&1
-*/5 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 600 cmdb default default c3mc-device-cat-all-cache.set /usr/bin/c3mc-device-cat-all-cache   set > /tmp/c3mc-device-cat-all-cache.log 2>&1
-*/5 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 600 cmdb default default c3mc-device-nodeinfo-allnode-cache.set /usr/bin/c3mc-device-nodeinfo-allnode-cache set > /tmp/c3mc-device-nodeinfo-allnode-cache.log 2>&1
-1 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 7200 cmdb default default depttree /data/Software/mydan/AGENT/device/bin/depttree > /tmp/depttree.log 2>&1
+*/2 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 240 cmdb cache default c3mc-device-bind-info-cache.set /usr/bin/c3mc-device-bind-info-cache set > /tmp/c3mc-device-bind-info-cache.log 2>&1
+*/5 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 600 cmdb cache default c3mc-device-base-info-cache.set /usr/bin/c3mc-device-base-info-cache set > /tmp/c3mc-device-base-info-cache.log 2>&1
+*/5 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 600 cmdb cache default c3mc-device-cat-all-cache.set /usr/bin/c3mc-device-cat-all-cache   set > /tmp/c3mc-device-cat-all-cache.log 2>&1
+*/5 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 600 cmdb cache default c3mc-device-nodeinfo-allnode-cache.set /usr/bin/c3mc-device-nodeinfo-allnode-cache set > /tmp/c3mc-device-nodeinfo-allnode-cache.log 2>&1
+1 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 7200 cmdb feature makedepttree depttree /data/Software/mydan/AGENT/device/bin/depttree > /tmp/depttree.log 2>&1
 
 * * * * * root flock -n /tmp/c3mc-mon-proxy-metricsd.lock /usr/bin/c3mc-sys-systemstatus-cmd 7200 monitor default default c3mc-mon-proxy-metricsd /usr/bin/c3mc-mon-proxy-metricsd > /tmp/c3mc-mon-proxy-metricsd.log 2>&1
 
@@ -28,11 +28,11 @@ TZ=Asia/Shanghai
 1 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 7200 monitor default default resourcelow-makecache /data/Software/mydan/Connector/pp/mmon/resourcelow/makecache >/tmp/resourcelow-makecache.log 2>&1
 * * * * * root flock -n /tmp/serialcall.lock /usr/bin/c3mc-sys-systemstatus-cmd 120 monitor default default serialcall /data/Software/mydan/Connector/pp/mmon/serialcall/run.sh > /tmp/serialcall.log 2>&1
 
-*/30 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 3600 cmdb default default buildintree /data/Software/mydan/Connector/pp/device/buildintree/run > /tmp/c3.buildintree.log 2>&1
+*/30 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 3600 cmdb feature autobindtree buildintree /data/Software/mydan/Connector/pp/device/buildintree/run > /tmp/c3.buildintree.log 2>&1
 
 */10 * * * * root flock -n /tmp/alertmanagercrontab.lock /usr/bin/c3mc-sys-systemstatus-cmd 1200 monitor default default alertmanagercrontab /data/Software/mydan/Connector/pp/mmon/alertmanagercrontab/run.sh > /tmp/alertmanagercrontab.log 2>&1
 
-0 10 * * * root /usr/bin/c3mc-sys-systemstatus-cmd 87200 cmdb default default ssl-certificate-expired-notify /data/Software/mydan/Connector/pp/device/crontab/ssl-certificate-expired-notify/run.sh > /tmp/ssl-certificate-expired-notify.log 2>&1
+0 10 * * * root /usr/bin/c3mc-sys-systemstatus-cmd 87200 cmdb notify default ssl-certificate-expired-notify /data/Software/mydan/Connector/pp/device/crontab/ssl-certificate-expired-notify/run.sh > /tmp/ssl-certificate-expired-notify.log 2>&1
 
 */3 * * * * root flock -n /tmp/cislave.sync1.lock /usr/bin/c3mc-sys-systemstatus-cmd 360 cicd default default cislave.sync1 /data/Software/mydan/CI/cislave/sync/sync1.sh  > /tmp/cislave.sync1.log 2>&1
 */5 * * * * root flock -n /tmp/cislave.sync1.lock /usr/bin/c3mc-sys-systemstatus-cmd 600 cicd default default cislave.sync2 /data/Software/mydan/CI/cislave/sync/sync2.sh  > /tmp/cislave.sync2.log 2>&1
@@ -42,13 +42,13 @@ TZ=Asia/Shanghai
 */10 * * * * root flock -n /tmp/mmon-node-alive-make-exip.lock /usr/bin/c3mc-sys-systemstatus-cmd 1200 monitor default default mmon-node-alive-make-exip /data/Software/mydan/Connector/pp/mmon/node-alive/make-exip > /tmp/mmon-node-alive-make-exip.log 2>&1
 * * * * * root flock -n /tmp/mmon-node-alive.lock /usr/bin/c3mc-sys-systemstatus-cmd 120 monitor default default mmon-node-alive /data/Software/mydan/Connector/pp/mmon/node-alive/run.sh > /tmp/mmon-node-alive.log 2>&1
 
-*/5 * * * * root flock -n /tmp/resources-fee-change-notify.lock /usr/bin/c3mc-sys-systemstatus-cmd 600 cmdb default default resources-fee-change-notify /data/Software/mydan/Connector/pp/device/crontab/resources-fee-change-notify/notifyd  > /tmp/resources-fee-change-notify.log 2>&1
+*/5 * * * * root flock -n /tmp/resources-fee-change-notify.lock /usr/bin/c3mc-sys-systemstatus-cmd 600 cmdb notify default resources-fee-change-notify /data/Software/mydan/Connector/pp/device/crontab/resources-fee-change-notify/notifyd  > /tmp/resources-fee-change-notify.log 2>&1
 
 * * * * * root flock -n /tmp/c3mc-mon-exmesg-cron.lock /usr/bin/c3mc-sys-systemstatus-cmd 120 monitor default default c3mc-mon-exmesg-cron /usr/bin/c3mc-mon-exmesg-cron   > /tmp/c3mc-mon-exmesg-cron.log      2>&1
 * * * * * root flock -n /tmp/c3mc-mon-exmesg-maker-cron.lock /usr/bin/c3mc-sys-systemstatus-cmd 120 monitor default default c3mc-mon-exmesg-maker-cron  /usr/bin/c3mc-mon-exmesg-maker-cron   > /tmp/c3mc-mon-exmesg-maker-cron.log      2>&1
 
-1 */2 * * * root flock -n /tmp/service-analysis-make.lock /usr/bin/c3mc-sys-systemstatus-cmd 10800 cmdb default default service-analysis-make /data/Software/mydan/Connector/pp/service-analysis/make.sh > /tmp/service-analysis-make.log 2>&1
-15 */2 * * * root flock -n /tmp/service-analysis-nginx-make.lock /usr/bin/c3mc-sys-systemstatus-cmd 10800 cmdb default default service-analysis-nginx-make /data/Software/mydan/Connector/pp/service-analysis/nginx/sync > /tmp/service-analysis-nginx-make.log 2>&1
+1 */2 * * * root flock -n /tmp/service-analysis-make.lock /usr/bin/c3mc-sys-systemstatus-cmd 10800 cmdb feature service-analysis service-analysis-make /data/Software/mydan/Connector/pp/service-analysis/make.sh > /tmp/service-analysis-make.log 2>&1
+15 */2 * * * root flock -n /tmp/service-analysis-nginx-make.lock /usr/bin/c3mc-sys-systemstatus-cmd 10800 cmdb feature service-analysis service-analysis-nginx-make /data/Software/mydan/Connector/pp/service-analysis/nginx/sync > /tmp/service-analysis-nginx-make.log 2>&1
 
 */10 * * * * root flock -n /tmp/http-monitor.lock /usr/bin/c3mc-sys-systemstatus-cmd 1200 monitor default default http-monitor /data/Software/mydan/Connector/pp/mmon/http-monitor/run > /tmp/http-monitor.log 2>&1
 
