@@ -6,9 +6,9 @@ TZ=Asia/Shanghai
 15 4 * * * root /usr/bin/c3mc-sys-systemstatus-cmd 97200 monitor default default c3mc-mon-nlow-cron /usr/bin/c3mc-mon-nlow-cron      > /tmp/c3mc-mon-nlow-cron.log      2>&1
 1  * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 7200 cmdb default default c3mc-device-timemachine /usr/bin/c3mc-device-timemachine > /tmp/c3mc-device-timemachine.log      2>&1
 
-*/3 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 360 cmdb default default c3mc-device-accountdb-dump /usr/bin/c3mc-device-accountdb-dump > /tmp/c3mc-device-accountdb-dump.log 2>&1
+*/3 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 360 cmdb account 01.dump-account c3mc-device-accountdb-dump /usr/bin/c3mc-device-accountdb-dump > /tmp/c3mc-device-accountdb-dump.log 2>&1
 
-*/5 * * * * root flock -n /tmp/c3mc-cloud-update-cloud-account.lock /usr/bin/c3mc-sys-systemstatus-cmd 600 cmdb default default c3mc-cloud-update-cloud-account /usr/bin/c3mc-cloud-update-cloud-account > /tmp/c3mc-cloud-update-cloud-account.log 2>&1
+*/5 * * * * root flock -n /tmp/c3mc-cloud-update-cloud-account.lock /usr/bin/c3mc-sys-systemstatus-cmd 600 cmdb account 02.extract-region c3mc-cloud-update-cloud-account /usr/bin/c3mc-cloud-update-cloud-account > /tmp/c3mc-cloud-update-cloud-account.log 2>&1
 
 */2 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 240 cmdb default default c3mc-device-bind-info-cache.set /usr/bin/c3mc-device-bind-info-cache set > /tmp/c3mc-device-bind-info-cache.log 2>&1
 */5 * * * * root /usr/bin/c3mc-sys-systemstatus-cmd 600 cmdb default default c3mc-device-base-info-cache.set /usr/bin/c3mc-device-base-info-cache set > /tmp/c3mc-device-base-info-cache.log 2>&1
