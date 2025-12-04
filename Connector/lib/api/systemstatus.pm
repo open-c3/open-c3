@@ -29,15 +29,18 @@ get '/systemstatus' => sub {
     for my $r ( @$res )
     {
         my $key = join '_', map{ $r->{$_} }qw( system module group name );
-        $r->{key} = $key;
+        ( $r->{key}, $r->{vkey} ) = ( $key, $key );
 
         $r->{info} = $config && $config->{$key} ? $config->{$key}[1] : '';
 
-        $r->{info} = 'CMDB.sync' if !$r->{info} && $r->{system} eq 'cmdb' && $r->{module} eq 'sync';
+        ( $r->{info}, $r->{vkey} ) = ( 'CMDB.sync', "zz$r->{key}" ) if !$r->{info} && $r->{system} eq 'cmdb' && $r->{module} eq 'sync';
 
         $r->{status} = "$r->{status}.and.timeout" if $r->{timeout} && $r->{timeout} < time;
         $success ++ if $r->{status} eq 'success';
     }
+
+    $res = [ sort{ $a->{vkey} cmp $b->{vkey} }@$res ];
+    map{ delete $_->{vkey} }@$res;
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $res, total => $total, success => $success };
 };
@@ -78,6 +81,8 @@ any '/systemstatus/log' => sub {
         $res->{log} = `tail -n 300 '/tmp/cmdb.sync.$param->{group}.$param->{name}.log'`;
         $res->{detail} = "cmdb sync $param->{group}.$param->{name}";
     }
+
+    $res->{log} = Encode::decode('utf8', $res->{log} );
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $res };
 };
