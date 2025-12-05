@@ -140,20 +140,45 @@ return sub
     my @group;
     if( uuid::get_role( $uuid ) eq 'rollback' )
     {
+
+        $name =~ /^_ci_(\d+)_$/;
+        my $flowlineid = $1;
+        my $rollback_mode = `c3mc-base-db-get rollback_mode --table openc3_ci_project --filter 'id=$flowlineid'`;
+        chomp $rollback_mode;
+
+        if( $rollback_mode eq 'default' )
+        {
+            my $x = `c3mc-sys-ctl  cd.rollback_mode`;
+            chomp $x;
+            $rollback_mode = $x;
+        }
+
+        my @mode = qw( PartialForwardRollback PartialReverseRollback FullForwardRollback FullReverseRollback );
+
+        $logs->die( "rollback_mode $rollback_mode unknown" ) unless grep{ $rollback_mode eq $_ }@mode;
+
         my $where = '';
         if( $clusterVersionTag )
         {
+            # 回滚过程中，如果要回滚的版本就是当前线上使用的版本，意思是回滚到当前线上版本。
+            # 那么如果某些分批没有操作过，回滚的时候就不要操作它。适用于/Partial/这种部分回滚的方式。如果是/Full/模式，会全部进行回滚。
             my $lastversion = $db->query( "select `version` from openc3_jobx_flowline_version where flowlineid='$clusterVersionTag->{flowlineid}'" );
 
             $where = "and (  status != 'init' && status != 'cancel' )"
                 if $lastversion && @$lastversion > 0 && $lastversion->[0][0] eq $clusterVersionTag->{version};
         }
 
+
+        $where = '' if  $rollback_mode =~ /Full/;
+
         my $deployuuid =  uuid::get_deploy_uuid( $uuid );
         my $nodelist = $db->query( "select nodelist from openc3_jobx_subtask where parent_uuid='$deployuuid' $where order by id" );
         $logs->die( "get data error from db" ) unless defined $nodelist && ref $nodelist eq 'ARRAY';
 
         @group = map{ [ split /,/, $_->[0] ] }@$nodelist;
+
+        @group = reverse @group if $rollback_mode =~ /Reverse/;
+
     }
     else
     {

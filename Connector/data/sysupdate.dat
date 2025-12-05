@@ -1206,3 +1206,6 @@ create table if not exists `openc3_connector_systemstatus`(
 `edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'time',
 UNIQUE KEY `uniq_system_module_group_name` (`system`,`module`,`group`,`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='systemstatus';
+
+# v2.6.0 sql openc3_ci_project add rollback_mode
+ALTER TABLE openc3_ci_project ADD `rollback_mode` VARCHAR(30) default 'default' comment '回滚模式';

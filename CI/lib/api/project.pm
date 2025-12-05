@@ -76,6 +76,7 @@ get '/project/:groupid/:projectid' => sub {
         nomail nomesg
         notifyci notifycd
         cislave
+	rollback_mode
         );
     my $r = eval{ 
         $api::mysql->query( 
@@ -129,6 +130,7 @@ post '/project/:groupid/:projectid' => sub {
         notifyci => [ 'mismatch', qr/'/ ], 0,
         notifycd => [ 'mismatch', qr/'/ ], 0,
         cislave => [ 'mismatch', qr/'/ ], 0,
+        rollback_mode => [ 'mismatch', qr/'/ ], 1,
         tag_regex => [ 'mismatch', qr/'/ ], 0,
         autofindtags => qr/^\d+$/, 1,
         callonlineenv => qr/^\d+$/, 1,
@@ -197,6 +199,7 @@ post '/project/:groupid/:projectid' => sub {
         nomail nomesg
         notifyci notifycd
         cislave
+	rollback_mode
     );
     eval{ 
         $api::mysql->execute(

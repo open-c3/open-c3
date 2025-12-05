@@ -156,6 +156,15 @@
                             <label class="col-sm-6 control-label" style="font-size: 12px;">{{'C3T.默认是1。如果是0时，系统禁止CI系统自动触发线上环境的发布。'|translate}}({{'C3T.实时生效'|translate}})</label>
                         </div>
 
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">{{'C3T.回滚模式'|translate}}</label>
+                            <div class="col-sm-3" >
+                                <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['cd.rollback_mode']" >
+                                    <option ng-repeat="x in ['PartialForwardRollback','PartialReverseRollback','FullForwardRollback','FullReverseRollback']" value="{{x}}">{{x}}</option>
+                                </select>
+                            </div>
+                            <label class="col-sm-6 control-label" style="font-size: 12px;">{{'C3T.全局设置，影响回滚方式，谨慎修改。'|translate}}({{'C3T.实时生效'|translate}})</label>
+                        </div>
 
                     </div>
                 </div>

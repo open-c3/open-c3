@@ -451,6 +451,16 @@
                         </div>
                     </div>
 
+                   <div class="row" ng-if="config.professional == '1'" >
+                        <label class="col-md-2 control-label fwbold">{{'C3T.回滚模式'|translate}}</label>
+                        <div class="col-md-6 form-inline">
+                            <select class="form-control"  ng-model="config.project.rollback_mode">
+                                 <option ng-repeat="x in ['default','PartialForwardRollback','PartialReverseRollback','FullForwardRollback','FullReverseRollback']" value="{{x}}">{{x}}</option>
+                            </select>
+                        </div>
+                    </div>
+
+
 <div ng-if="config.project.ci_type === 'kubernetes'">
                     <hr style="margin: 5px" >
                     <div class="row">
