@@ -76,7 +76,7 @@ get '/project/:groupid/:projectid' => sub {
         nomail nomesg
         notifyci notifycd
         cislave
-	rollback_mode
+        rollback_mode
         );
     my $r = eval{ 
         $api::mysql->query( 
@@ -199,7 +199,7 @@ post '/project/:groupid/:projectid' => sub {
         nomail nomesg
         notifyci notifycd
         cislave
-	rollback_mode
+        rollback_mode
     );
     eval{ 
         $api::mysql->execute(
