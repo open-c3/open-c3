@@ -15,7 +15,11 @@ use warnings;
 my @flowid = `c3mc-base-db-get -t openc3_ci_project id`;
 chomp @flowid;
 
-die "maybe some error here, skip." if @flowid <= 10;
+if( @flowid <= 10 )
+{
+    warn "maybe some error here, skip.\n";
+    exit 0;
+}
 
 my %flowid = map{ $_ => 1 }@flowid;
 

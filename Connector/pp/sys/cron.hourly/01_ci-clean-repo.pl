@@ -20,7 +20,11 @@ print "normal: $normal testonly: $testonly docker: $docker\n";
 my @flow = `c3mc-base-db-get -t openc3_ci_project id ci_type`;
 chomp @flow;
 
-die "maybe some error here, skip." if @flow <= 10;
+if( @flow <= 10 )
+{
+    warn "maybe some error here, skip.\n";
+    exit;
+}
 
 my %flowid = map{ split /;/, $_, 2 }@flow;
 
