@@ -139,5 +139,36 @@ $handle{cmdb_menu} = sub
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $data };
 };
 
+=pod
+
+CMDB/在历史中全局搜索
+
+=cut
+
+get '/c3mc/cmdb/search' => sub {
+    my $param = params();
+    my $error = Format->new(
+        search_text => qr/^[a-zA-Z0-9][a-zA-Z0-9_\-\.]*$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_job_read', 0 ); return $pmscheck if $pmscheck;
+
+    my $cmd = "c3mc-device-search-history '$param->{search_text}'";
+
+    my $handle = 'cmdb_search';
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? );
+};
+
+$handle{cmdb_search} = sub
+{
+    my ( $x, $status ) = @_;
+    return +{ stat => $JSON::false, info => $x } if $status;
+    my @x = reverse map{ +{ name => $_ } }grep{ $_ =~ /^\d{8}\-\d{6}$/ || $_ eq 'curr' }split "\n", $x;
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@x };
+};
 
 true;

@@ -1,0 +1,42 @@
+<div><cmloading ng-if="!cmdbsearchDialog.searchloadover"></cmloading></div>
+<div class="modal-header">
+    <h4 class="modal-title">{{'C3T.历史全局搜索'| translate}}</h4>
+</div>
+<div class="modal-body">
+  <form class="form-horizontal" name="myForm" role="form">
+    <div ng-show="!cmdbsearchDialog.selectall" class="row">
+      <div class="col-sm-10 form-group">
+
+        <div class="col-sm-3">
+        </div>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" placeholder="{{'C3T.搜索内容'|translate}}" ng-model="cmdbsearchDialog.search_text">
+        </div>
+        <div class="col-sm-3">
+            <button ng-click="cmdbsearchDialog.search()" class="btn btn-info menu-panel-form-button" style="padding: 5px 55px"><i class="fa fa-search fa-lg" aria-hidden="true"></i>{{'C3T.搜索'|translate}}</button>
+        </div>
+      </div>
+    </div>
+
+     <div class="panel-body" ng-if="cmdbsearchDialog.show" >
+         <div class="pt20" style="overflow: auto;">
+             <table ng-table="cmdbsearchDialog.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
+                 <tr ng-repeat="m in $data">
+                     <td data-title="'C3T.时间戳'|translate" width="80" filter="{ name: 'text'}" data-sortable="'name'">{{m.name}}</td>
+                     <td data-title="'C3T.操作'|translate" width="80" >
+                         <i class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="cmdbsearchDialog.gogogo(m.name)" uib-tooltip="{{'C3T.进入'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                     </td>
+                 </tr>
+             </table>
+         </div>
+     </div>
+
+     <hr>
+     <div class="row">
+       <div class="col-sm-5 form-group pull-right">
+         <button class="btn btn-warning" ng-click="cmdbsearchDialog.cancel()">{{'C3T.取消'|translate}}</button>
+       </div>
+     </div>
+
+  </form>
+</div>

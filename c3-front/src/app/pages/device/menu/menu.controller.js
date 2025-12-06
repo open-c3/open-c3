@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('DeviceMenuController', DeviceMenuController);
 
-    function DeviceMenuController($state, $http, $scope, treeService, $rootScope ) {
+    function DeviceMenuController($state, $http, $scope, treeService, $rootScope, $uibModal ) {
         var vm = this;
         vm.treeid = $state.params.treeid;
 
@@ -104,6 +104,31 @@
           }
           return '&' + queryParams.join('&');
         }
+
+        vm.navigationOperate = function (type, id) {
+         $uibModal.open({
+           templateUrl: 'app/pages/device/menu/dialog.html',
+           controller: 'CmdbSearchDialogController',
+           controllerAs: 'cmdbsearchDialog',
+           backdrop: 'static',
+           size: 'lg',
+           keyboard: false,
+           bindToController: true,
+           resolve: {
+             id: function () { return id },
+             type:function () { return type },
+             gogogo:function () { return vm.gogogo },
+             reload: function () { return vm.reload }
+           }
+         });
+       };
+
+       vm.gogogo = function (uuid, search_text) {
+         vm.grepdata._search_ = search_text;
+         vm.selectedtimemachine = uuid;
+         vm.gotosubtype('all', 'all', 'input');
+       };
+
 
     }
 })();
