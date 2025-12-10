@@ -1,2 +1,2 @@
 #!/bin/bash
-lsof -i:8000|grep uvicorn|awk '{print $2}'|xargs -i{} kill {}
+lsof -i:8000|awk '{print $2}'|grep -v PID |xargs -i{} kill -9 {}

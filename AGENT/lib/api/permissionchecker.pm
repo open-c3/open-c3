@@ -21,14 +21,29 @@ any '/PermissionChecker' => sub {
     my $param = params();
 
     my $error = Format->new(
-        auth_point   => qr/^[a-z][a-z\d\-_]+$/, 1,
+        auth_point    => qr/^[a-z][a-z\d\-_]+$/, 1,
         tree_id       => qr/^\d+$/, 1,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my $pmscheck = api::pmscheck( $param->{auth_point}, $param->{tree_id} );
-    
-    return +{ stat => $JSON::true, data => $pmscheck ? 0 : 1 };
+    my $noauth = api::pmscheck( $param->{auth_point}, $param->{tree_id} );
+
+    my %user;
+
+    if( $param->{get_userinfo} )
+    {
+        if( $noauth )
+        {
+            %user = ( username => 'unknow' );
+        }
+        else
+        {
+            my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+            %user = ( username => $user );
+        }
+    }
+
+    return +{ stat => $JSON::true, data => $noauth ? 0 : 1, %user };
 };
 
 true;
