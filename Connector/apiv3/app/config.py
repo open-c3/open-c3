@@ -42,11 +42,17 @@ class Settings(BaseSettings):
     DB_POOL_PRE_PING: bool = Field(default=True, env="DB_POOL_PRE_PING")
 
     # 其他配置
+
+    # 这里并没有写死，".env"配置文件里面修改覆盖这里的配置
     APP_NAME: str = "FastAPI"
     HOST: str = "0.0.0.0"
     PORT: int = 8000
     DEBUG: bool = True
-    log_level: str = "info"
+
+    LOG_LEVEL: str =  "INFO"
+    LOG_FILE: str = "logs/app.log"
+
+    LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"
 
     @property
     def DATABASE_CONFIGS(self) -> Dict[str, str]:

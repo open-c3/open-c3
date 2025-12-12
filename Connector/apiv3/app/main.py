@@ -6,6 +6,7 @@ from sqlalchemy import text
 import logging
 from app.routers import demos, cmdb, connector, agent, job, jobx, ci
 from .routers.demosx import items
+from app.logger import setup_logging, get_logger
 
 from .database.core import (
     db_manager,
@@ -21,14 +22,16 @@ from .database.core import (
     init_jobx_db,
     init_ci_db
 )
+
 #from .models.agent_models import Agent, AgentTask
 #from .models.job_models import Job, JobExecution
 #from .models.jobx_models import Jobx, JobxExecution
 #from .models.ci_models import Ci, CiExecution
 #from .models.connector_models import Connector, ConnectionLog
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+setup_logging()
+
+logger = get_logger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
