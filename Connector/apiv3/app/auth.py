@@ -70,6 +70,12 @@ def auth(permission: str, treeid_param_name: str = "treeid",get_userinfo: bool=F
                         }
 
                     result = response.json()
+                    if result.get("code") == 10000:
+                        return {
+                            "stat": False,
+                            "code": 10000,
+                        }
+
                     if not result.get("stat"):
                         return {
                             "stat": False,
