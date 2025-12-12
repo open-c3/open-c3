@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     # 这里并没有写死，".env"配置文件里面修改覆盖这里的配置
     APP_NAME: str = "FastAPI"
     HOST: str = "0.0.0.0"
-    PORT: int = 8000
+    PORT: int = 7999
     DEBUG: bool = True
 
     LOG_LEVEL: str =  "INFO"
