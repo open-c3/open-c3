@@ -39,7 +39,7 @@ async def c3mc_device_search_history(request: Request):
 
         return {
             "stat": True,
-            "data": list(reversed(filtered))
+            "data": [ { "name": i } for i in reversed(filtered) ]
         }
     else:
         return {

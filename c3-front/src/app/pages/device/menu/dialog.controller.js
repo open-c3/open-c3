@@ -17,7 +17,7 @@
     vm.searchloadover = true
     vm.search = function () {
         vm.searchloadover = false
-       $http.get('/api/ci/v2/c3mc/cmdb/search?search_text=' + vm.search_text ).then(
+       $http.get('/api/v3/cmdb/c3mc/device/search/history?search_text=' + vm.search_text ).then(
            function successCallback(response) {
                vm.searchloadover = true
                vm.show = true;
