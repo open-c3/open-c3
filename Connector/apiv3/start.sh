@@ -1,6 +1,15 @@
 #!/bin/bash
+set -e
 
 cd $(dirname $0)
 
-nohup ./start.py &
-#nohup  /data/Software/mydan/python3/bin/uvicorn app.main:app --reload  --host 0.0.0.0 --port 7999 &
+PORT=$1
+
+if [ -z $PORT ];then
+    echo Uage: $0 port
+    exit 1
+fi
+export C3_APIV3_PORT="$PORT"
+
+echo " 启动服务..."
+exec ./start.py

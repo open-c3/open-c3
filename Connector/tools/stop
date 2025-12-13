@@ -36,11 +36,11 @@ for my $type ( qw( api ) )
         }
         else
         {
-            system '/usr/sbin/lsof -i:'.$_.'|tail -n 1|awk \'{print $2}\'|xargs -i{} kill {}';
+            system '/usr/sbin/lsof -i:'.$_.'|awk \'{print $2}\'|grep -v PID|xargs -i{} kill {}';
         }
         print "stop $type port: $_\n";
     }grep{ ( ! $service ) || ( $service && $service eq $_ ) }
-    $port->{$type}{from} .. $port->{$type}{to};
+    $port->{$type}{from} .. $port->{$type}{to}, 7998 .. 7999;
 }
 
 exit if $service && $service ne 'trouble-ticketing';

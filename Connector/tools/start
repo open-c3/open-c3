@@ -38,6 +38,13 @@ map{
 }grep{ ( ! $service ) || ( $service && $service eq $_ ) }
 $port->{api}{from} .. $port->{api}{to};
 
+map{
+    die "start api fail: $!"
+        if system "$supervisor --name connector_supervisor_$_ --cmd '/data/Software/mydan/Connector/apiv3/start.sh $_' --log '$base/logs/server/api.$_'";
+    print "start api port: $_\n"
+}grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+7998 .. 7999;
+
 my $mymarkfile = '/etc/connector.mark';
 my $user = `id -un`;chop $user;
 my $sudo = $user eq 'root' ? '' : 'sudo ';

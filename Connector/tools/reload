@@ -71,6 +71,75 @@ for my $type ( qw( api ) )
     }
 }
 
+sub get_gunicorn_pid
+{
+    my $port = shift @_;
+    my @x = `ps -ef|grep gunicorn|grep -v grep|grep :$port |awk '{print \$2, \$3}'`;
+    chomp @x;
+    my %pid;
+    for( @x )
+    {
+        my ( $pid, $ppid ) = split /\s+/, $_;
+        $pid{$pid} = $ppid;
+    }
+
+    my %tmp = map{ $_=> 1 }keys %pid;
+    map{ $tmp{$_} ++ if $tmp{$_} }values %pid;
+
+    my ( $masterpid ) = grep{ $tmp{$_} > 1 }keys %tmp;
+    my @workerpid = grep{  $_ ne $masterpid }keys %pid;
+
+    return $masterpid, \@workerpid;
+}
+
+for my $type ( qw( api ) )
+{
+    for my $port ( 7998 .. 7999 )
+    {
+        system "c3mc-nginx-reload --off $port --reload --after";
+
+        my ( $masterpid, $workerpid ) = get_gunicorn_pid( $port );
+        die "nofind master pid" unless $masterpid;
+
+        if ( kill( 'HUP', $masterpid ) )
+        {
+            print "sent HUP to master pid $masterpid\n";
+        } else {
+            die "sent HUP fail: $!\n";
+        }
+
+        my $newworkerpid;
+
+        for my $index ( 1 .. 30 )
+        {
+            system "$base/tools/restart $port" if $index == 20;
+            print "check api ...\n";
+            ( undef, $newworkerpid ) = get_gunicorn_pid( $port );
+            my @x = ( @$workerpid, @$newworkerpid );
+            my %x; map{ $x{$_}++ }@x;
+            if( scalar( @x ) == scalar( grep{ $x{$_} eq 1 }keys %x) )
+            {
+                last;
+            }
+            else
+            {
+                die "reload port $port fail.\n" if $index == 30;
+                sleep 1;
+            }
+        }
+
+        printf "old worker pid: %s\n", join ',', @$workerpid;
+        printf "new worker pid: %s\n", join ',', @$newworkerpid;
+
+        my @x = ( @$workerpid, @$newworkerpid );
+        my %x;
+        map{ $x{$_}++ }@x;
+        die "find same worker pid" if grep{ $x{$_} > 1 }keys %x;
+
+        system "c3mc-nginx-reload --on $port --reload";
+    }
+}
+
 system "c3mc-nginx-reload --reset --reload";
 
 my $mymarkfile = '/etc/connector.mark';
