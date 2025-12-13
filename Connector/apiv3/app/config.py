@@ -51,7 +51,7 @@ class Settings(BaseSettings):
     WORKERS: int = 2
 
     LOG_LEVEL: str =  "INFO"
-    LOG_FILE: str = "logs/app.log"
+    LOG_FILE: str = "/data/open-c3-data/logs/apiv3/app.log"
 
     LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"
 

@@ -10,6 +10,7 @@ if [ -z $PORT ];then
     exit 1
 fi
 export C3_APIV3_PORT="$PORT"
+export LOG_FILE="/data/open-c3-data/logs/apiv3/app.$PORT.log"
 
 echo " 启动服务..."
 exec ./start.py
