@@ -557,7 +557,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         {
             map{
 
-                if( $_->[0] eq '_mysqlauth_' || $_->[0] eq '_redisauth_' )
+                if( $_->[0] eq '_mysqlauth_' || $_->[0] eq '_redisauth_' || $_->[0] eq '_mongodbauth_' )
                 {
                     my $auth = MIME::Base64::encode_base64( encode('UTF-8',  $_->[1] ) );
                     $url =~ s/\$\{$_->[0]\}/$auth/g;

@@ -72,6 +72,22 @@ any '/cmd/ext/redis/:projectid' => sub {
 
 =pod
 
+虚拟终端/打开Mongodb终端
+
+=cut
+
+any '/cmd/ext/mongodb/:projectid' => sub {
+    my $param = params();
+    my ( $projectid, $mongodbaddr, $siteaddr, $mongodbauth ) = @$param{qw( projectid mongodbaddr siteaddr mongodbauth )};
+
+    return "params undef" unless defined $projectid && defined $mongodbaddr;
+    return "no cookie" unless my $u = cookie( $api::cookiekey );
+
+    redirect "$siteaddr/webshell/index.html?u=$u&projectid=$projectid&mongodbaddr=$mongodbaddr&mongodbauth=$mongodbauth";
+};
+
+=pod
+
 虚拟终端/查看操作日志
 
 =cut

@@ -15,6 +15,7 @@ if( $argv =~ /&kubectl=full/ )
 
 exec "/data/Software/mydan/JOB/bin/cmd.mysql '$argv'" if $argv =~ /&mysqladdr=/;
 exec "/data/Software/mydan/JOB/bin/cmd.redis '$argv'" if $argv =~ /&redisaddr=/;
+exec "/data/Software/mydan/JOB/bin/cmd.mongodb '$argv'" if $argv =~ /&mongodbaddr=/;
 
 $argv =~ /&clusterid=/ and exec "/data/Software/mydan/CI/bin/pod.shell '$argv'";
 

@@ -1,0 +1,61 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use Code;
+use Util;
+use MYDB;
+use Encode;
+use MIME::Base64;
+use MYDan::Agent::Proxy;
+
+exit unless my $argv = shift;
+
+my ( $u, $projectid, $addr, $port, $mongodbauth );
+
+eval{
+    if( $argv =~ /mongodbaddr=\$\{_mongodbaddr_\}/ )
+    {
+        die "no auth\n";
+    }
+    elsif( $argv =~ /^\?u=(.+)&projectid=(\d+)&mongodbaddr=([a-zA-Z0-9\.\-,]+):(\d+)&mongodbauth=([a-zA-Z0-9\.\@\_\-=]*)$/ )
+    {
+        ( $u, $projectid, $addr, $port, $mongodbauth ) = ( $1, $2, $3, $4, $5 );
+    }
+    else
+    {
+        die "param error\n";
+    }
+    
+    print "projectid: $projectid\n";
+    print "mongodbaddr: $addr:$port\n";
+    
+    my $pw = '';
+    if( $mongodbauth )
+    {
+        my $auth = Encode::decode("utf8",  MIME::Base64::decode_base64( $mongodbauth ));
+        my ( $user, $password ) = split /:/, $auth, 2;
+        die "user format error" if $user =~ /'/;
+        die "password format error" if $password =~ /'/;
+        $pw = "$user:$password\@";
+    }
+
+    my %env = Util::envinfo( qw( envname domainname appname appkey ) );
+
+    $ENV{MYDan_Agent_Proxy_Addr} = "http://api.agent.open-c3.org/proxy/$projectid";
+    $ENV{MYDan_Agent_Proxy_Header} = "appname:$env{appname},appkey:$env{appkey}";
+
+    my %proxy = MYDan::Agent::Proxy->new()->search( $addr );
+    my $proxy = $proxy{$addr};
+    print "proxy: $proxy\n" if $proxy;
+
+    my $cmd = "mongosh 'mongodb://$pw$addr:$port'";
+
+    $cmd = "/data/Software/mydan/dan/tools/shellv2 -h '$proxy' --cmd \"$cmd\"" if $proxy;
+
+    system $cmd;
+};
+
+print $@ if $@;
+
+sleep 1000;
