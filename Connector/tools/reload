@@ -99,7 +99,21 @@ for my $type ( qw( api ) )
         system "c3mc-nginx-reload --off $port --reload --after";
 
         my ( $masterpid, $workerpid ) = get_gunicorn_pid( $port );
-        die "nofind master pid" unless $masterpid;
+
+        unless( $masterpid )
+        {
+            warn "nofind master pid, restart api\n";
+            system "$base/tools/restart $port";
+            sleep 5;
+            ( $masterpid, $workerpid ) = get_gunicorn_pid( $port );
+        }
+
+        unless( $masterpid )
+        {
+             warn "nofind master pid\n";
+             next;
+        }
+
 
         if ( kill( 'HUP', $masterpid ) )
         {
