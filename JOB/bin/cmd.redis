@@ -3,9 +3,11 @@ use strict;
 use warnings;
 use FindBin qw( $RealBin );
 use Code;
+use Util;
 use MYDB;
 use Encode;
 use MIME::Base64;
+use MYDan::Agent::Proxy;
 
 exit unless my $argv = shift;
 
@@ -35,7 +37,22 @@ eval{
         die "auth format error" if $auth =~ /'/;
         $pw = "-a '$auth'";
     }
-    system "redis-cli -h '$addr' -p '$port' $pw";
+
+    my %env = Util::envinfo( qw( envname domainname appname appkey ) );
+
+    $ENV{MYDan_Agent_Proxy_Addr} = "http://api.agent.open-c3.org/proxy/$projectid";
+    $ENV{MYDan_Agent_Proxy_Header} = "appname:$env{appname},appkey:$env{appkey}";
+
+    my %proxy = MYDan::Agent::Proxy->new()->search( $addr );
+    my $proxy = $proxy{$addr};
+    print "proxy: $proxy\n" if $proxy;
+
+    my $cmd = "redis-cli -h '$addr' -p '$port' $pw";
+
+    $cmd = "/data/Software/mydan/JOB/bin/shellv3 -h '$proxy' --cmd \"$cmd\"" if $proxy;
+
+    system $cmd;
+
 };
 
 print $@ if $@;
