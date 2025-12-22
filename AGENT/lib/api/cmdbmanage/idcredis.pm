@@ -21,7 +21,7 @@ CMDB/资源/IDCRedis/获取列表
 
 =cut
 
-my @rescol = qw( uuid instance_name ip_address port status version cluster_name install_path data_dir host_ip maximum_memory persistent_strategy password_authentication edit_user edit_time );
+my @rescol = qw( uuid instance_name ip_address port status version cluster_name install_path data_dir host_ip maximum_memory persistent_strategy password_authentication edit_user edit_time product_owner ops_owner department );
 
 my @needfulcol = qw( uuid instance_name ip_address port status version cluster_name );
 

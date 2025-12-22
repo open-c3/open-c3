@@ -21,7 +21,7 @@ CMDB/资源/IDCMongodb/获取列表
 
 =cut
 
-my @rescol = qw( uuid instance_name ip_address port status version cluster_name install_path data_dir host_ip storage_engine authentication profiling_level edit_user edit_time );
+my @rescol = qw( uuid instance_name ip_address port status version cluster_name install_path data_dir host_ip storage_engine authentication profiling_level edit_user edit_time product_owner ops_owner department );
 
 my @needfulcol = qw( uuid instance_name ip_address port status version cluster_name );
 

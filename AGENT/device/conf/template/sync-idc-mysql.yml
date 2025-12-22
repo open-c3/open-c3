@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-base-db-get -t openc3_device_resource_idcmysql id uuid instance_name ip_address port status version cluster_name install_path data_dir host_ip charset max_connections backup_policy edit_user edit_time --json | c3mc-base-json2tab"
+  - url: "cmd:c3mc-base-db-get -t openc3_device_resource_idcmysql id uuid instance_name ip_address port status version cluster_name install_path data_dir host_ip charset max_connections backup_policy edit_user edit_time product_owner ops_owner department --json | c3mc-base-json2tab"
     datatype: tsv
     type: database
     subtype: idc-mysql
@@ -70,9 +70,9 @@ download:
       _oneDeptName_: 一级部门
       _twoDeptName_: 二级部门
       _sybDeptName_: 产品线
-      _product_owner_: 业务负责人
-      _ops_owner_: "运维负责人"
-      _department_: "部门"
+      product_owner: 业务负责人
+      ops_owner: "运维负责人"
+      department: "部门"
     filter:
       - name: "版本号"
         alias: 版本号
