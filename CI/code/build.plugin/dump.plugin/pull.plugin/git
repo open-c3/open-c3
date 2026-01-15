@@ -69,7 +69,7 @@ return sub
 
     my $tagger;
     my $tag_info = '';
-    if( $name =~ /^release-testonly-[0-9a-z]{8}/ || $realname =~ /^release-testonly-[0-9a-z]{8}/ )
+    if( $name =~ /^release-testonly-[0-9a-z]{8}(?:[_-].*)?$/ || $realname =~ /^release-testonly-[0-9a-z]{8}(?:[_-].*)?$/ )
     {
         my ( $commitid, $event_name, $branch );
 
