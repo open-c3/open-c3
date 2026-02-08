@@ -97,7 +97,7 @@
         // 获取申请人基础信息/OA信息
         vm.useroainfoloadover = false;
         vm.getApplyUserOa = function( user ){
-            $http.get('/api/tt/base/get_user_info?user=' + user).success(function(data){
+            $http.get('/api/c3tt/base/get_user_info?user=' + user).success(function(data){
                 vm.useroainfo = data.data;
                 vm.useroainfoloadover = true;
                 vm.bpmInfoApplicant = `${data.data.accountId? data.data.accountId: ''}${data.data.accountName? `-${data.data.accountName}`:''}${data.data.mobile? `-${data.data.mobile}`:''}`
