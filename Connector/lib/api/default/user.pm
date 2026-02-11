@@ -319,8 +319,6 @@ any '/default/user/login' => sub {
             %domain = ( domain => ".$x[1].$x[0]") if @x >= 3;
         }
 
-        set_cookie( $api::cookiekey => $keys, http_only => 0, expires => time + $keeptime, %domain );
-
         eval{ $api::mysql->execute( "insert into openc3_connector_user_login_audit( `user`,`uuid`,`action`,`ip`,`t` ) values('$user','$uuid','login','$ip','$time')" ); };
         return +{ stat => $JSON::false, info => $@ } if $@;
 
@@ -332,6 +330,8 @@ any '/default/user/login' => sub {
         my $pwperiod = int ( $passwordperiod -  (( time - $ftime ) / 86400 ) );
 
         return +{ stat => $JSON::false, info => "Error. password period." } if $pwperiod < 0;
+
+        set_cookie( $api::cookiekey => $keys, http_only => 0, expires => time + $keeptime, %domain );
 
         return +{ stat => $JSON::true, info => 'ok', pwperiod => $pwperiod };
     }
@@ -418,8 +418,6 @@ any '/default/user/mfa' => sub {
             %domain = ( domain => ".$x[1].$x[0]") if @x >= 3;
         }
 
-        set_cookie( $api::cookiekey => $keys, http_only => 0, expires => time + $keeptime, %domain );
-
         eval{ $api::mysql->execute( "insert into openc3_connector_user_login_audit( `user`,`uuid`,`action`,`ip`,`t` ) values('$user','$uuid','login','$ip','$time')" ); };
         return +{ stat => $JSON::false, info => $@ } if $@;
 
@@ -431,6 +429,8 @@ any '/default/user/mfa' => sub {
         my $pwperiod = int ( $passwordperiod -  (( time - $ftime ) / 86400 ) );
 
         return +{ stat => $JSON::false, info => "Error. password period." } if $pwperiod < 0;
+
+        set_cookie( $api::cookiekey => $keys, http_only => 0, expires => time + $keeptime, %domain );
 
         return +{ stat => $JSON::true, info => 'ok', pwperiod => $pwperiod };
     }
