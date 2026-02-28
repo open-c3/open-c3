@@ -62,8 +62,16 @@
                 var work_start = work_start_arr[0] * 60 + work_start_arr[1] * 1;
                 var work_end_arr = vm.currentGroup.work_hour_end.split(":"); 
                 var work_end = work_end_arr[0] * 60 + work_end_arr[1] * 1;
+
+                if( work_start >= work_end )
+                {
+                    toastr.error('数据错误：workhour to必须大于workhour from');
+                    return;
+                }
+
                 vm.currentGroup.work_hour_start = work_start;
                 vm.currentGroup.work_hour_end = work_end;
+
                 putService.update('base/group/' + vm.currentGroup.id, vm.currentGroup).then(function(){
                     vm.reload();
                 });
