@@ -1248,3 +1248,13 @@ ALTER TABLE openc3_device_resource_idcmongodb ADD `department` VARCHAR(100) comm
 
 # v2.6.0 sql openc3_ci_project add branch_regex
 ALTER TABLE openc3_ci_project ADD `branch_regex` varchar(100) DEFAULT '_NULL_' COMMENT '分支正则表达式';
+
+# v2.6.0 sql openc3_connector_tree_attr create
+create table if not exists `openc3_connector_tree_attr`(
+`id`     int(16) unsigned not null primary key auto_increment comment 'id',
+`treeid` VARCHAR(20) comment 'treeid',
+`name` VARCHAR(100) comment 'name',
+`value` VARCHAR(100) comment 'value',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'time',
+UNIQUE KEY `uniq_treeid_name` (`treeid`,`name`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_connector_tree_attr';

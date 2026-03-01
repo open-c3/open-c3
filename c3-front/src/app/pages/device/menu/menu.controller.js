@@ -65,6 +65,18 @@
         };
         vm.reloadtimemachine();
 
+        vm.treeattr = {}
+        vm.reloadtreeattr = function () {
+            $http.get('/api/connector/treeattr/' + vm.treeid ).success(function(data){
+                if (data.stat){
+                    vm.treeattr = data.data;
+                }else {
+                    swal({ title:'获取服务树属性失败', text: data.info, type:'error' });
+                }
+            });
+        };
+        vm.reloadtreeattr();
+
         vm.gotosubtype = function (type, subtype, source) {
           sessionStorage.setItem('sourceType', source)
           if (source === 'input') {
@@ -119,6 +131,24 @@
              type:function () { return type },
              gogogo:function () { return vm.gogogo },
              reload: function () { return vm.reload }
+           }
+         });
+       };
+
+        vm.navigationOperateTreeAttr = function (attrname, value) {
+         $uibModal.open({
+           templateUrl: 'app/pages/device/menu/dialogtreeattr.html',
+           controller: 'CmdbSearchDialogTreeAttrController',
+           controllerAs: 'cmdbsearchDialogTreeAttr',
+           backdrop: 'static',
+           size: 'lg',
+           keyboard: false,
+           bindToController: true,
+           resolve: {
+             attrname:function () { return attrname },
+             value:function () { return value },
+             treeid:function () { return vm.treeid },
+             reloadtreeattr: function () { return vm.reloadtreeattr }
            }
          });
        };
