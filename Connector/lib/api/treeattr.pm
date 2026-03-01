@@ -25,7 +25,7 @@ get '/treeattr/:projectid' => sub {
     my @x = `c3mc-base-tree-attr --treeid '$param->{projectid}'`;
     chomp @x;
 
-    my %r = map{ $_ => 'unkown' }qw( name productowner opsowner );
+    my %r = map{ $_ => 'unkown' }qw( name productowner opsowner annotation );
     for( @x )
     {
         my ( $name, $value ) = split /;/, $_, 2;

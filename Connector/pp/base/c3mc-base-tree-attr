@@ -39,7 +39,7 @@ while( @subname )
     pop @subname;
 }
 
-my @id = map{$name2id{$_}}@tree;
+my @id = grep{ $_ =~ /^\d+$/ }map{$name2id{$_}}@tree;
 
 unshift @id, 0;
 my $ids = join ',', @id;
@@ -54,12 +54,14 @@ for( @xx )
     $data{$treeid}{$name} = $value;
 }
 
-my %re = map{ $_ => 'unkown' }qw( name productowner opsowner );
+my %re = map{ $_ => 'unkown' }qw( annotation productowner opsowner );
 
 for my $id ( @id )
 {
     next unless $data{$id};
     %re = ( %re, %{$data{$id}} );
 }
+
+$re{name} = $treename;
 
 map{ print "$_;$re{$_}\n"; }keys %re;
