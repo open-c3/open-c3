@@ -22,11 +22,16 @@ get '/treeattr/:projectid' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_connector_read', $param->{projectid} ); return $pmscheck if $pmscheck;
 
-    my @col = qw( id treeid name value  );
-    my $x = eval{ $api::mysql->query( sprintf( "select %s from `openc3_connector_tree_attr` where treeid='$param->{projectid}'", join( ',', @col ) ), \@col ) };
+    my @x = `c3mc-base-tree-attr --treeid '$param->{projectid}'`;
+    chomp @x;
 
     my %r = map{ $_ => 'unkown' }qw( name productowner opsowner );
-    map{ $r{$_->{name}} = $_->{value} }@$x;
+    for( @x )
+    {
+        my ( $name, $value ) = split /;/, $_, 2;
+	$r{$name} = Encode::decode('utf8', $value );
+    }
+
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \%r };
 };
 

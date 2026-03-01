@@ -1,0 +1,65 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --treeid id
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( treeid=i ) )->dump();
+$option->assert(qw( treeid ));
+
+my @x = `c3mc-base-treemap`;
+chomp @x;
+
+my ( %name2id, %id2name );
+
+for( @x )
+{
+    my ( $id, $name ) = split /;/, $_, 2;
+    $id2name{$id} = $name;
+    $name2id{$name} = $id;
+}
+
+my $treename = $id2name{$o{treeid}};
+
+my @subname = split /\./, $treename;
+
+my @tree;
+while( @subname )
+{
+    unshift @tree, join '.', @subname;
+    pop @subname;
+}
+
+my @id = map{$name2id{$_}}@tree;
+
+unshift @id, 0;
+my $ids = join ',', @id;
+
+my @xx = `c3mc-base-db-get -t openc3_connector_tree_attr treeid name value -f "treeid in ($ids)"`;
+chomp @xx;
+
+my %data;
+for( @xx )
+{
+    my ( $treeid, $name, $value ) = split /;/, $_, 3;
+    $data{$treeid}{$name} = $value;
+}
+
+my %re = map{ $_ => 'unkown' }qw( name productowner opsowner );
+
+for my $id ( @id )
+{
+    next unless $data{$id};
+    %re = ( %re, %{$data{$id}} );
+}
+
+map{ print "$_;$re{$_}\n"; }keys %re;
