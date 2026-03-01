@@ -43,6 +43,7 @@ my @col = qw(
                   callback
                    groupid
                  tag_regex
+              branch_regex
                       addr
                   ticketid
                     notify
@@ -98,6 +99,7 @@ sub saveci
 
     $row->{ ci_type_dockerfile } =~ s/$oldns/$newns/g;
     $row->{ tag_regex          } =~ s/$oldns/$newns/g;
+    $row->{ branch_regex       } =~ s/$oldns/$newns/g;
 
     $row->{ groupid } = $o{dsttreeid} if $o{dsttreeid};
 

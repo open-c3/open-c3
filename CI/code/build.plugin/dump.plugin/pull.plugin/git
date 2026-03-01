@@ -67,6 +67,18 @@ return sub
         ( $dumptags, $version ) = ( "-b $name", $name );
     }
 
+
+    sub get_branch_regex
+    {
+        my $id = shift @_;
+        my @x = `c3mc-base-db-get  -t openc3_ci_project branch_regex -f 'id=$id'`;
+        chomp @x;
+        die "get branch_regex error" if @x != 1;
+        return $x[0] eq '_NULL_' ? "" : $x[0];
+    }
+
+    my $branch_regex = get_branch_regex( $projectid );
+
     my $tagger;
     my $tag_info = '';
     if( $name =~ /^release-testonly-[0-9a-z]{8}(?:[_-].*)?$/ || $realname =~ /^release-testonly-[0-9a-z]{8}(?:[_-].*)?$/ )
@@ -97,6 +109,20 @@ return sub
 
         $branch =~ s#\._\.#/#g;
 
+        if( $branch_regex )
+        {
+            print "检查是否是允许的分支\n";
+            if ( $branch =~ /$branch_regex/ )
+            {
+                print "是安全分支: $branch\n";
+            }
+            else
+            {
+                print "该tag的分支不被允许，禁止发布，发布终止!!!\n";
+                die "exit.";
+            }
+        }
+
         if( $event_name eq 'delete' )
         {
             $logs->die( "clone error:$!" )
@@ -126,13 +152,41 @@ return sub
         else
         {
 
+            my $depth = $branch_regex ? '' :'--depth 1';
+
             $logs->die( "clone error:$!" )
-                if system "cd '$temppath' && rm -rf data data.tmp info && $ctrl clone --depth 1 --progress $dumptags --recursive $addr data.tmp && mkdir -p info && mv data.tmp/.git info/ && mv data.tmp data && echo '$version' > info/version";
+                if system "cd '$temppath' && rm -rf data data.tmp info && $ctrl clone $depth --progress $dumptags --recursive $addr data.tmp && mkdir -p info && mv data.tmp/.git info/ && mv data.tmp data && echo '$version' > info/version";
 
         }
 
         my $info = `cd '$temppath/info' && $ctrl show  -s --format="%ce" $name`;
         $tag_info = `cd '$temppath/info' && $ctrl show -s --format="%s" $name`;
+
+        if( $branch_regex )
+        {
+            print "检查是否是允许的分支\n";
+
+            my @allowed_branch = `c3mc-branch-list '$projectid'`;
+            chomp @allowed_branch;
+
+            my @safe_branch;
+            for my $branch ( @allowed_branch )
+            {
+                system "cd '$temppath/info' && $ctrl merge-base --is-ancestor '$name' 'origin/$branch'";
+                push( @safe_branch, $branch ) unless $?;
+                #返回 0 → 是 检查 分支历史的一部分
+            }
+
+            if ( @safe_branch )
+            {
+                printf "在安全分支中: %s\n", join ',', @safe_branch;
+            }
+            else
+            {
+                  print "该tag的分支不被允许，禁止发布，发布终止!!!\n";
+                  die "exit.";
+            }
+        }
 
         Encode::_utf8_on($info);
         print "git info: $info\n";

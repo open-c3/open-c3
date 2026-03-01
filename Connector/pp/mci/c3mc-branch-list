@@ -19,9 +19,22 @@ die "id error" unless $id && $id =~ /^\d+$/;
 my @x = `c3mc-ci-project-show  '$id' | c3mc-ci-branch-ls`;
 chomp @x;
 
-for( @x )
+sub get_branch_regex
 {
-    my ( undef, undef, $name ) = split /;/, $_, 3;
-    next unless $name && $name =~ /^[a-zA-Z0-9][a-zA-Z0-9_\-\.]*$/;
-    print "$name\n";
+    my @x = `c3mc-base-db-get  -t openc3_ci_project branch_regex -f 'id=$id'`;
+    chomp @x;
+
+    die "get branch_regex error" if @x != 1;
+
+    return $x[0] eq '_NULL_' ? "" : $x[0];
 }
+
+my $branch_regex = get_branch_regex();
+
+my @branch = map{ my ( undef, undef, $name ) = split /;/, $_, 3; $name }@x;
+
+
+@branch = grep{ $_ =~  /^[a-zA-Z0-9][a-zA-Z0-9_\-\.]*$/; }@branch;
+@branch= grep{ $_ =~ /$branch_regex/ }@branch if defined $branch_regex && $branch_regex =~ /[a-zA-Z0-9]/;
+
+map{ print "$_\n"; }@branch;

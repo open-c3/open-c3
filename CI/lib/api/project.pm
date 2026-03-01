@@ -77,6 +77,7 @@ get '/project/:groupid/:projectid' => sub {
         notifyci notifycd
         cislave
         rollback_mode
+	branch_regex
         );
     my $r = eval{ 
         $api::mysql->query( 
@@ -93,6 +94,7 @@ get '/project/:groupid/:projectid' => sub {
     }qw( buildscripts ci_type_dockerfile_content );
 
     $data->{tag_regex} = '' if $data->{tag_regex} eq '_NULL_';
+    $data->{branch_regex} = '' if $data->{branch_regex} eq '_NULL_';
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $data  };
 };
@@ -160,6 +162,8 @@ post '/project/:groupid/:projectid' => sub {
         ci_type_concurrent => [ 'mismatch', qr/'/ ], 0,
         ci_type_approver1 => [ 'mismatch', qr/'/ ], 0,
         ci_type_approver2 => [ 'mismatch', qr/'/ ], 0,
+
+        branch_regex => [ 'mismatch', qr/'/ ], 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -167,6 +171,7 @@ post '/project/:groupid/:projectid' => sub {
     my $pmscheck = api::pmscheck( 'openc3_ci_write', $param->{groupid} ); return $pmscheck if $pmscheck;
 
     $param->{tag_regex} = '_NULL_' if ( ! defined $param->{tag_regex} ) || ( $param->{tag_regex} eq "" );
+    $param->{branch_regex} = '_NULL_' if ( ! defined $param->{branch_regex} ) || ( $param->{branch_regex} eq "" );
 
     map{ 
         $param->{$_}  = encode_base64( encode('UTF-8',  $param->{$_}) );
@@ -200,6 +205,7 @@ post '/project/:groupid/:projectid' => sub {
         notifyci notifycd
         cislave
         rollback_mode
+	branch_regex
     );
     eval{ 
         $api::mysql->execute(
