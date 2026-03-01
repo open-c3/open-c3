@@ -111,14 +111,14 @@ return sub
 
         if( $branch_regex )
         {
-            print "检查是否是允许的分支\n";
+            print "Check if it is an allowed branch\n";
             if ( $branch =~ /$branch_regex/ )
             {
-                print "是安全分支: $branch\n";
+                print "It is the safe branch: $branch\n";
             }
             else
             {
-                print "该tag的分支不被允许，禁止发布，发布终止!!!\n";
+                print "[ERROR] The branch of this tag is not allowed, ci stopedd!!!\n";
                 die "exit.";
             }
         }
@@ -164,7 +164,7 @@ return sub
 
         if( $branch_regex )
         {
-            print "检查是否是允许的分支\n";
+            print "Check if it is an allowed branch\n";
 
             my @allowed_branch = `c3mc-branch-list '$projectid'`;
             chomp @allowed_branch;
@@ -179,12 +179,12 @@ return sub
 
             if ( @safe_branch )
             {
-                printf "在安全分支中: %s\n", join ',', @safe_branch;
+                printf "In the safe branch: %s\n", join ',', @safe_branch;
             }
             else
             {
-                  print "该tag的分支不被允许，禁止发布，发布终止!!!\n";
-                  die "exit.";
+                print "[ERROR] The branch of this tag is not allowed, ci stopedd!!!\n";
+                die "exit.";
             }
         }
 
