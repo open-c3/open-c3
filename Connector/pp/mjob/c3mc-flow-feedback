@@ -4,6 +4,7 @@ use warnings;
 
 $|++;
 
+use Encode;
 use MYDan::Util::OptConf;
 
 =head1 SYNOPSIS
@@ -41,6 +42,17 @@ my %content;
 $content{ emailTitle   } = $env->{ flowTemplateEmailTitle   } || 'flow mesage';
 $content{ emailContent } = $env->{ flowTemplateEmailContent } || 'flow done, uuid: ${uuid}';
 $content{ smsContent   } = $env->{ flowTemplateSmsContent   } || 'flow done, uuid: ${uuid}';
+
+if( grep{ $content{ $_ } =~ /\$\{tree\.attr\./ } qw( emailTitle emailContent smsContent ) )
+{
+    my @xx = `c3mc-base-tree-attr  --treeid '$info->{"ci.groupid"}'`;
+    chomp @xx;
+    for( @xx )
+    {
+        my ( $name, $value ) = split /;/,$_, 2;
+        $info->{"tree.attr.$name"} = Encode::decode('utf8', $value );
+    }
+}
 
 for my $key ( keys %content )
 {

@@ -106,7 +106,7 @@
 //Flow
         vm.emailFlowSet = function () {
             vm.environment.flowTemplateEmailTitle = "Open-C3发布消息 项目: ${ci.name} 版本:${jobx.var.version}";
-            vm.environment.flowTemplateEmailContent = "状态: ${jobx.status}\n项目名称: ${ci.name}\n代码仓库地址: ${ci.addr}\n版本: ${jobx.var.version}\n\n详情:" + window.location.protocol + '//' + window.location.host + "/#/quickentry/flowlinedetail/${ci.groupid}/${ci.id}";
+            vm.environment.flowTemplateEmailContent = "状态: ${jobx.status}\n项目名称: ${ci.name}\n代码仓库地址: ${ci.addr}\n版本: ${jobx.var.version}\n\n服务树注释: ${tree.attr.annotation}\n服务树业务owner: ${tree.attr.productowner}\n服务树运维owner: ${tree.attr.opsowner}\n服务树名称: ${tree.attr.name}\n\n详情:" + window.location.protocol + '//' + window.location.host + "/#/quickentry/flowlinedetail/${ci.groupid}/${ci.id}";
         };
  
         vm.emailFlowSave = function () {
@@ -117,7 +117,7 @@
         };
 
         vm.smsFlowSet = function () {
-            vm.environment.flowTemplateSmsContent = "Open-C3发布消息\n状态: ${jobx.status}\n项目名称: ${ci.name}\n代码仓库地址: ${ci.addr}\n版本: ${jobx.var.version}\n\n详情:" + window.location.protocol + '//' + window.location.host + "/#/quickentry/flowlinedetail/${ci.groupid}/${ci.id}";
+            vm.environment.flowTemplateSmsContent = "Open-C3发布消息\n状态: ${jobx.status}\n项目名称: ${ci.name}\n代码仓库地址: ${ci.addr}\n版本: ${jobx.var.version}\n\n服务树注释: ${tree.attr.annotation}\n服务树业务owner: ${tree.attr.productowner}\n服务树运维owner: ${tree.attr.opsowner}\n服务树名称: ${tree.attr.name}\n\n详情:" + window.location.protocol + '//' + window.location.host + "/#/quickentry/flowlinedetail/${ci.groupid}/${ci.id}";
         };
  
         vm.smsFlowSave = function () {
