@@ -103,7 +103,12 @@
                             <td data-title="'C3T.编号'|translate">{{ss.uuid}}</td>
                             <td data-title="'C3T.服务树编号'|translate">{{ss.groupid}}</td>
                             <td data-title="'C3T.流水线编号'|translate">{{ss.projectid}}</td>
-                            <td data-title="'C3T.状态'|translate">{{ss.status}}</td>
+                            <td data-title="'C3T.流水线'|translate">{{ss.flowname}}</td>
+                            <td data-title="'C3T.状态'|translate">
+                                <a ng-if="ss.status=='fail'" style="color: red" >{{ss.status}} </a>
+                                <a ng-if="ss.status=='success'" style="color: green" >{{ss.status}} </a>
+                                <a ng-if="ss.status!='success' && ss.status!='fail'" style="color: grey" >{{ss.status}} </a>
+                            </td>
                             <td data-title="'C3T.版本'|translate">{{ss.version}}</td>
                             <td data-title="'C3T.发布地址'|translate">
                                 <a ng-if="ss.type=='ci'" target='_blank' ng-href="{{flowreport.siteaddr}}/#/quickentry/flowlinedetail/{{ss.groupid}}/{{ss.projectid}}">{{flowreport.siteaddr}}/#/quickentry/flowlinedetail/{{ss.groupid}}/{{ss.projectid}}</a>

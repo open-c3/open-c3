@@ -126,6 +126,13 @@ get '/flowreport/:groupid/report' => sub {
         push @change, [ $t, $data{$t}{ci}||0, $data{$t}{test} || 0, $data{$t}{deploy} || 0, $data{$t}{rollback} || 0 ];
     }
 
+    my @x = `c3mc-base-db-get -t openc3_ci_project id name`;
+    chomp @x;
+
+    my %id2name;
+    map{ my ($id, $name ) = split /;/, $_. 2; $id2name{$id} = $name }@x;
+    map{ $_->{flowname} = Encode::decode( 'utf8', $id2name{$_->{projectid}} ) || 'unknow' }@detailtable;
+
     my %re = (
         change => \@change,
         cicount => $cicount,
