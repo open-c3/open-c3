@@ -54,7 +54,8 @@ any '/c3mc/cibranch/:projectid/:branch' => sub {
     my $param = params();
     my $error = Format->new( 
         projectid    => qr/^\d+$/, 1,
-        branch    => qr/^[a-zA-Z0-9][a-zA-Z0-9\-\._]+$/, 1,
+        branch       => qr/^[a-zA-Z0-9][a-zA-Z0-9\-\._]+$/, 1,
+        rollbackable => qr/^\d+$/, 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -63,7 +64,7 @@ any '/c3mc/cibranch/:projectid/:branch' => sub {
 
     my $filter = +{};
 
-    my $cmd = "c3mc-branch-make-tags '$param->{projectid}' '$param->{branch}' 2>&1";
+    my $cmd = "c3mc-branch-make-tags '$param->{projectid}' '$param->{branch}' '$param->{rollbackable}' 2>&1";
     my $handle = 'cibranch_make';
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $?, $filter ); 

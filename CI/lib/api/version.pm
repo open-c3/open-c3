@@ -58,7 +58,7 @@ get '/version/:groupid/:projectid' => sub {
     my $projectid = $param->{projectid};
 
     my @col = qw( id projectid uuid name user slave status starttimems finishtimems 
-            starttime  finishtime calltype pid runtime reason create_time tagger taginfo
+            starttime  finishtime calltype pid runtime reason create_time tagger taginfo rollbackable
     );
     my $limit = $param->{limit} ? "limit $showcount" : "";
     my $r = eval{ 

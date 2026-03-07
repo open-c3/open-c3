@@ -18,11 +18,13 @@ $|++;
 
 =cut
 
-my ( $id, $branch ) = @ARGV;
+my ( $id, $branch, $rollbackable ) = @ARGV;
 die "id error" unless $id && $id =~ /^\d+$/;
 die "name error" unless $branch && $branch =~ /^[a-zA-Z0-9][a-zA-Z0-9_\-\.]*$/;
 my $commit = `c3mc-branch-uuid '$id' '$branch'`;
 chomp $commit;
+
+$rollbackable = $rollbackable ? 1 : 0;
 
 die "get commit id error" unless $commit && $commit =~ /^[a-z\d]{8}$/;
 
@@ -36,7 +38,7 @@ my $version = $branch =~ /^release/ ? "$branch-$commit-$time": "release-$branch-
 
 my $realversion = "release-testonly-$commit-$branch";
 my ( $status, $reason ) = ( 'init', '' );
-eval{ $db->execute( "insert into openc3_ci_version (`projectid`,`name`,`status`,`calltype`,`user`,`uuid`,`slave`,`reason`,`realname`) 
-    values('$id','$version','$status','findtags','crontab','$uuid','','$reason','$realversion')" ); };       
+eval{ $db->execute( "insert into openc3_ci_version (`projectid`,`name`,`status`,`calltype`,`user`,`uuid`,`slave`,`reason`,`realname`,`rollbackable`)
+    values('$id','$version','$status','findtags','crontab','$uuid','','$reason','$realversion', '$rollbackable')" ); };
 
 print "$version\n";

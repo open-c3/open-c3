@@ -1258,3 +1258,6 @@ create table if not exists `openc3_connector_tree_attr`(
 `edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'time',
 UNIQUE KEY `uniq_treeid_name` (`treeid`,`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_connector_tree_attr';
+
+# v2.6.0 sql openc3_ci_version add rollbackable
+ALTER TABLE openc3_ci_version ADD `rollbackable` varchar(2) DEFAULT '0' COMMENT '可以回滚的';
