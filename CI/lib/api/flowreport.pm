@@ -130,7 +130,7 @@ get '/flowreport/:groupid/report' => sub {
     chomp @x;
 
     my %id2name;
-    map{ my ($id, $name ) = split /;/, $_. 2; $id2name{$id} = $name }@x;
+    map{ my ($id, $name ) = split /;/, $_, 2; $id2name{$id} = $name }@x;
     map{ $_->{flowname} = Encode::decode( 'utf8', $id2name{$_->{projectid}} ) || 'unknow' }@detailtable;
 
     my %re = (
