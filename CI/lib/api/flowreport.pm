@@ -133,6 +133,13 @@ get '/flowreport/:groupid/report' => sub {
     map{ my ($id, $name ) = split /;/, $_, 2; $id2name{$id} = $name }@x;
     map{ $_->{flowname} = Encode::decode( 'utf8', $id2name{$_->{projectid}} ) || 'unknow' }@detailtable;
 
+    my @xx = `c3mc-base-treemap cache`;
+    chomp @xx;
+
+    my %id2tree;
+    map{ my ($id, $name ) = split /;/, $_, 2; $id2tree{$id} = $name }@xx;
+    map{ $_->{treename} = Encode::decode( 'utf8', $id2tree{$_->{groupid}} ) || 'unknow' }@detailtable;
+
     my %re = (
         change => \@change,
         cicount => $cicount,
