@@ -292,4 +292,32 @@ post '/group/connectk8s/:groupid/:flowid' => sub {
 };
 
 
+=pod
+
+流水线/获取所有流水线的列表
+
+=cut
+
+get '/group/ci/dump' => sub {
+    my $param = params();
+
+    my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
+
+    my @col = qw( id groupid name addr );
+    my $r = eval{
+        $api::mysql->query(
+            sprintf( "select %s from openc3_ci_project", join( ',', @col)), \@col )};
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my @x = `c3mc-base-treemap cache`;
+    chomp @x;
+    my %id2name;
+    map{ my @xx = split /;/, $_; $id2name{$xx[0]}=$xx[1];  }@x;
+    map{
+        $_->{treeid} = delete $_->{groupid};
+        $_->{treename} = $id2name{$_->{treeid}} || 'unknown';
+    }@$r;
+    return +{ stat => $JSON::true, data => $r };
+};
+
 true;
