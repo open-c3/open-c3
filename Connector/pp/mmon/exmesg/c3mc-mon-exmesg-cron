@@ -8,6 +8,7 @@ use YAML::XS;
 use Encode;
 use DateTime::Format::ISO8601;
 use DateTime::TimeZone;
+use JSON;
 
 =head1 SYNOPSIS
 
@@ -18,17 +19,12 @@ use DateTime::TimeZone;
 sub bj_time
 {
     my $iso8601_str = shift @_;
-
     my $dt = DateTime::Format::ISO8601->parse_datetime($iso8601_str);
-
     $dt->set_time_zone('UTC');
-
     my $bj_time_zone = DateTime::TimeZone->new(name => 'Asia/Shanghai');
     $dt->set_time_zone($bj_time_zone);
-
     return $dt->strftime('%Y-%m-%dT%H:%M:%S.%3N%z');
 }
-
 
 my %task;
 
@@ -44,11 +40,9 @@ $task{nexus} = sub
 
     my @user = `c3mc-app-usrext '$to'`;
     chomp @user;
-
     return unless @user;
 
     $res{to} = \@user;
-    $res{mesg} = "unknown";
     my @mesg;
     push @mesg, "nexus Event";
     push @mesg, "action: $cont->{action}";
@@ -57,7 +51,6 @@ $task{nexus} = sub
     push @mesg, "group: $cont->{component}{group}";
     push @mesg, "name: $cont->{component}{name}";
     push @mesg, "version: $cont->{component}{version}";
-
     $res{mesg} = join "\n", @mesg;
     return \%res;
 };
@@ -73,23 +66,77 @@ $task{default} = sub
 
     my @user = `c3mc-app-usrext '$to'`;
     chomp @user;
-
     return unless @user;
 
     $res{to} = \@user;
+
+    # -----------------------------------------------------------------------
+    # 华为云 CES 告警：提取两个稳定字段传给 exmesg-save
+    #
+    # _ces_stable_key : alarm_name|namespace|metric_name|dimension
+    #                   用于计算 md5 文件名，与 AI 输出完全无关
+    #
+    # _ces_newmesg    : 告警名称/指标名称/资源名称 三行，直接来自原始 JSON
+    #                   用于写 uuid 文件的 newmesg 段，maker 读取生成 desc label
+    #                   desc 稳定 -> fingerprint 稳定 -> 知晓永远有效
+    #
+    # 注意编码：JSON decode_json 返回的字符串是 utf8_flag=ON 的 unicode 字符串
+    # 字段名前缀（"告警名称: " 等）用 Encode::decode('utf8', ...) 统一成 unicode
+    # 最后整体 Encode::encode('utf8', ...) 转成 bytes 传给 save
+    # -----------------------------------------------------------------------
+
+    my $raw = Encode::encode('utf8', $cont->{message} || '');
+    if( $raw =~ /"alarm_status"\s*:/ )
+    {
+        my $alarm = eval{ JSON::decode_json($raw) };
+        if( $alarm )
+        {
+            my $alarm_name   = $alarm->{alarm_name}  || '';
+            my $namespace    = $alarm->{namespace}   || '';
+            my $metric_name  = $alarm->{metric_name} || '';
+            my $dimension    = $alarm->{dimension}   || '';
+
+            my $tv            = $alarm->{template_variable} || {};
+            my $resource_name = $tv->{ResourceName} || '';
+
+            # stable_key：bytes 字符串，用于 md5 计算
+            $res{_ces_stable_key} = join('|', $alarm_name, $namespace, $metric_name, $dimension);
+
+            # alarm_status：直接传给 exmesg-save，不依赖 AI 输出文本判断告警状态
+            # 避免 AI 调用失败时 mesg 里无「告警状态」字段被误判为恢复
+            $res{_ces_alarm_status} = lc( $alarm->{alarm_status} || 'alarm' );
+
+            # newmesg：字段名 decode 成 unicode，与 JSON 返回的 unicode 字段值拼接
+            # 最后整体 encode 成 utf8 bytes
+            my $k1 = Encode::decode('utf8', "\xe5\x91\x8a\xe8\xad\xa6\xe5\x90\x8d\xe7\xa7\xb0: ");
+            my $k2 = Encode::decode('utf8', "\xe6\x8c\x87\xe6\xa0\x87\xe5\x90\x8d\xe7\xa7\xb0: ");
+            my $k3 = Encode::decode('utf8', "\xe8\xb5\x84\xe6\xba\x90\xe5\x90\x8d\xe7\xa7\xb0: ");
+            my @newmesg_lines;
+            push @newmesg_lines, $k1 . $alarm_name    if $alarm_name;
+            push @newmesg_lines, $k2 . $metric_name   if $metric_name;
+            push @newmesg_lines, $k3 . $resource_name if $resource_name;
+            $res{_ces_newmesg} = Encode::encode('utf8', join("\n", @newmesg_lines));
+        }
+    }
+
     delete $cont->{unsubscribe_url};
     my $mesg = YAML::XS::Dump $cont;
 
-    my $tmp = "/tmp/c3mc-mon-exmesg.$$.temp";
+    # AI 整理：只用于飞书通知展示，与 md5/newmesg 计算完全无关
     my $aimsg = `cat $file | /data/Software/mydan/dan/tools/alarm 30 c3mc-mai-bedrock`;
-    $mesg = "下面信息由AI整理生成\n$aimsg" unless $?;
+    # AI 调用成功（$?==0）且输出内容不含 [ERROR] 时才使用 AI 结果
+    # AI 调用失败或返回错误内容时保持原始 YAML，避免因 mesg 缺少「告警状态」字段被 exmesg-save 误判为恢复
+    if( !$? && $aimsg !~ /\[ERROR\]/ )
+    {
+        $mesg = "\xe4\xb8\x8b\xe9\x9d\xa2\xe4\xbf\xa1\xe6\x81\xaf\xe7\x94\xb1AI\xe6\x95\xb4\xe7\x90\x86\xe7\x94\x9f\xe6\x88\x90\n$aimsg";
+    }
 
-    $res{mesg} = Encode::decode( 'utf8', $mesg );
+    $res{mesg} = Encode::decode('utf8', $mesg);
+    $res{call} = "C3\xe6\x8a\xa5\xe5\x91\x8a\xe4\xbf\xa1\xe6\x81\xaf";
 
-    $res{call} = "C3报告信息";
-
-    delete $res{call} if ${mesg} =~ /已恢复/;
-    delete $res{call} if ${mesg} =~ /告警恢复/;
+    my $mesg_bytes = Encode::encode('utf8', $res{mesg});
+    delete $res{call} if $mesg_bytes =~ /\xe5\xb7\xb2\xe6\x81\xa2\xe5\xa4\x8d/;
+    delete $res{call} if $mesg_bytes =~ /\xe5\x91\x8a\xe8\xad\xa6\xe6\x81\xa2\xe5\xa4\x8d/;
 
     return \%res;
 };
@@ -97,7 +144,6 @@ $task{default} = sub
 
 my $datapath = "/data/open-c3-data/monitor-exmesg";
 my ( $error, $fail, $succ ) = grep{ system "mkdir -p '$_'" unless -d $_; 1 }map{ "$datapath/$_" }qw( error fail succ );
-
 
 for my $file ( glob "$datapath/queue/*" )
 {
@@ -128,4 +174,3 @@ for my $file ( glob "$datapath/queue/*" )
         system "mv '$file' '$fail'";
     }
 }
-

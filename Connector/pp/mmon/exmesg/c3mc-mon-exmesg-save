@@ -46,22 +46,73 @@ for my $m ( @mesg )
     {
          $alarm = 1 if 0 == index( $m, $a )
     }
- 
 }
 
-my $md5 = Digest::MD5->new->add( Encode::encode('utf8', join "x", @newmesg) )->hexdigest;
+# -----------------------------------------------------------------------
+# 华为云 CES 告警：alarm 状态直接从 _ces_alarm_status 判断
+# 不依赖 mesg 文本匹配，避免 AI 调用失败时被误判为恢复导致 uuid 文件错误删除
+# -----------------------------------------------------------------------
+if( defined $data->{_ces_alarm_status} )
+{
+    $alarm = ( $data->{_ces_alarm_status} eq 'alarm' ) ? 1 : 0;
+}
 
-my $dir = "/data/open-c3-data/monitor-exmesg/uuid";
+# -----------------------------------------------------------------------
+# md5 计算
+# 华为云 CES：用 _ces_stable_key（原始 JSON 稳定字段），与 AI 输出无关
+# 其他消息：用 newmesg 文本（原有逻辑）
+# -----------------------------------------------------------------------
+my $md5;
+if( $data->{_ces_stable_key} )
+{
+    $md5 = Digest::MD5->new->add( Encode::encode('utf8', $data->{_ces_stable_key}) )->hexdigest;
+}
+else
+{
+    $md5 = Digest::MD5->new->add( Encode::encode('utf8', join "x", @newmesg) )->hexdigest;
+}
+
+# -----------------------------------------------------------------------
+# newmesg 段内容
+# 华为云 CES：用 _ces_newmesg（原始 JSON 稳定字段，已在 cron 里构造好）
+#   _ces_newmesg 是 Perl unicode 字符串（wide char），写文件时直接 encode utf8
+# 其他消息：用 @newmesg（bytes，直接 encode utf8）
+# -----------------------------------------------------------------------
+my $write_newmesg = sub {
+    my $fh = shift;
+    if( $data->{_ces_newmesg} )
+    {
+        # _ces_newmesg 在 cron 里已经 Encode::encode('utf8') 成 bytes
+        # 经过 YAML roundtrip 后仍是 utf8 bytes，直接 print 不再 encode
+        print $fh $data->{_ces_newmesg} . "\n";
+    }
+    else
+    {
+        # @newmesg 是 bytes，直接 encode utf8（原有逻辑）
+        map{ print $fh Encode::encode('utf8', "$_\n") }@newmesg;
+    }
+};
+
+my $dir      = "/data/open-c3-data/monitor-exmesg/uuid";
 system( "mkdir -p '$dir'" ) unless -d $dir;
-my $file = "$dir/$md5.exmesg";
+my $file     = "$dir/$md5.exmesg";
+my $file_del = "$dir/$md5.exmesg.del";
+
 if( $alarm )
 {
-    open my $H, ">", $file or die "open $file fail: $!";
-    print $H Encode::encode('utf8', $mesg);
-
-    print $H "----\n";
-    map{print $H Encode::encode('utf8', "$_\n") }@newmesg;;
-    close $H;
+    # 顺序保护：恢复消息已先处理（.del 存在），不写 uuid 文件
+    if( -f $file_del )
+    {
+        unlink $file_del;
+    }
+    else
+    {
+        open my $H, ">", $file or die "open $file fail: $!";
+        print $H Encode::encode('utf8', $mesg);
+        print $H "----\n";
+        $write_newmesg->($H);
+        close $H;
+    }
 }
 else
 {
@@ -71,10 +122,10 @@ else
     }
     else
     {
-        open my $H, ">", "$file.del" or die "open $file fail: $!";
+        open my $H, ">", $file_del or die "open $file_del fail: $!";
         print $H Encode::encode('utf8', $mesg);
         print $H "----\n";
-        map{print $H Encode::encode('utf8', "$_\n") }@newmesg;;
+        $write_newmesg->($H);
         close $H;
     }
 }

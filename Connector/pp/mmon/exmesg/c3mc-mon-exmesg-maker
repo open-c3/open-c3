@@ -13,18 +13,53 @@ use Encode;
 
 =cut
 
+# -----------------------------------------------------------------------
+# 修复：只读 "----" 分隔符后面的 newmesg 段，不读全文
+#
+# uuid 文件结构（由 exmesg-save 写入）：
+#   [第一段] AI 整理的完整文本（含当前值、告警时间等动态字段）
+#   ----
+#   [第二段] newmesg：去掉动态字段（当前值/告警时间/告警状态/阈值）后的稳定行
+#
+# 原代码对全文做 @keep 前缀匹配，两段都会命中，导致每个字段重复两次，
+# desc label 变成 "告警名称: x;告警名称: x;指标名称: y;指标名称: y;..."
+#
+# 正确做法：只读第二段（newmesg），该段已排除所有动态字段，
+# 内容稳定，不会因 AI 每次输出格式差异导致 fingerprint 变化。
+# -----------------------------------------------------------------------
 
-my @keep = ('告警名称', '指标名称','当前值','资源名称');
-for my $file ( glob "/data/open-c3-data/monitor-exmesg/uuid/*" )
+my @keep = ('告警名称', '指标名称', '资源名称');
+
+for my $file ( glob "/data/open-c3-data/monitor-exmesg/uuid/*.exmesg" )
 {
+    # 只处理 .exmesg 文件，跳过 .exmesg.del 等
+    next if $file =~ /\.del$/;
+
     my ( $md5 ) = reverse split /\//, $file;
+
     my @cont = `cat '$file'`;
     chomp @cont;
+
+    # 找到 ---- 分隔符的位置，只取后面那段（newmesg）
+    my $sep = 0;
+    my @newmesg_lines;
+    for my $line ( @cont )
+    {
+        if( $line eq '----' )
+        {
+            $sep = 1;
+            next;
+        }
+        push @newmesg_lines, $line if $sep;
+    }
+
+    # 若文件没有 ---- 分隔符（异常情况），回退读全文
+    @newmesg_lines = @cont unless $sep;
 
     my @c;
     for my $k ( @keep )
     {
-        for my $c ( @cont )
+        for my $c ( @newmesg_lines )
         {
             push( @c, $c ) if 0 == index( $c, $k );
         }
